@@ -1,0 +1,870 @@
+{
+    "Default_Settings": {
+        "Version": 4.0,
+        "Date": "01/03/2021",
+        "Author": "Guilherme R. Miguel",
+        "Revision Info": {
+            "version": 4.0,
+            "Date": "05/09/2019",
+            "Author": "Almir Gedam",
+            "Description": "Equalizacion with N2"
+        },
+        "General":{
+            "Parameter":{
+                "Gateway Product Name":{
+                    "Additional Details":{},
+                    "Comments":"(defined by vendor)",
+                    "Value":"RTF8115VW"
+                }
+            },
+            "Gateway Manufacturer Name":{
+                "Additional Details":{},
+                "Comments":"(defined by vendor)",
+                "Value":"ASKEY"
+            }            
+        },
+        "GPON":{
+            "Parameter":{
+                "SLID":{
+                    "Additional Details":"10 characters ASCII",
+                    "Comments":"{}",
+                    "Value":"{}"
+                }
+            }
+        },
+        "WEB GUI":{
+            "Parameter":{
+                "(User Level) username":{
+                    "Additional Details":"Used by default in the Basic and Install GUI",
+                    "Comments":"{}",
+                    "Value":"admin"
+                }
+            },
+                "(User Level) default password":{
+                    "Additional Details":"{}",
+                    "Comments":"randomic combination with 08 characters of length ",
+                    "Value":"admin"
+                },
+                "(Administration Level) username":{
+                    "Additional Details":"Used in the advanced GUI (http://192.168.15.1/padrao)",
+                    "Comments":"This GUI can be enabled only by ACS",
+                    "Value":"support"
+                },
+                "(Administration Level) default password":{
+                    "Additional Details":"{}",
+                    "Comments":"randomic combination with 08 characters of length - (a label with this information it's necessary and is the same as user 'admin')",
+                    "Value":"{}"
+                },
+                "Additional Users": "{}"
+        },
+        "Remote Management":{
+            "Parameter":{
+                "Remote management HTTP -  Default mode":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"Disabled"
+                },
+                "Remote management HTTP - Enabled ports":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"Disabled"
+                },
+                "Remote management Telnet -  Default mode":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"Disabled"
+                },
+                "Remote management SSH -  Default mode":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"Disabled"
+                },
+                "Trusted IPs range":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"Disabled"
+                }
+            }
+        },
+        "Date & Time":{
+            "Parameter":{
+                "TOD server":{
+                    "Additional Details":"URL or IP Address",
+                    "Comments":"{}",
+                    "Value":"pool.ntp.br"
+                },
+                "Time zone":{
+                    "Additional Details":"{}",
+                    "Comments":{},
+                    "Value":"(GMT-3:00) Brasilia"
+                }
+            }
+        },
+        "CWMP (TR-069)":{
+            "Parameter":{
+                "ACS URL":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"http://acs.telesp.net.br:7005/cwmpWeb/WGCPEMgt"
+                },
+                "ACS username":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"acsclient"
+                },
+                "ACS password":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"telefonica"
+                },
+                "CPE Manufacturer+CPE OUI":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"http://acs.telesp.net.br:7005/cwmpWeb/WGCPEMgt"
+                },
+                "CPE Model Name":{
+                    "Additional Details":"{}",
+                    "Comments":"defined by vendor, but must not change between batches",
+                    "Value":"{}"
+                },
+                "CPE Product Class":{
+                    "Additional Details":"{}",
+                    "Comments":"Same as 'CPE Model Name'",
+                    "Value":"RTF8115VW"
+                },
+                "ACS Certificate":{
+                    "Additional Details":"(Please attach)",
+                    "Comments":"(obtained in the connection negotiation (note: dont check ca and expiration time))",
+                    "Value":"{}"
+                },
+                "ManagementServer.UpgradesManaged":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"false"
+                },
+                "ManagementServer.PeriodicInformEnable":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"true"
+                },
+                "Periodic inform Interval":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":68400
+                },
+                "Connection Request Port":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":7547
+                },
+                "ManagementServer.EnableCWMP":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"true"
+                },
+                "ManagementServer.ConnectionRequestUsername":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"userid"
+                }
+            }
+        },
+        "FTTH Network Parameters":{
+            "Default VLAN #1":{
+                "Parameter":{
+                    "VLAN ID":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":10
+                    },
+                    "VLAN Priority":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":0
+                    },
+                    "Network Connection Type":{
+                        "Additional Details":"DHCP, PPPoE, PPPoA, IPoE or ETHoA",
+                        "Comments":"{}",
+                        "Value":"PPPoE"
+                    },
+                    "NAT":{
+                        "Additional Details":"Enabled / Disabled",
+                        "Comments":"{}",
+                        "Value":"Enabled"
+                    },
+                    "IGMP":{
+                        "Additional Details":"Enabled / Disabled",
+                        "Comments":"{}",
+                        "Value":"Disabled"
+                    },
+                    "Default PPP Username":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"cliente@cliente"
+                    },
+                    "Default PPP Password":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"cliente"
+                    },
+                    "Dual Stack":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"IPv4/IPv6"
+                    },
+                    "DHCP IPv6":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"SLAAC"
+                    },
+                    "DHCP PD":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"Enabled"
+                    }
+                }
+            },
+            "Default VLAN #2":{
+                "Parameter":{
+                    "VLAN ID":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":20
+                    },
+                    "VLAN Priority":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":3
+                    },
+                    "Network Connection Type":{
+                        "Additional Details":"DHCP, PPPoE, PPPoA, IPoE or ETHoA",
+                        "Comments":"{}",
+                        "Value":"DHCP"
+                    },
+                    "NAT":{
+                        "Additional Details":"Enabled / Disabled",
+                        "Comments":"{}",
+                        "Value":"Enabled"
+                    },
+                    "IGMP":{
+                        "Additional Details":"Enabled / Disabled",
+                        "Comments":"{}",
+                        "Value":"Enabled"
+                    },
+                    "IP":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"DHCP"
+                    },
+                    "Mask":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"DHCP"
+                    },
+                    "Gateway":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"DHCP"
+                    }
+                }
+            },
+            "Default VLAN #3":{
+                "Parameter":{
+                    "VLAN ID":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":30
+                    },
+                    "VLAN Priority":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":5
+                    },
+                    "Network Connection Type":{
+                        "Additional Details":"DHCP, PPPoE, PPPoA, IPoE or ETHoA",
+                        "Comments":"{}",
+                        "Value":"DHCP"
+                    },
+                    "NAT":{
+                        "Additional Details":"Enabled / Disabled",
+                        "Comments":"{}",
+                        "Value":"Enabled"
+                    },
+                    "IGMP":{
+                        "Additional Details":"Enabled / Disabled",
+                        "Comments":"{}",
+                        "Value":"Disabled"
+                    },
+                    "IP":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"DHCP"
+                    },
+                    "Mask":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"DHCP"
+                    },
+                    "Gateway":{
+                        "Additional Details":"{}",
+                        "Comments":"{}",
+                        "Value":"DHCP"
+                    }
+                }
+            }
+        },
+        "WAN General":{
+            "Parameter":{
+                "Internet DNS configuration":{
+                    "Additional Details":"Automatically/Manual",
+                    "Comments":"Obtained automatically during the PPP negociation.  DHCPv6 option for DNSv6",
+                    "Value":"Automatically"
+                }
+            }
+        },
+        "LAN":{
+            "Parameter":{
+                "Gateway's LAN IP and Subnet":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"192.168.15.1"
+                },
+                "CPE’s domain name":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "DHCP default pool":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":{
+                        "initial": "192.168.15.2",
+                        "final": "192.168.15.200"
+                    }
+                },
+                "DHCP assigned DNS":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"192.168.15.1"
+                },
+                "DHCP lease time":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":14400
+                },
+                "Option 60":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"Enabled"
+                },
+                "Vendor ID":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":["MSFT_IPTV","TEF_IPTV"]
+                },
+                "DHCP option 60 for Vendor ID: MSFT_IPTV POOL":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":{
+                        "initial": "192.168.15.230",
+                        "final": "192.168.15.254"
+                    }
+                },
+                "IGMP Snooping":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"Enabled"
+                }
+            }
+        },
+        "Wifi 2.4":{
+            "Parameter":{
+                "Main Wireless network’s SSID":{
+                    "Additional Details":"{}",
+                    "Comments":"(XXXX = 04 last characters of WAN PPP MAC Address of Modem) - Ex: VIVOFIBRA-xxxxx",
+                    "Value":"VIVOFIBRA-"
+                },
+                "Default Status":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"Enabled"
+                },
+                "Default Mode":{
+                    "Additional Details":"n only, g/n, b/g/n, etc.",
+                    "Comments":"{}",
+                    "Value":"g/n"
+                },
+                "Channels in use - frequency plan":{
+                    "Additional Details":"For specific geographic location",
+                    "Comments":"{}",
+                    "Value":"Brasil"
+                },
+                "Default Channel ":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"Auto"
+                },
+                "Default Channel width":{
+                    "Additional Details":"20Mhz / 40Mhz",
+                    "Comments":"{}",
+                    "Value":"20Mhz"
+                },
+                "Default Security type":{
+                    "Additional Details":"WPA+WPA2, WPA, WPA2, WEP, none",
+                    "Comments":"{}",
+                    "Value":"WPA2 -PSK"
+                },
+                "Default Passphrase":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"Randomic - (a label with this information it's necessary).",
+                    "Value":"{}"
+                },
+                "Default cipher mode":{
+                    "Additional Details":"TKIP, AES",
+                    "Comments":"{}",
+                    "Value":"AES"
+                },
+                "WPS default status":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"Enabled"
+                },
+                "Secondary Wireless network’s SSID (if applicable)":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "Second SSID's Default Status":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "Second SSID's Default Security type":{
+                    "Additional Details":"WPA+WPA2, WPA, WPA2, WEP, none",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "Second SSID's Default Passphrase":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                }
+            }
+        },
+        "Wifi 5":{
+            "Parameter":{
+                "Main Wireless network’s SSID":{
+                    "Additional Details":"{}",
+                    "Comments":"(XXXX = 04 last characters of WAN PPP MAC Address of Modem) - Ex: VIVOFIBRA-xxxxx-5G",
+                    "Value":"VIVOFIBRA-"
+                },
+                "Default Status":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"Enabled"
+                },
+                "Default Mode":{
+                    "Additional Details":"‘Mixed a/n’, ‘Mixed a/n/ac’",
+                    "Comments":"{}",
+                    "Value":"Mixed a/n/ac"
+                },
+                "Channels in use - frequency plan":{
+                    "Additional Details":"For specific geographic location",
+                    "Comments":"{}",
+                    "Value":"Brasil"
+                },
+                "Default Channel ":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"Auto"
+                },
+                "Default Channel width":{
+                    "Additional Details":"20Mhz / 40Mhz / 80Mhz",
+                    "Comments":"{}",
+                    "Value":"80Mhz"
+                },
+                "Default Security type":{
+                    "Additional Details":"WPA+WPA2, WPA, WPA2, WEP, none",
+                    "Comments":"{}",
+                    "Value":"WPA2 -PSK"
+                },
+                "Default Passphrase":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"Randomic - (a label with this information it's necessary).",
+                    "Value":"{}"
+                },
+                "Default cipher mode":{
+                    "Additional Details":"TKIP, AES",
+                    "Comments":"{}",
+                    "Value":"AES"
+                },
+                "WPS default status":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"Enabled"
+                },
+                "Secondary Wireless network’s SSID (if applicable)":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "Second SSID's Default Status":{
+                    "Additional Details":"Enabled / Disabled",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "Second SSID's Default Security type":{
+                    "Additional Details":"WPA+WPA2, WPA, WPA2, WEP, none",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "Second SSID's Default Passphrase":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                }
+            }
+        },
+        "Security":{
+            "Parameter":{
+                "Gateway Product Name":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                }
+            }
+        },
+        "VoIP":{
+            "Parameter":{
+                "T.38":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"Disabled"
+                },
+                "InternetGatewayDevice.Services.VoiceService.1.VoiceProfile.1.Region":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"BR"
+                },
+                "DTMFmethod":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"RFC2833"
+                },
+                "Default digit map":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"(x.T|*x.T|#x.T|*x.#|#x.#|*xx*x.#|*xx*xxxx*xx#|*xx*xxxx*xxxx*xxxx#|#xx*xxxx#)"
+                },
+                "CallerID Method":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"DTMF"
+                },
+                "Codec Priority 1":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"G.711"
+                },
+                "Codec Priority 2":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"G.729"
+                },
+                "Codec Priority 3":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "DTMF Relay Payload":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":100
+                },
+                "FAX":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "SVA Call Waiting":{
+                    "Additional Details":"{}",
+                    "Comments":"Provided by VoIP platform",
+                    "Value":"{}"
+                },
+                "SVA Conference":{
+                    "Additional Details":"{}",
+                    "Comments":"Provided by VoIP platform",
+                    "Value":"{}"
+                },
+                "SVA Calling line presentation Id":{
+                    "Additional Details":"{}",
+                    "Comments":"Provided by VoIP platform",
+                    "Value":"{}"
+                },
+                "SVA Call Forward":{
+                    "Additional Details":"{}",
+                    "Comments":"Provided by VoIP platform",
+                    "Value":"{}"
+                },
+                "SVA transference":{
+                    "Additional Details":"{}",
+                    "Comments":"Provided by VoIP platform",
+                    "Value":"{}"
+                },
+                "SVA Flash Time (100-300ms)":{
+                    "Additional Details":"T <= 140ms: must not recognize the event -- 140ms < T < 220ms: may or may not recognize the event -- 220ms <= T <= 700ms: must recognize the event -- 700ms < T < 1000ms: may or may not recognize the event -- T >= 1000ms: must not recognize the event",
+                    "Comments":"{}",
+                    "Value":{
+                        "T1":140,
+                        "T2":220,
+                        "T3":700,
+                        "T4":1000
+                    }
+                },
+                "SIP local Port":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":5060
+                },
+                "SIP Proxy Port":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":5060
+                },
+                "SIP Registrar Port":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":5060
+                },
+                "SIP Transport Protocol":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"UDP"
+                },
+                "DSCP for SIP":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":46
+                },
+                "DSCP for RTP":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":46
+                },
+                "Enable(disable) for flash event using INVITE (INFO)":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"Disabled"
+                },
+                "Re-registration time during sucessfull":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":1800
+                },
+                "Connection Re-registration time after connection failure":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":120
+                },
+                "Session expire time":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":3600
+                },
+                "Min Session expire time(need>=90s)":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":90
+                },
+                "Dial tone time":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":15
+                },
+                "Busy tone time":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "Inter digit time":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":4
+                },
+                "Offhook warning tone time":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":90
+                },
+                "Ringback tone time":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "RTP Port Lower":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":16384
+                },
+                "RTP Port Upper":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":32768
+                },
+                "Name":{
+                    "Additional Details":"{}",
+                    "Comments":"Auto provisioning",
+                    "Value":"{}"
+                },
+                "Number":{
+                    "Additional Details":"{}",
+                    "Comments":"Auto provisioning",
+                    "Value":"{}"
+                },
+                "Password":{
+                    "Additional Details":"{}",
+                    "Comments":"Auto provisioning",
+                    "Value":"{}"
+                },
+                "Confirm Password":{
+                    "Additional Details":"{}",
+                    "Comments":"Auto provisioning",
+                    "Value":"{}"
+                },
+                "Server Domain Name":{
+                    "Additional Details":"{}",
+                    "Comments":"Auto provisioning",
+                    "Value":"{}"
+                },
+                "Outbound Proxy":{
+                    "Additional Details":"{}",
+                    "Comments":"Auto provisioning",
+                    "Value":"{}"
+                },
+                "Outbound Proxy Port":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":5060
+                },
+                "User Agent Domain":{
+                    "Additional Details":"{}",
+                    "Comments":"Auto provisioning",
+                    "Value":"{}"
+                },
+                "User Agent Port":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":5060
+                },
+                "SIP ALG Support":{
+                    "Additional Details":"{Enabled / Disabled}",
+                    "Comments":"{}",
+                    "Value":{
+                        "VIVO1": "Disabled",
+                        "VIVO2": "Enabled"
+                    }
+                }
+            }
+        },
+        "Additional Parameters":{
+            "Parameter":{
+                "HCNA":{
+                    "Additional Details":"{Enabled / Disabled}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "SNMP":{
+                    "Additional Details":"{Enabled / Disabled}",
+                    "Comments":"{}",
+                    "Value":"Disabled"
+                },"UPnP":{
+                    "Additional Details":"{Enabled / Disabled}",
+                    "Comments":"{}",
+                    "Value":"Enabled"
+                },"IGMP":{
+                    "Additional Details":"Robusteness variable in terms of number of retries: 2 -- Query interval: 10 seconds -- Query Response interval: 10 seconds -- Last Listener Query interval: 10 seconds -- Last Listener Query interval count: 2",
+                    "Comments":"{}",
+                    "Value": {
+                        "Robusteness variable in terms of number of retries": 10,
+                        "Query Interval": 10,
+                        "Query Response Interval": 10,
+                        "Last Listener Query Interval": 10,
+                        "Last Listener Query Interval count": 2
+                    }
+                },"Install GUI":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":["http://192.168.15.1/instalador", "http://instaladorvivofibra.br"]
+                },"Basic GUI":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":["http://192.168.15.1/", "http://menuvivofibra.br"]
+                },"Advanced GUI":{
+                    "Additional Details":"Enabled by ACS",
+                    "Comments":"GUI Standard of vendor",
+                    "Value":"http://192.168.15.1/padrao/"
+                },"DNS IPTV":{
+                    "Additional Details":"The Gateway will be acquiring by DHCP",
+                    "Comments":"{}",
+                    "Value":["DHCP Option 121", "DHCP Option 6"]
+                },"Route for VoIP (VLAN 30)":{
+                    "Additional Details":"The Gateway will be acquiring by DHCP",
+                    "Comments":"{}",
+                    "Value":["DHCP Option 121", "DHCP Option 6"]
+                }
+            }
+        },
+        "LAN IPv6":{
+            "Parameter":{
+                "Link Local Address Type":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"EUI64"
+                },
+                "LAN Global Identifier Type":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"EUI64"
+                },
+                "IPv6 ULA Address Type":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "Delegate prefix from WAN":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"Yes"
+                },
+                "DHCPv6 Server":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":{
+                        "RA": 1,
+                        "M": 0
+                    }
+                },
+                "Pool Start":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "Pool End":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                },
+                "DNSv6 Mode":{
+                    "Additional Details":"{}",
+                    "Comments":"Provide the address received in the wan via Dhcpv6 and ra rdnss",
+                    "Value":"{}"
+                },
+                "DHCPv6 lease time":{
+                    "Additional Details":"{}",
+                    "Comments":"{}",
+                    "Value":"{}"
+                }
+            }
+        }
+    }
+}

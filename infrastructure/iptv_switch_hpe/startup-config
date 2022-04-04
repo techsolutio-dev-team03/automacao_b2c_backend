@@ -1,0 +1,162 @@
+!Current Configuration:
+!
+!System Description "HPE OfficeConnect Switch 1920S 24G 2SFP JL381A, PD.01.05, Linux 3.6.5-ac96795c, U-Boot 2012.10-00118-g3773021 (Oct 11 2016 - 15:39:54)"
+!System Software Version "PD.01.05"
+!System Up Time          "0 days 0 hrs 9 mins 1 secs"
+!Additional Packages     HPE QOS,HPE IPv6 Management,HPE Routing
+!Current SNTP Synchronized Time: SNTP Last Attempt Status Is Not Successful
+!
+network protocol none
+network parms 10.10.10.10 255.255.255.0 0.0.0.0
+vlan database
+vlan 15-18,100-102
+vlan name 15 "POD1"
+vlan name 16 "POD2"
+vlan name 17 "POD3"
+vlan name 18 "POD4"
+vlan name 100 "Controle"
+vlan name 101 "Internet"
+vlan name 102 "Espelhamento"
+exit
+network mgmt_vlan 100
+ip ssh server enable
+ip ssh protocol 2
+configure
+sntp client mode unicast
+sntp server "200.192.232.8"
+sntp server "200.20.186.76"
+sntp server "200.186.125.195"
+time-range Schedule-1
+exit
+time-range Schedule-2
+exit
+username "admin" password 6dfe52f07fffe191c165da481f2ac50916cb4a1a3c78e96bddb6a41de23b616f392cda4fea14065856e2bdce6b812df835ab68ab336020949591e6d791407e8f level 15 encrypted
+no username guest
+line console
+exit
+line telnet
+exit
+line ssh
+exit
+!
+interface 1
+vlan pvid 15
+vlan participation exclude 1
+vlan participation include 15
+exit
+interface 2
+vlan pvid 15
+vlan participation exclude 1
+vlan participation include 15
+exit
+interface 3
+vlan pvid 15
+vlan participation exclude 1
+vlan participation include 15
+exit
+interface 4
+vlan pvid 15
+vlan participation exclude 1
+vlan participation include 15
+exit
+interface 5
+vlan pvid 16
+vlan participation exclude 1
+vlan participation include 16
+exit
+interface 6
+vlan pvid 16
+vlan participation exclude 1
+vlan participation include 16
+exit
+interface 7
+vlan pvid 16
+vlan participation exclude 1
+vlan participation include 16
+exit
+interface 8
+vlan pvid 16
+vlan participation exclude 1
+vlan participation include 16
+exit
+interface 9
+vlan pvid 17
+vlan participation exclude 1
+vlan participation include 17
+exit
+interface 10
+vlan pvid 17
+vlan participation exclude 1
+vlan participation include 17
+exit
+interface 11
+vlan pvid 17
+vlan participation exclude 1
+vlan participation include 17
+exit
+interface 12
+vlan pvid 17
+vlan participation exclude 1
+vlan participation include 17
+exit
+interface 13
+vlan pvid 18
+vlan participation exclude 1
+vlan participation include 18
+exit
+interface 14
+vlan pvid 18
+vlan participation exclude 1
+vlan participation include 18
+exit
+interface 15
+vlan pvid 18
+vlan participation exclude 1
+vlan participation include 18
+exit
+interface 16
+vlan pvid 18
+vlan participation exclude 1
+vlan participation include 18
+exit
+interface 19
+vlan pvid 101
+vlan participation exclude 1,100
+vlan participation include 101
+exit
+interface 20
+vlan pvid 100
+vlan participation exclude 1
+vlan participation include 100
+exit
+interface 21
+vlan pvid 100
+vlan participation exclude 1
+vlan participation include 100
+exit
+interface 22
+vlan pvid 102
+vlan participation exclude 1,100
+vlan participation include 102
+exit
+interface 23
+no port lacpmode
+vlan acceptframe vlanonly
+vlan participation include 15-18,100-101
+vlan tagging 1,15-18,100-101
+exit
+interface 24
+vlan pvid 101
+vlan participation exclude 1,100
+vlan participation include 101
+exit
+interface TRK 1
+vlan acceptframe vlanonly
+vlan tagging 1
+exit
+monitor session 1 destination interface 22
+monitor session 1 source interface 1
+monitor session 1 source interface 5
+monitor session 1 source interface 9
+monitor session 1 source interface 13
+exit
