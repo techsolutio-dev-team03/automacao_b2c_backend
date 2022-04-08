@@ -26,6 +26,8 @@ import socket
 
 from HGUmodels.main_session import MainSession
 
+from HGUmodels import wizard_config
+
 session = MainSession()
 
 mongo_conn = MongoConnSigleton(db='config', collection='cpe_config')
@@ -33,12 +35,12 @@ config_collection = mongo_conn.get_collection()
 
 class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
-    def accessWizard_401(self):
+    def accessWizard_401(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/')
             
             time.sleep(1)
-            status = self._driver.get('http://' + self._address_ip + '/login.asp')
+            self._driver.get('http://' + self._address_ip + '/login.asp')
             self._driver.switch_to.default_content()
             user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
             user_input.send_keys(self._username)
@@ -48,26 +50,29 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             time.sleep(1)
             login_button.click()
             time.sleep(1)
-
             self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
             time.sleep(2)
             self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[2]/a').click()
             time.sleep(2)
             self._driver.find_element_by_xpath('//*[@id="menu-loc-net"]/ul/li[1]/a').click()
-            dict_saida = {'status': status.content}
-            print('AQUI',dict_saida)
+            self._driver.quit()
+            
+
             self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": 'Login efetuado com sucesso'})
+            dict_saida = {"Resultado_Probe": "OK"}
         except (InvalidSelectorException, NoSuchElementException, NoSuchFrameException) as exception:
             self._dict_result.update({"obs": "Nao foi possivel realizar o login com sucesso"})
+            dict_saida = {"Resultado_Probe": "NOK"}
+
         finally:
-            self._driver.quit()
+            self.update_global_result_memory(flask_username, 'accessWizard_401', dict_saida)
             return self._dict_result
 
     '''
     Teste 402 e igual ao 401
     ''' 
 
-    def accessPadrao_403(self):
+    def accessPadrao_403(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
             user_input = self._driver.find_element_by_id('txtUser')
@@ -77,17 +82,13 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             login_button = self._driver.find_element_by_id('btnLogin')
             login_button.click()
             time.sleep(2)
-            
             self._driver.switch_to.frame('mainFrm')
             self._driver.find_element_by_xpath('//*[@id="tbGPONinfo"]')
-            
             self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": 'Login efetuado com sucesso'})
-
-            self._driver.quit()
-            return self._dict_result
         except (InvalidSelectorException, NoSuchElementException, NoSuchFrameException) as exception:
-            self._driver.quit()
             self._dict_result.update({"obs": 'Nao foi possivel realizar o login com sucesso'})
+        finally:
+            self._driver.quit()
             return self._dict_result
 
     '''
@@ -1625,6 +1626,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
                           }
 
             self._driver.quit()
+            print(json_saida425)
             user = json_saida425['Configurações']['Internet'].get('Usuário:')
             if user == 'cliente@cliente':
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": "Usuario: cliente@cliente", "result":"passed"})
@@ -5079,10 +5081,11 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         if len(result) == 0:
             self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
         else:
-            linkGlobal = result['Status']['Internet']['IPv6']['Endereço IPv6 Global - WAN:'].split('/')[1]
-            if linkGlobal == '64':
-                self._dict_result.update({"Resultado_Probe": "OK", "obs": "LAN global identifier: 64", "result":"passed"})
-            else:
+            linkGlobal = result['Status']['Internet']['IPv6']['Endereço IPv6 Global - WAN:']
+            try: 
+                if linkGlobal.split('/')[1] == '64':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "LAN global identifier: 64", "result":"passed"})
+            except:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno LAN global identifier: {linkGlobal}"})
         return self._dict_result
 
@@ -5107,11 +5110,588 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         if len(result) == 0:
             self._dict_result.update({"obs": 'Execute o teste 401 primeiro'})
         else:
-            ans_500 = result['LAN Setting']['IPv6']['RADVD'].get('Prefix Delegation WAN')
-            if 'ip2' == ans_500:
-                self._dict_result.update({"Resultado_Probe": "OK", "obs": "Prefix Delegation WAN: ip2", "result":"passed"})
+            ans_500 = result['Resultado_Probe']
+            if 'OK' == ans_500:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "Teste OK", "result":"passed"})
             else:
-                self._dict_result.update({"obs": f"Teste incorreto, retorno Prefix Delegation WAN: {ans_500}"})
+                self._dict_result.update({"obs": f"Teste incorreto, retorno: {ans_500}"})
         return self._dict_result
+
+    def logoutWizard_374(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/')
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
+            time.sleep(1)
+            self._driver.get('http://' + self._address_ip + '/login.asp')
+            self.login_support()
+            time.sleep(2)
+            try:
+                self._driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/a').click()
+                self._dict_result.update({"obs": "Logout efetuado com sucesso", "result":"passed", "Resultado_Probe": "OK"})
+            except:
+                self._dict_result.update({"obs": "Nao foi possivel efetuar o logout"})
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            return self._dict_result
+
+
+    def checkRedeGpon_375(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/login.asp')
+
+            self._driver.switch_to.default_content()
+            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+            user_input.send_keys(self._username)
+            pass_input = self._driver.find_element_by_id('txtPass')
+            pass_input.send_keys(self._password)
+            login_button = self._driver.find_element_by_id('btnLogin')
+            time.sleep(1)
+            login_button.click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="accordion"]/li[1]/a').click()
+            time.sleep(1)
+            gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+            div = [value.text.replace('\n', '') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[1]//div')]
+            dict_saida = {
+                "Status":
+                    {
+                        gpon:
+                            {div[0].split(':')[0]: div[0].split(':')[1],
+                            div[1].split(':')[0]: div[1].split(':')[1],
+                            div[2].split(':')[0]: div[2].split(':')[1],
+                            }
+                    }
+            }
+            print(dict_saida)
+            link = dict_saida['Status']['GPON']['Link']
+            self._driver.quit()
+
+            if link == 'Não Estabelecido':
+                self._dict_result.update({"obs": "Link: Não Estabelecido", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Link: {link}"})
+
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": exception})
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self.update_global_result_memory(flask_username, 'checkRedeGpon_375', dict_saida)
+            return self._dict_result
+    
+
+    def changePPPoESettingsWrong_376(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/')
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
+            time.sleep(1)
+            self._driver.get('http://' + self._address_ip + '/login.asp')
+            self._driver.switch_to.default_content()
+            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+            user_input.send_keys(self._username)
+            pass_input = self._driver.find_element_by_id('txtPass')
+            pass_input.send_keys(self._password)
+            login_button = self._driver.find_element_by_id('btnLogin')
+            time.sleep(1)
+            login_button.click()
+            time.sleep(1)
+            config = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+            time.sleep(1)
+            config_internet = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
+            time.sleep(1)
+            config_internet_user = self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
+            config_internet_passwd = self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
+            config_internet_salvar = self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
+            time.sleep(1)
+            try:
+                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/span') or self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[2]/span'):
+                    self._dict_result.update({"obs": "Verificacao OK", "result":"passed", "Resultado_Probe": "OK"})
+            except:
+                self._dict_result.update({"obs": "Teste falhou"})
+            self._driver.quit()
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            return self._dict_result  
+
+
+    def changePPPoESettingsWrong_377(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/')
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
+            time.sleep(1)
+            self._driver.get('http://' + self._address_ip + '/login.asp')
+            self._driver.switch_to.default_content()
+            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+            user_input.send_keys(self._username)
+            pass_input = self._driver.find_element_by_id('txtPass')
+            pass_input.send_keys(self._password)
+            login_button = self._driver.find_element_by_id('btnLogin')
+            time.sleep(1)
+            login_button.click()
+            time.sleep(1)
+            config = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+            time.sleep(1)
+            config_internet = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').send_keys('vivo@cliente')
+            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys('vivo')
+            self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
+            try:
+                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/span') or self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[2]/span'):
+                    self._dict_result.update({"obs": "Teste falhou"})
+
+            except:
+                self._dict_result.update({"obs": "Usuario aceito", "result":"passed", "Resultado_Probe": "OK"})
+            
+            time.sleep(1)
+            # Deixando o valor padrao de volta
+            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').send_keys('cliente@cliente')
+            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys('cliente')
+            self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
+
+            self._driver.quit()
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            return self._dict_result  
+
+
+    
+    def connectWizardhttps_379(self,flask_username):
+        try:
+            try:
+                self._driver.get('https://' + self._address_ip + '/')
+                self._dict_result.update({"obs": "Acesso via HTTPS OK", "result":"passed", "Resultado_Probe": "OK"})
+            except:
+                self._dict_result.update({"obs": "Nao foi possivel acessar via HTTPS"})
+
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": exception})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        
+        finally:
+            self._driver.quit()
+            return self._dict_result
+
+
+    def checkPPPoEStatus_380(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/index_cliente.asp')
+            time.sleep(1)
+            gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+            div = [value.text.replace('\n', '') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[1]//div')]
+            dict_saida = {
+                "Status":
+                    {
+                        gpon:
+                            {div[0].split(':')[0]: div[0].split(':')[1],
+                            div[1].split(':')[0]: div[1].split(':')[1],
+                            div[2].split(':')[0]: div[2].split(':')[1],
+                            }
+                    }
+            }
+            print(dict_saida)
+            self._dict_result.update({"obs": dict_saida, "result":"passed", "Resultado_Probe": "OK"})
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": exception})
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            return self._dict_result
+
+
+    def getFullConfig_382(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            idioma = result['Gerenciamento']['Idioma']
+            if idioma == 'Português':
+                self._dict_result.update({"obs": "Idioma: Português", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Idioma: {idioma}"})
+        return self._dict_result
+
+
+    def execPingWizard_384(self, flask_username):
+
+        destino = '8.8.8.8',
+        tentativas = "1"
+        try:
+            
+            self._driver.get('http://' + self._address_ip + '/login.asp')
+            self._driver.switch_to.default_content()
+            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+            user_input.send_keys(self._username)
+            pass_input = self._driver.find_element_by_id('txtPass')
+            pass_input.send_keys(self._password)
+            login_button = self._driver.find_element_by_id('btnLogin')
+            time.sleep(1)
+            login_button.click()
+            time.sleep(1)
+            gerenc = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/a').click()
+            time.sleep(1)
+            gerenc_Ferram = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/ul/li[6]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="txtDest"]').send_keys(destino)
+            self._driver.find_element_by_xpath('//*[@id="txtNum"]').send_keys(tentativas)
+            self._driver.find_element_by_xpath('//*[@id="btnTest"]').click()
+            time.sleep(6)
+            result = self._driver.find_element_by_xpath('//*[@id="txtResult"]').get_property('value')
+
+            json_saida = {"Resultados":result}
+            print(json_saida)
+            self._driver.quit()
+            self._dict_result.update({"obs": f"{json_saida['Resultados']}", "result":"passed", "Resultado_Probe": "OK"})
+
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": exception})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+
+        finally:
+            return self._dict_result
+
+
+    def statusWizardInet_387(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            statusInternet = result['Status']['Internet']
+            ppp, ipv4, ipv4_wizard_list = statusInternet['PPP:'], statusInternet['IPv4'], wizard_config.INTERNET_IPV4
+
+            ipv6, ipv6_wizard_list = statusInternet['IPv6'], wizard_config.INTERNET_IPV6
+
+            if set(ipv4) == set(ipv4_wizard_list) and set(ipv6) == set(ipv6_wizard_list) and ppp != '':
+                self._dict_result.update({"obs": "Teste OK", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste inscorreto, retorno PPP: {ppp} IPv4: {ipv4} | IPv6: {ipv6}"})
+
+        return self._dict_result
+
+
+    def registerWizardVoip_388(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            ifaceVoip = result['Status']['Telefone']['Rede:']
+            registerVoIP = result['Status']['Telefone']['Telefone:']
+
+            if ifaceVoip == 'Disponível' and (registerVoIP != 'Não Registrado' or registerVoIP == ''):
+                self._dict_result.update({"obs": f"Rede: Disponível | Telefone: {registerVoIP}", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Rede: Disponível | Telefone: {registerVoIP}"})
+
+        return self._dict_result
+
+    def statusWizardIptv_389(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            status = result['Status']['TV']
+            print(status)
+            iptv = wizard_config.IPTV
+            print(iptv)
+
+            if set(status) == set(iptv):
+                self._dict_result.update({"obs": f"Teste OK", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno TV: {status}"})
+            
+        return self._dict_result
+
+
+    def statusWizardVoip_390(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            status = result['Status']['Telefone']
+            print(status)
+            voip = wizard_config.VOIP
+            print(voip)
+
+            if set(status) == set(voip):
+                self._dict_result.update({"obs": f"Teste OK", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno VoIP: {status}"})
+            
+        return self._dict_result
+
+
+
+    def checkBridgeMode_21(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/login.asp')
+            self._driver.switch_to.default_content()
+            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+            user_input.send_keys(self._username)
+            pass_input = self._driver.find_element_by_id('txtPass')
+            pass_input.send_keys(self._password)
+            login_button = self._driver.find_element_by_id('btnLogin')
+            time.sleep(1)
+            login_button.click()
+            time.sleep(1)
+            self._driver.find_element_by_link_text('Configurações').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[7]/a').click()
+            config_modowan = [value.get_attribute('text') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/div[3]/form/table/tbody/tr[1]/td[2]/select//option') ]
+            if "Bridge" in config_modowan:
+                self._dict_result.update({"obs": f"Modo WAN: {config_modowan}", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Modo WAN: {config_modowan}"})
+
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": exception})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            return self._dict_result
+    
+    def checkRedeGpon_36(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 375 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkRedeGpon_375')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 375 primeiro'})
+        else:
+            link = result['Status']['GPON']['Link']
+            if link == 'Estabelecido':
+                self._dict_result.update({"obs": "Link Estabelecido", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Link: {link}"})
+    
+        return self._dict_result
+
+    
+    def accessPadrao_79(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('mainFrm')
+            self._driver.find_element_by_xpath('//*[@id="tbGPONinfo"]')
+            self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": 'Login efetuado com sucesso'})
+        except (InvalidSelectorException, NoSuchElementException, NoSuchFrameException) as exception:
+            self._dict_result.update({"obs": 'Nao foi possivel realizar o login com sucesso'})
+        finally:
+            self._driver.quit()
+            return self._dict_result
+
+
+    def checkPPPoEStatus_146(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/login.asp')
+            time.sleep(1)
+            self._driver.switch_to.default_content()
+            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+            user_input.send_keys(self._username)
+            pass_input = self._driver.find_element_by_id('txtPass')
+            pass_input.send_keys(self._password)
+            self._driver.find_element_by_id('btnLogin').click()
+            time.sleep(1)
+            div = [value.text.replace('\n', '') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[1]//div')]
+            dict_saida = {
+                "Status":
+                    {
+                        "Internet":
+                            {div[0].split(':')[0]: div[0].split(':')[1],
+                           
+                            }
+                    }
+            }
+            print(dict_saida)
+            ppp = dict_saida["Status"]["Internet"]["PPP"]
+            if ppp == 'Conectado':
+                self._dict_result.update({"obs": "PPP: Conectado", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno PPP: {ppp}"})
+
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": exception})
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            return self._dict_result
+        
+
+
+
+
+
+
+
+    # NAO FOI IMPLEMENTADO
+    def testeSiteWizard_399(self, flask_username):
+        # wait = WebDriverWait(self.self._driver, 10)
+        # size = self._driver.set_window_size(1280, 600)
+
+        site1 = 'http://menuvivofibra.br'
+        site2 = 'http://192.168.15.1/instalador'
+        site3 = 'http://instaladorvivofibra.br'
+        print('-=-' * 20)
+        print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
+        print('-=-' * 20)
+        print('\n\n -- PARAMETROS DE ENTRADA --')
+        print('site1 = ' + site1)
+        print('site2 = ' + site2)
+        print('site3 = ' + site3)
+        print('-=-' * 20)
+        try:
+            
+            print('\n\n == Abrindo URL ' + site1+ ' == ')
+            self._driver.get(site1 + '/')
+
+            time.sleep(10)
+            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+            user_input.send_keys('usuario')
+            pass_input = self._driver.find_element_by_id('txtPass')
+            pass_input.send_keys('senha')
+            print('\n\n == Aguardando redirecionamento de página == ')
+            time.sleep(4)
+            gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+            divOptical = self._driver.find_element_by_id('divOptical').text
+            divOptical = divOptical.split("\n")
+            print(divOptical)
+            divOptRx = self._driver.find_element_by_id('divOptRx').text
+            print('#### 1')
+            print(divOptRx)
+
+            divOptRx = divOptRx.split("\n")
+            print(divOptRx)
+
+            divOptTx = self._driver.find_element_by_id('divOptTx').text
+            print('#### 2')
+            print(divOptRx)
+
+            divOptTx = divOptTx.split("\n")
+            print(divOptTx)
+            time.sleep(4)
+            print('\n\n == Abrindo URL ' + site2+ ' == ')
+            self._driver.quit()
+
+            self._driver.get(site2)
+            print('\n\n == Aguardando redirecionamento de página == ')
+            time.sleep(1)
+            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+            user_input.send_keys('usuario')
+            pass_input = self._driver.find_element_by_id('txtPass')
+            pass_input.send_keys('senha')
+            login_button = self._driver.find_element_by_id('btnLogin')
+            print('\n\n == Abrindo URL ' + site3+ ' == ')
+            self._driver.get(site3 + '/')
+            print('\n\n == Aguardando redirecionamento de página == ')
+            time.sleep(1)
+            gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+            divOptical = self._driver.find_element_by_id('divOptical').text
+            divOptical = divOptical.split("\n")
+            print(divOptical)
+            divOptRx = self._driver.find_element_by_id('divOptRx').text
+            divOptRx = divOptRx.split("\n")
+            print(divOptRx)
+            divOptTx = self._driver.find_element_by_id('divOptTx').text
+            divOptTx = divOptTx.split("\n")
+            print(divOptTx)
+            time.sleep(2)
+            self._driver.quit()
+
+
+
+            # print('\n\n == Abrindo URL ' + site1+ ' == ')
+            # self._driver.get(site1 + '/')
+            # time.sleep(3)
+            # self._driver.switch_to.default_content()
+            # user_input = self._driver.find_element_by_id('txtUser')
+            # user_input.send_keys(self._username)
+            # pass_input = self._driver.find_element_by_id('txtPass')
+            # pass_input.send_keys(self._password)
+            # login_button = self._driver.find_element_by_id('btnLogin')
+            # time.sleep(1)
+            # login_button.click()
+            # print('\n\n == Aguardando redirecionamento de página == ')
+            # time.sleep(3)
+            # self._driver.switch_to.frame('basefrm')
+
+            # gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+            # time.sleep(1)
+            # print('GPON', gpon)
+            # # divOptical = self._driver.find_element_by_id('divOptical').text
+            # time.sleep(1)
+
+            # # divOptical = divOptical.split("\n")
+            # # print(divOptical)
+            # divOptRx = self._driver.find_element_by_id('divOptRx').text
+
+            # time.sleep(1)
+            # divOptRx = divOptRx.split("\n")
+            # print(divOptRx)
+            # divOptTx = self._driver.find_element_by_id('divOptTx').text
+            # time.sleep(1)
+            # divOptTx = divOptTx.split("\n")
+            # print(divOptTx)
+            # time.sleep(2)
+            # print('\n\n == Abrindo URL ' + site2+ ' == ')
+            # self._driver.get(site2 + '/')
+            # print('\n\n == Aguardando redirecionamento de página == ')
+            # time.sleep(1)
+            # user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+            # user_input.send_keys(self._username)
+            # pass_input = self._driver.find_element_by_id('txtPass')
+            # pass_input.send_keys(self._password)
+            # login_button = self._driver.find_element_by_id('btnLogin')
+            # print('\n\n == Abrindo URL ' + site3+ ' == ')
+            # self._driver.get(site3 + '/')
+            # print('\n\n == Aguardando redirecionamento de página == ')
+            # time.sleep(1)
+            # gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+            # divOptical = self._driver.find_element_by_id('divOptical').text
+            # divOptical = divOptical.split("\n")
+            # print(divOptical)
+            # divOptRx = self._driver.find_element_by_id('divOptRx').text
+            # divOptRx = divOptRx.split("\n")
+            # print(divOptRx)
+            # divOptTx = self._driver.find_element_by_id('divOptTx').text
+            # divOptTx = divOptTx.split("\n")
+            # print(divOptTx)
+            # time.sleep(2)
+            # return {"Resultado_Probe": "OK","ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": "200 OK"}
+        except NoSuchElementException as exception:
+            print(exception)
+            return {"Resultado_Probe": "NOK", "ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": str(exception)}
+        except Exception as e:
+            print(e)
+            return {"Resultado_Probe": "NOK", "ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": str(e)}
+
+        finally:
+            self._driver.quit()
+            self._dict_result.update({"obs": "acabou"})
+            return self._dict_result
 
 

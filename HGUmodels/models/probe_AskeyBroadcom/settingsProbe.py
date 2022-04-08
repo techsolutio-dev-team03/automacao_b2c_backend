@@ -29,7 +29,7 @@ session = MainSession()
 
 class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
 
-    def accessWizard_401(self):
+    def accessWizard_401(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/')
             self.login_admin()
@@ -42,10 +42,16 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
             self._driver.find_element_by_xpath('//*[@id="tab-01"]/table[1]/tbody/tr[3]/td[2]/input[1]').click()
     
             self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": 'Login efetuado com sucesso'})
+            dict_saida = {"Resultado_Probe": "OK"}
+
         except (NoSuchElementException, NoSuchFrameException) as exception:
             self._dict_result.update({"obs": "Nao foi possivel realizar o login com sucesso"})
+            dict_saida = {"Resultado_Probe": "NOK"}
+
         finally:
             self._driver.quit()
+            self.update_global_result_memory(flask_username, 'accessWizard_401', dict_saida)
+
             return self._dict_result
 
 
@@ -2986,3 +2992,84 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno Prefix Delegation WAN: {delegate}"})
             
         return self._dict_result
+
+
+    def accessWizard_373(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 401 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'accessWizard_401')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 401 primeiro'})
+        else:
+            ans_500 = result['Resultado_Probe']
+            if 'OK' == ans_500:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "Teste OK", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno: {ans_500}"})
+        return self._dict_result
+
+
+    def logoutWizard_374(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/')
+            self.login_admin()
+            self._driver.switch_to.frame('mainFrame')
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[1]/a').click()
+            try:
+                self._driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/a').click()
+                self._dict_result.update({"obs": "Logout efetuado com sucesso", "result":"passed", "Resultado_Probe": "OK"})
+            except:
+                self._dict_result.update({"obs": "Nao foi possivel efetuar o logout"})
+
+            time.sleep(1)
+            self._driver.quit()
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            return self._dict_result
+
+
+    def checkRedeGpon_375(self, flask_username):
+        try:
+            dict_saida = {}
+            self._driver.get('http://' + self._address_ip + '/')
+            self.login_admin()
+            self._driver.switch_to.frame('mainFrame')
+            time.sleep(1)
+            gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+            div = [value.text.replace('\n', '') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[1]//div')]
+            dict_saida = {
+                "Status":
+                    {
+                        gpon:
+                            {div[0].split(':')[0]: div[0].split(':')[1],
+                            div[1].split(':')[0]: div[1].split(':')[1],
+                            div[2].split(':')[0]: div[2].split(':')[1],
+                            }
+                    }
+            }
+            print(dict_saida)
+            link = dict_saida['Status']['GPON']['Link']
+            self._driver.quit()
+
+            if link == 'Não Estabelecido':
+                self._dict_result.update({"obs": "Link: Não Estabelecido", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Link: {link}"})
+
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": exception})
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self.update_global_result_memory(flask_username, 'checkRedeGpon_375', dict_saida)
+            return self._dict_result
+
+
+
+
+
+
+
+

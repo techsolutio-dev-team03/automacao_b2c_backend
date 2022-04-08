@@ -3,6 +3,7 @@ from cgi import print_form
 from os import name
 import re
 import time
+# from jinja2 import pass_context
 #from typing import final
 import paramiko
 from paramiko.ssh_exception import AuthenticationException
@@ -1603,12 +1604,12 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             for input in lan_form_input:
                 try:
                     if input.get_attribute('value'):
-                        dict_saida429.update({input.get_attribute('name'): 
-                                                                    input.get_attribute('value') 
-                                                                    if input.get_property('type')=='radio' 
-                                                                    else input.get_attribute('checked') 
-                                                                    if input.get_attribute('checked') 
-                                                                    else input.get_attribute('value')})
+                        if input.get_property('type') =='radio' and input.get_attribute('checked'):
+                            dict_saida429.setdefault(input.get_attribute('name'), input.get_attribute('value'))
+                        elif input.get_property('type') != 'radio':
+                            dict_saida429.setdefault(input.get_attribute('name'), input.get_attribute('value'))
+
+  
                 except Exception as e:
                     print(e)
 
@@ -2158,7 +2159,7 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         else:
             cpe_config = config_collection.find_one()
             if cpe_config['REDE'] == 'VIVO_2':
-                igmp_check = result['Mediaroom']
+                igmp_check = result['Multicast']
                 if igmp_check != 'Nenhum':
                     self._dict_result.update({"obs": 'Interface: Mediaroom, IGMP: Habilitado', "result":'passed', "Resultado_Probe":"OK"})
                 else:
@@ -2571,11 +2572,11 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
 
 
     def leaseTime_466(self, flask_username):
-        result = session.get_result_from_test(flask_username, 'checkMulticastSettings_424')
+        result = session.get_result_from_test(flask_username, 'checkLANSettings_429')
         if len(result) == 0:
-            self._dict_result.update({"obs": 'Execute o teste 424 primeiro'})
+            self._dict_result.update({"obs": 'Execute o teste 429 primeiro'})
         else:
-            lease_time_466 = result['dhcp_LeaseTime'].get('value')
+            lease_time_466 = result['dhcp_LeaseTime']
             if '14400' == lease_time_466:
                 self._dict_result.update({"obs": 'Lease Time: 14400', "result":'passed', "Resultado_Probe":"OK"})
             else:
@@ -2645,13 +2646,13 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
 
 
     def igmpSnoopingLAN_469(self, flask_username):
-        #TODO: Fazer logica no frontend para garantir que o teste 424 seja executado em conjunto
-        result = session.get_result_from_test(flask_username, 'checkMulticastSettings_424')
+        #TODO: Fazer logica no frontend para garantir que o teste 429 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkLANSettings_429')
         if len(result) == 0:
-            self._dict_result.update({"obs": 'Execute o teste 424 primeiro'})
+            self._dict_result.update({"obs": 'Execute o teste 429 primeiro'})
         else:
-            igmp_check = result['igmp_quickleave_act']['type']
-            if result['igmp_snoop_act']['type'] == 'Ativado':
+            igmp_check = result['igmp_snoop_act']
+            if igmp_check == 'Yes':
                 self._dict_result.update({"obs": 'IGMP Snoop Act: Habilitado', "result":'passed', "Resultado_Probe":"OK"})
             else:
                 self._dict_result.update({"obs": f'Teste incorreto, retorno IGMP Snoop Act: {igmp_check}'})

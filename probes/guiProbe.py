@@ -148,7 +148,7 @@ class gui:
 
 
     #401
-    def accessWizard(self, ip, username, password, model_name, **kwargs): ### TUDO OK
+    def accessWizard(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
 
         driver = WebDriver.get_driver()
 
@@ -167,7 +167,7 @@ class gui:
                                      password=password, 
                                      driver=driver, 
                                      dict_result=dict_result)
-        return hgu.accessWizard_401()
+        return hgu.accessWizard_401(flask_username)
 
     
     #373
@@ -298,6 +298,8 @@ class gui:
         except NoSuchElementException as exception:
             print(exception)
 
+
+    """
     def logoutWizard(self,ip,username,password): ### TUDO OK
         
         driver = WebDriver.get_driver()
@@ -337,6 +339,7 @@ class gui:
             time.sleep(1)
             login_button.click()
             time.sleep(1)
+            
             logout = driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/a').click()
             time.sleep(1)
             driver.quit()
@@ -347,264 +350,837 @@ class gui:
         except Exception as e:
             print(e)
             return {"Resultado_Probe": "NOK", "ProbeName": "logoutWizard", "Probe#": "138", "Description": "Logout na GUI básica de usuário (Wizard) ", "Resultado": str(e)}
+    """
 
-    def connectWizardhttps(self,ip,username,password): ### TUDO OK
+    #374
+    def logoutWizard(self, ip, username, password, model_name, flask_username, **kwargs):
         
         driver = WebDriver.get_driver()
-        usuario = username
-        senha = password
-        print()
-        print()
-        print('-=-' * 20)
-        print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
-        print('-=-' * 20)
-        print('\n\n -- PARAMETROS DE ENTRADA --')
-        print('ip = ' + ip)
-        print('username = ' + username)
-        print('password = ' + password)
-        print('-=-' * 20)
-        try:
-            print('\n\n == Abrindo URL == ')
-            driver.get('https://' + ip + '/')
-        except NoSuchElementException as exception:
-            print(exception)
-            driver.quit()
-            return {"Resultado_Probe": "NOK", "ProbeName": "connectWizardhttps", "Probe#": "349", "Description": "Validar erro de conexão com metodo https ", "Resultado": str(exception)}
-        except Exception as e:
-            print(e)
-            driver.quit()
-            return {"Resultado_Probe": "OK", "ProbeName": "connectWizardhttps", "Probe#": "349", "Description": "Validar erro de conexão com metodo https ", "Resultado": str(e)}
 
-    def testeSite(self,site1, site2, site3): ### TUDO OK
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "logoutWizard", 
+                        "Probe#": "138", 
+                        "Description": "Logout na GUI básica de usuário (Wizard)", 
+                        "obs": None}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+        return hgu.logoutWizard_374(flask_username)
+
+#   def checkRedeGpon(self,ip): ### TUDO OK
+
+    #     driver = WebDriver.get_driver()
+    #     print()
+    #     print()
+    #     print('-=-' * 20)
+    #     print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
+    #     print('-=-' * 20)
+    #     print('\n\n -- PARAMETROS DE ENTRADA --')
+    #     print('ip = ' + ip)
+    #     print('-=-' * 20)
+    #     try:
+    #         print('\n\n == Abrindo URL == ')
+    #         driver.get('http://' + ip + '/index_cliente.asp')
+    #         gpon = driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+    #         divOptical = driver.find_element_by_id('divOptical').text
+    #         divOptical = divOptical.split("\n")
+    #         print(divOptical)
+    #         divOptRx = driver.find_element_by_id('divOptRx').text
+    #         divOptRx = divOptRx.split("\n")
+    #         print(divOptRx)
+    #         divOptTx = driver.find_element_by_id('divOptTx').text
+    #         divOptTx = divOptTx.split("\n")
+    #         print(divOptTx)
+    #         time.sleep(2)
+    #         print('\n\n\n == Criando JSON de saída... == ')
+    #         json_saida = {
+    #             "Status":
+    #                 {
+    #                     gpon:
+    #                         {
+    #                             divOptical[0]: divOptical[1],
+    #                             divOptRx[0]: divOptRx[1],
+    #                             divOptTx[0]: divOptTx[1]
+    #                         }
+    #                 }
+    #         }
+
+    #         #json_saida = json.dumps(json_saida, ensure_ascii=False)
+    #         print(json_saida)
+    #         driver.quit()
+    #         return {"Resultado_Probe": "OK", "ControllerName": "gui", "ProbeName": "checkPPPoEStatus", "Probe#": "36", "Description": "Verifica o status da conexão PPPoE", "Resultado": json_saida}
+    #     except NoSuchElementException as exception:
+    #         print(exception)
+    #         driver.quit()
+    #         return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkPPPoEStatus", "Probe#": "36", "Description": "Verifica o status da conexão PPPoE", "Resultado": str(exception)}
+    #     except Exception as e:
+    #         print(e)
+    #         driver.quit()
+    #         return {"Resultado_Probe": "NOK", "ControllerName": "gui","ProbeName": "checkPPPoEStatus", "Probe#": "36", "Description": "Verifica o status da conexão PPPoE", "Resultado": str(e)}
+
+
+    # 375
+    def checkRedeGpon(self, ip, username, password, model_name, flask_username, **kwargs):
+        driver = WebDriver.get_driver()
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "checkPPPoEStatus", 
+                        "Probe#": "36", 
+                        "Description": "Verifica o status da conexão PPPoE", 
+                        "obs": None}
+                        
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+        return hgu.checkRedeGpon_375(flask_username)
+
+
+    # def changePPPoESettingsWrong(self, ip, username, password, pppoe_user, pppoe_paswd):
+        
+    #     driver = WebDriver.get_driver()
+    #     driver.execute_script("window.alert = function() {};")
+    #     usuario = username
+    #     senha = password
+    #     pppoe_user = pppoe_user
+    #     pppoe_paswd = pppoe_paswd
+    #     print()
+    #     print()
+    #     print('-=-' * 20)
+    #     print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
+    #     print('-=-' * 20)
+    #     print('\n\n -- PARAMETROS DE ENTRADA --')
+    #     print('ip = ' + ip)
+    #     print('username = ' + username)
+    #     print('password = ' + password)
+    #     print('pppoe_user = ' + pppoe_user)
+    #     print('pppoe_paswd = ' + pppoe_paswd)
+    #     print('-=-' * 20)
+
+    #     try:
+    #         print('\n\n == Abrindo URL == ')
+    #         driver.get('http://' + ip + '/')
+    #         link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a')
+    #         link.click()
+    #         time.sleep(1)
+    #         link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a')
+    #         link.click()
+    #         time.sleep(1)
+    #         print(' == Autenticando == ')
+    #         driver.get('http://' + ip + '/login.asp')
+    #         driver.switch_to.default_content()
+    #         user_input = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+    #         user_input.send_keys(usuario)
+    #         pass_input = driver.find_element_by_id('txtPass')
+    #         pass_input.send_keys(senha)
+    #         login_button = driver.find_element_by_id('btnLogin')
+    #         time.sleep(1)
+    #         login_button.click()
+    #         time.sleep(1)
+    #         config = driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+    #         print('Clicou em Configurações')
+    #         time.sleep(1)
+    #         config_internet = driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
+    #         print('Clicou em Internet')
+    #         time.sleep(1)
+    #         config_internet_user = driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
+    #         config_internet_user = driver.find_element_by_xpath('//*[@id="txtUsername"]').send_keys(pppoe_user)
+    #         config_internet_passwd = driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
+    #         config_internet_passwd = driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys(pppoe_paswd)
+    #         config_internet_salvar = driver.find_element_by_xpath('//*[@id="btnSave"]').click()
+    #         if driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/div[2]/table/tbody/tr[2]/td[2]/span'):
+    #             result = '200_OK'
+    #         else:
+    #             result = '400_NOK'
+
+    #         time.sleep(8)
+    #         driver.quit()
+
+    #         return {"Resultado_Probe": "OK", "ControllerName": "gui", "ProbeName": "changePPPoESettingsWrong", "Probe#": "XXXXXXX", "Description": "Altera usuário/senha de PPPoE via Web GUI", "Resultado": result}
+
+    #     except NoSuchElementException as exception:
+    #         print(exception)
+    #         return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "changePPPoESettingsWrong", "Probe#": "XXXXXXX", "Description": "Altera usuário/senha de PPPoE via Web GUI", "Resultado": str(exception)}
+
+    #     except Exception as e:
+    #         print(e)
+    #         return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "changePPPoESettingsWrong", "Probe#": "XXXXXXX", "Description": "Altera usuário/senha de PPPoE via Web GUI", "Resultado": str(e)}
+
+
+    # 376
+    def changePPPoESettingsWrong(self, ip, username, password, model_name, flask_username, **kwargs):
+        driver = WebDriver.get_driver()
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "changePPPoESettingsWrong", 
+                        "Probe#": "XXXXXXX", 
+                        "Description": "Altera usuário/senha de PPPoE via Web GUI", 
+                        "obs": None}
+                        
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+        return hgu.changePPPoESettingsWrong_376(flask_username)
+
+    # 377
+    def changePPPoESettingsWrong_2(self, ip, username, password, model_name, flask_username, **kwargs):
+        driver = WebDriver.get_driver()
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "changePPPoESettingsWrong", 
+                        "Probe#": "XXXXXXX", 
+                        "Description": "Altera usuário/senha de PPPoE via Web GUI", 
+                        "obs": None}
+                        
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+        return hgu.changePPPoESettingsWrong_377(flask_username)
+
+
+    # def connectWizardhttps(self,ip,username,password): ### TUDO OK
+        
+    #     driver = WebDriver.get_driver()
+    #     usuario = username
+    #     senha = password
+    #     print()
+    #     print()
+    #     print('-=-' * 20)
+    #     print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
+    #     print('-=-' * 20)
+    #     print('\n\n -- PARAMETROS DE ENTRADA --')
+    #     print('ip = ' + ip)
+    #     print('username = ' + username)
+    #     print('password = ' + password)
+    #     print('-=-' * 20)
+    #     try:
+    #         print('\n\n == Abrindo URL == ')
+    #         driver.get('https://' + ip + '/')
+    #     except NoSuchElementException as exception:
+    #         print(exception)
+    #         driver.quit()
+    #         return {"Resultado_Probe": "NOK", "ProbeName": "connectWizardhttps", "Probe#": "349", "Description": "Validar erro de conexão com metodo https ", "Resultado": str(exception)}
+    #     except Exception as e:
+    #         print(e)
+    #         driver.quit()
+    #         return {"Resultado_Probe": "OK", "ProbeName": "connectWizardhttps", "Probe#": "349", "Description": "Validar erro de conexão com metodo https ", "Resultado": str(e)}
+
+
+    # 379
+    def connectWizardhttps(self, ip, username, password, model_name, flask_username, **kwargs):
+        driver = WebDriver.get_driver()
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "connectWizardhttps", 
+                        "Probe#": "346", 
+                        "Description": "Validar erro de conexão com metodo https", 
+                        "obs": None}
+                        
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+        return hgu.connectWizardhttps_379(flask_username)
+
+    
+    # def checkPPPoEStatus(self,ip): ### TUDO OK
+        
+    #     driver = WebDriver.get_driver()
+    #     print()
+    #     print()
+    #     print('-=-' * 20)
+    #     print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
+    #     print('-=-' * 20)
+    #     print('\n\n -- PARAMETROS DE ENTRADA --')
+    #     print('ip = ' + ip)
+    #     print('-=-' * 20)
+    #     try:
+    #         print('\n\n == Abrindo URL == ')
+    #         driver.get('http://' + ip + '/index_cliente.asp')
+    #         print('\n#############################################'
+    #               '\n MENU >> STATUS >> INTERNET'
+    #               '\n#############################################\n')
+    #         ### ------------------------------------------ ###
+    #         ###         STATUS > INTERNET
+    #         ### ------------------------------------------ ###
+    #         internet = driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[3]/th/span').text
+    #         print(internet)
+    #         divPpp = driver.find_element_by_id('divPpp').text
+    #         divPpp = divPpp.split("\n")
+    #         print(divPpp)
+    #         detalhes_internet = driver.find_element_by_link_text('Detalhes')
+    #         print(detalhes_internet.text)
+    #         detalhes_internet.click()
+    #         detalhes_IPv4_head = driver.find_element_by_link_text('IPv4').text
+    #         print(detalhes_IPv4_head)
+    #         detalhes_IPv4 = driver.find_element_by_id('tabip-02')
+    #         detalhes_IPv4 = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td[2]/div[2]/div[1]')
+    #         time.sleep(1)
+    #         items_key_internet_ipv4 = detalhes_IPv4.find_elements_by_tag_name("li")
+    #         detalhes_IPv4_nome = []
+    #         for i in items_key_internet_ipv4:
+    #             teste = i.text
+    #             # print(i.text)
+    #             detalhes_IPv4_nome.append(teste)
+    #         print(detalhes_IPv4_nome)
+    #         detalhes_IPv4 = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td[2]/div[2]/div[2]')
+    #         items_key = detalhes_IPv4.find_elements_by_tag_name("li")
+    #         detalhes_IPv4_valor = []
+    #         for i in items_key:
+    #             teste = i.text
+    #             # print(i.text)
+    #             detalhes_IPv4_valor.append(teste)
+    #         print(detalhes_IPv4_valor)
+    #         time.sleep(2)
+    #         detalhes_IPv6 = driver.find_element_by_link_text('IPv6')
+    #         detalhes_IPv6.click()
+    #         time.sleep(1)
+    #         detalhes_IPv6_head = driver.find_element_by_link_text('IPv6').text
+    #         print(detalhes_IPv6_head)
+    #         detalhes_IPv6 = driver.find_element_by_id('tabip-02')
+    #         detalhes_IPv6 = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td[2]/div[3]/div[1]')
+    #         time.sleep(1)
+    #         items_key = detalhes_IPv6.find_elements_by_tag_name("li")
+    #         detalhes_IPv6_nome = []
+    #         for item in items_key:
+    #             teste = item.text
+    #             # print(item.text)
+    #             detalhes_IPv6_nome.append(teste)
+    #         print(detalhes_IPv6_nome)
+    #         detalhes_IPv6 = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td[2]/div[3]/div[2]')
+    #         items_key = detalhes_IPv6.find_elements_by_tag_name("li")
+    #         detalhes_IPv6_valor = []
+    #         for item in items_key:
+    #             teste = item.text
+    #             # print(item.text)
+    #             detalhes_IPv6_valor.append(teste)
+    #         print(detalhes_IPv6_valor)
+    #         time.sleep(2)
+    #         print('\n\n\n == Criando JSON de saída... == ')
+    #         json_saida = {
+    #             "Status":
+    #                 {
+    #                     internet:
+    #                         {
+    #                             divPpp[0]: divPpp[1],
+    #                             detalhes_IPv4_head:
+    #                                 {
+    #                                     detalhes_IPv4_nome[0]: detalhes_IPv4_valor[0],
+    #                                     detalhes_IPv4_nome[1]: detalhes_IPv4_valor[1],
+    #                                     detalhes_IPv4_nome[2]: detalhes_IPv4_valor[2],
+    #                                     detalhes_IPv4_nome[3]: detalhes_IPv4_valor[3],
+    #                                     detalhes_IPv4_nome[4]: detalhes_IPv4_valor[4]
+    #                                 },
+    #                             detalhes_IPv6_head:
+    #                                 {
+    #                                     detalhes_IPv6_nome[0]: detalhes_IPv6_valor[0],
+    #                                     detalhes_IPv6_nome[1]: detalhes_IPv6_valor[1],
+    #                                     detalhes_IPv6_nome[2]: detalhes_IPv6_valor[2],
+    #                                     detalhes_IPv6_nome[3]: detalhes_IPv6_valor[3],
+    #                                     detalhes_IPv6_nome[4]: detalhes_IPv6_valor[4],
+    #                                     detalhes_IPv6_nome[5]: detalhes_IPv6_valor[5]
+    #                                 }
+    #                         }
+    #                 }
+    #         }
+
+    #         #json_saida = json.dumps(json_saida, ensure_ascii=False)
+    #         print(json_saida)
+    #         driver.quit()
+    #         return {"Resultado_Probe":"OK", "ControllerName": "gui", "ProbeName": "checkPPPoEStatus", "Probe#": "146", "Description": "Verifica o status da conexão PPPoE", "Resultado": json_saida}
+    #     except NoSuchElementException as exception:
+    #         print(exception)
+    #         driver.quit()
+    #         return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkPPPoEStatus", "Probe#": "146", "Description": "Verifica o status da conexão PPPoE", "Resultado": str(exception)}
+    #     except Exception as e:
+    #         print(e)
+    #         driver.quit()
+    #         return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkPPPoEStatus", "Probe#": "146", "Description": "Verifica o status da conexão PPPoE", "Resultado": str(e)}
+
+
+    # 380
+    def checkPPPoEStatus(self, ip, username, password, model_name, flask_username, **kwargs):
+        driver = WebDriver.get_driver()
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "checkPPPoEStatus", 
+                        "Probe#": "146", 
+                        "Description": "Verifica o status da conexão PPPoE", 
+                        "obs": None}
+                        
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+        return hgu.checkPPPoEStatus_380(flask_username)
+
+    
+    #382
+    def getFullConfig_2(self, ip, username, password, model_name, flask_username, **kwargs):
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "getFullConfig", 
+                        "Probe#": "350", 
+                        "Description": "Idioma padrão do wizard deve ser em Português", 
+                        "obs": None}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.getFullConfig_382(flask_username)
+
+    # def execPingWizard(self, ip, username, password, destino, tentativas):
+        
+    #     driver = WebDriver.get_driver()
+    #     driver.execute_script("window.alert = function() {};")
+    #     usuario = username
+    #     senha = password
+    #     destino = destino
+    #     tentativas = tentativas
+    #     print()
+    #     print()
+    #     print('-=-' * 20)
+    #     print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
+    #     print('-=-' * 20)
+    #     print('\n\n -- PARAMETROS DE ENTRADA --')
+    #     print('ip = ' + ip)
+    #     print('username = ' + username)
+    #     print('password = ' + password)
+    #     print('destino = ' + destino)
+    #     print('tentativas = ' + tentativas)
+    #     print('-=-' * 20)
+
+    #     try:
+    #         print('\n\n == Abrindo URL == ')
+    #         driver.get('http://' + ip + '/')
+    #         link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a')
+    #         link.click()
+    #         time.sleep(1)
+    #         link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a')
+    #         link.click()
+    #         time.sleep(1)
+    #         print(' == Autenticando == ')
+    #         driver.get('http://' + ip + '/login.asp')
+    #         driver.switch_to.default_content()
+    #         user_input = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+    #         user_input.send_keys(usuario)
+    #         pass_input = driver.find_element_by_id('txtPass')
+    #         pass_input.send_keys(senha)
+    #         login_button = driver.find_element_by_id('btnLogin')
+    #         time.sleep(1)
+    #         login_button.click()
+    #         time.sleep(1)
+    #         gerenc = driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/a').click()
+    #         print('Clicou em Gerenciamento')
+    #         time.sleep(1)
+    #         gerenc_Ferram = driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/ul/li[6]/a').click()
+    #         print('Clicou em Ferramentas')
+    #         time.sleep(1)
+    #         gerenc_Ferram_dest = driver.find_element_by_xpath('//*[@id="txtDest"]').send_keys(destino)
+    #         gerenc_Ferram_tenta = driver.find_element_by_xpath('//*[@id="txtNum"]').send_keys(tentativas)
+    #         gerenc_Ferram_tenta_exec = driver.find_element_by_xpath('//*[@id="btnTest"]').click()
+    #         time.sleep(6)
+    #         result = driver.find_element_by_xpath('//*[@id="txtResult"]').get_property('value')
+
+    #         json_saida = {
+    #             "Resultados":result
+    #         }
+    #         print(json_saida)
+    #         driver.quit()
+
+    #         return {"Resultado_Probe": "OK", "ControllerName": "gui", "ProbeName": "execPingWizard", "Probe#": "XXXXXXX", "Description": "Executa teste de Ping via Web GUI", "Resultado": result}
+
+    #     except NoSuchElementException as exception:
+    #         print(exception)
+    #         return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "execPingWizard", "Probe#": "XXXXXXX", "Description": "Executa teste de Ping via Web GUI", "Resultado": str(exception)}
+
+    #     except Exception as e:
+    #         print(e)
+    #         return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "execPingWizard", "Probe#": "XXXXXXX", "Description": "Executa teste de Ping via Web GUI", "Resultado": str(e)}
+
+
+    #384
+    def execPingWizard(self, ip, username, password, model_name, flask_username, **kwargs):
+        driver = WebDriver.get_driver()
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "execPingWizard", 
+                        "Probe#": "XXXXXXX", 
+                        "Description": "Executa teste de Ping via Web GUI", 
+                        "obs": None}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username,
+                                     driver=driver,
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.execPingWizard_384(flask_username)
+
+
+    #387
+    def statusWizardInet(self, ip, username, password, model_name, flask_username, **kwargs):
+        
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "getFullConfig", 
+                        "Probe#": "350", 
+                        "Description": "Mostra corretamente o status PPP no índice", 
+                        "obs": None}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.statusWizardInet_387(flask_username)
+    
+    
+    #388
+    def registerWizardVoip(self, ip, username, password, model_name, flask_username, **kwargs):
+        
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "getFullConfig", 
+                        "Probe#": "350", 
+                        "Description": "Mostrar corretamente as Estatísticas de VoIP caso possua esse serviço.", 
+                        "obs": None}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.registerWizardVoip_388(flask_username)
+
+    
+    #389
+    def statusWizardIptv(self, ip, username, password, model_name, flask_username, **kwargs):
+        
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "getFullConfig", 
+                        "Probe#": "350", 
+                        "Description": "Mostrar corretamente o Status de TV caso possua esse serviço.", 
+                        "obs": None}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.statusWizardIptv_389(flask_username)
+
+
+    #390
+    def statusWizardVoip(self, ip, username, password, model_name, flask_username, **kwargs):
+        
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "getFullConfig", 
+                        "Probe#": "350", 
+                        "Description": "Informações sobre a conta SIP no Indice caso possua esse serviço.", 
+                        "obs": None}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.statusWizardVoip_390(flask_username)
+
+
+    # def testeSite(self,site1, site2, site3): ### TUDO OK
+        
+        # driver = WebDriver.get_driver()
+        # wait = WebDriverWait(driver, 10)
+        # size = driver.set_window_size(1280, 600)
+        # print()
+        # print()
+        # print('-=-' * 20)
+        # print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
+        # print('-=-' * 20)
+        # print('\n\n -- PARAMETROS DE ENTRADA --')
+        # print('site1 = ' + site1)
+        # print('site2 = ' + site2)
+        # print('site3 = ' + site3)
+        # print('-=-' * 20)
+        # try:
+        #     print('\n\n == Abrindo URL ' + site1+ ' == ')
+        #     driver.get(site1 + '/')
+        #     print('\n\n == Aguardando redirecionamento de página == ')
+        #     time.sleep(1)
+        #     gpon = driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+        #     divOptical = driver.find_element_by_id('divOptical').text
+        #     divOptical = divOptical.split("\n")
+        #     print(divOptical)
+        #     divOptRx = driver.find_element_by_id('divOptRx').text
+        #     divOptRx = divOptRx.split("\n")
+        #     print(divOptRx)
+        #     divOptTx = driver.find_element_by_id('divOptTx').text
+        #     divOptTx = divOptTx.split("\n")
+        #     print(divOptTx)
+        #     time.sleep(2)
+        #     print('\n\n == Abrindo URL ' + site2+ ' == ')
+        #     driver.get(site2 + '/')
+        #     print('\n\n == Aguardando redirecionamento de página == ')
+        #     time.sleep(1)
+        #     user_input = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+        #     user_input.send_keys('usuario')
+        #     pass_input = driver.find_element_by_id('txtPass')
+        #     pass_input.send_keys('senha')
+        #     login_button = driver.find_element_by_id('btnLogin')
+        #     print('\n\n == Abrindo URL ' + site3+ ' == ')
+        #     driver.get(site3 + '/')
+        #     print('\n\n == Aguardando redirecionamento de página == ')
+        #     time.sleep(1)
+        #     gpon = driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+        #     divOptical = driver.find_element_by_id('divOptical').text
+        #     divOptical = divOptical.split("\n")
+        #     print(divOptical)
+        #     divOptRx = driver.find_element_by_id('divOptRx').text
+        #     divOptRx = divOptRx.split("\n")
+        #     print(divOptRx)
+        #     divOptTx = driver.find_element_by_id('divOptTx').text
+        #     divOptTx = divOptTx.split("\n")
+        #     print(divOptTx)
+        #     time.sleep(2)
+        #     driver.quit()
+        #     return {"Resultado_Probe": "OK","ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": "200 OK"}
+        # except NoSuchElementException as exception:
+        #     print(exception)
+        #     driver.quit()
+        #     return {"Resultado_Probe": "NOK", "ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": str(exception)}
+        # except Exception as e:
+        #     print(e)
+        #     driver.quit()
+        #     return {"Resultado_Probe": "NOK", "ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": str(e)}
+
+
+
+    #399
+    def testeSiteWizard(self, ip, username, password, model_name, flask_username, **kwargs):
+        driver = WebDriver.get_driver()
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "testeSite", 
+                        "Probe#": "44", 
+                        "Description": "Abrir URL", 
+                        "obs": None}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username,
+                                     driver=driver,
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.testeSiteWizard_399(flask_username)
+
+
+    # def checkBridgeMode(self, ip, username, password): ### TUDO OK
+        
+    #     driver = WebDriver.get_driver()
+    #     usuario = username
+    #     senha = password
+    #     print()
+    #     print()
+    #     print('-=-' * 20)
+    #     print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
+    #     print('-=-' * 20)
+    #     print('\n\n -- PARAMETROS DE ENTRADA --')
+    #     print('ip = ' + ip)
+    #     print('username = ' + username)
+    #     print('password = ' + password)
+    #     print('-=-' * 20)
+    #     try:
+    #         print('\n\n == Abrindo URL == ')
+    #         driver.get('http://' + ip + '/')
+    #         link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a')
+    #         link.click()
+    #         time.sleep(1)
+    #         link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a')
+    #         link.click()
+    #         time.sleep(1)
+    #         print(' == Autenticando == ')
+    #         driver.get('http://' + ip + '/login.asp')
+    #         driver.switch_to.default_content()
+    #         user_input = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
+    #         user_input.send_keys(usuario)
+    #         pass_input = driver.find_element_by_id('txtPass')
+    #         pass_input.send_keys(senha)
+    #         login_button = driver.find_element_by_id('btnLogin')
+    #         time.sleep(1)
+    #         login_button.click()
+    #         time.sleep(1)
+    #         print('\n#############################################'
+    #               '\n MENU >> CONFIGURAÇÕES >> MODO DA WAN '
+    #               '\n#############################################\n')
+    #         ### ------------------------------------------ ###
+    #         ###         CONFIGURAÇÕES > MODO DA WAN
+    #         ### ------------------------------------------ ###
+    #         config = driver.find_element_by_link_text('Configurações').click()
+    #         time.sleep(1)
+    #         config_modowan = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[7]/a')
+    #         print(config_modowan.text)
+    #         config_modowan.click()
+    #         config_modowan = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[7]/a').text
+    #         time.sleep(1)
+    #         config_modowan_bridge = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/div[3]/form/table/thead/tr/th').text
+    #         print(config_modowan_bridge)
+    #         time.sleep(1)
+    #         config_modowan_bridge_modo = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/div[3]/form/table/tbody/tr[1]/td[1]').text
+    #         print(config_modowan_bridge_modo)
+    #         config_modowan_bridge_modo_valor = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/div[3]/form/table/tbody/tr[1]/td[2]/select').click()
+    #         time.sleep(1)
+    #         select = Select(driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/div[3]/form/table/tbody/tr[1]/td[2]/select'))
+    #         config_modowan_bridge_modo_valor = []
+    #         for item in select.options:
+    #             teste = item.get_attribute('innerText')
+    #             config_modowan_bridge_modo_valor.append(teste)
+    #             print(item.get_attribute('value'), item.get_attribute('innerText'))
+    #         config_modowan_bridge_modo_valor = json.dumps(config_modowan_bridge_modo_valor, ensure_ascii=False)
+    #         print(config_modowan_bridge_modo_valor)
+    #         print(type(config_modowan_bridge_modo_valor))
+    #         time.sleep(2)
+    #         driver.quit()
+    #         return {"Resultado_Probe": "OK", "ControllerName": "gui", "ProbeName": "checkBridgeMode", "Probe#": "21", "Description": "Verificar se existe campo para habilitar Bridge", "Resultado": config_modowan_bridge_modo_valor}
+    #     except NoSuchElementException as exception:
+    #         print(exception)
+    #         driver.quit()
+    #         return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkBridgeMode", "Probe#": "21", "Description": "Verificar se existe campo para habilitar Bridge", "Resultado": str(exception)}
+    #     except Exception as e:
+    #         print(e)
+    #         driver.quit()
+    #         return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkBridgeMode", "Probe#": "21", "Description": "Verificar se existe campo para habilitar Bridge", "Resultado": str(e)}
+
+
+    #21
+    def checkBridgeMode(self, ip, username, password, model_name, flask_username, **kwargs):
+        driver = WebDriver.get_driver()
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "checkBridgeMode", 
+                        "Probe#": "21", 
+                        "Description": "Verificar se existe campo para habilitar Bridge", 
+                        "obs": None}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username,
+                                     driver=driver,
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.checkBridgeMode_21(flask_username)
+
+    # 36
+    def checkRedeGpon_2(self, ip, username, password, model_name, flask_username, **kwargs):
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "checkPPPoEStatus", 
+                        "Probe#": "36", 
+                        "Description": "Verifica o status da conexão PPPoE", 
+                        "obs": None}
+                        
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.checkRedeGpon_36(flask_username)
+
+    
+    # 79
+    def accessPadrao_2(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
         
         driver = WebDriver.get_driver()
-        wait = WebDriverWait(driver, 10)
-        size = driver.set_window_size(1280, 600)
-        print()
-        print()
-        print('-=-' * 20)
-        print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
-        print('-=-' * 20)
-        print('\n\n -- PARAMETROS DE ENTRADA --')
-        print('site1 = ' + site1)
-        print('site2 = ' + site2)
-        print('site3 = ' + site3)
-        print('-=-' * 20)
-        try:
-            print('\n\n == Abrindo URL ' + site1+ ' == ')
-            driver.get(site1 + '/')
-            print('\n\n == Aguardando redirecionamento de página == ')
-            time.sleep(1)
-            gpon = driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
-            divOptical = driver.find_element_by_id('divOptical').text
-            divOptical = divOptical.split("\n")
-            print(divOptical)
-            divOptRx = driver.find_element_by_id('divOptRx').text
-            divOptRx = divOptRx.split("\n")
-            print(divOptRx)
-            divOptTx = driver.find_element_by_id('divOptTx').text
-            divOptTx = divOptTx.split("\n")
-            print(divOptTx)
-            time.sleep(2)
-            print('\n\n == Abrindo URL ' + site2+ ' == ')
-            driver.get(site2 + '/')
-            print('\n\n == Aguardando redirecionamento de página == ')
-            time.sleep(1)
-            user_input = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            user_input.send_keys('usuario')
-            pass_input = driver.find_element_by_id('txtPass')
-            pass_input.send_keys('senha')
-            login_button = driver.find_element_by_id('btnLogin')
-            print('\n\n == Abrindo URL ' + site3+ ' == ')
-            driver.get(site3 + '/')
-            print('\n\n == Aguardando redirecionamento de página == ')
-            time.sleep(1)
-            gpon = driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
-            divOptical = driver.find_element_by_id('divOptical').text
-            divOptical = divOptical.split("\n")
-            print(divOptical)
-            divOptRx = driver.find_element_by_id('divOptRx').text
-            divOptRx = divOptRx.split("\n")
-            print(divOptRx)
-            divOptTx = driver.find_element_by_id('divOptTx').text
-            divOptTx = divOptTx.split("\n")
-            print(divOptTx)
-            time.sleep(2)
-            driver.quit()
-            return {"Resultado_Probe": "OK","ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": "200 OK"}
-        except NoSuchElementException as exception:
-            print(exception)
-            driver.quit()
-            return {"Resultado_Probe": "NOK", "ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": str(exception)}
-        except Exception as e:
-            print(e)
-            driver.quit()
-            return {"Resultado_Probe": "NOK", "ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": str(e)}
 
-    def checkPPPoEStatus(self,ip): ### TUDO OK
-        
+        dict_result = {'result':'failed', 
+                       'obs': None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "gui", 
+                       "ProbeName": "checkPPPoEStatus", 
+                       "Probe#": "79", 
+                       "Description": "Acessar página padrão "}
+                       
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+        return hgu.accessPadrao_79(flask_username)
+
+
+    # 146
+    def checkPPPoEStatus_2(self, ip, username, password, model_name, flask_username, **kwargs):
         driver = WebDriver.get_driver()
-        print()
-        print()
-        print('-=-' * 20)
-        print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
-        print('-=-' * 20)
-        print('\n\n -- PARAMETROS DE ENTRADA --')
-        print('ip = ' + ip)
-        print('-=-' * 20)
-        try:
-            print('\n\n == Abrindo URL == ')
-            driver.get('http://' + ip + '/index_cliente.asp')
-            print('\n#############################################'
-                  '\n MENU >> STATUS >> INTERNET'
-                  '\n#############################################\n')
-            ### ------------------------------------------ ###
-            ###         STATUS > INTERNET
-            ### ------------------------------------------ ###
-            internet = driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[3]/th/span').text
-            print(internet)
-            divPpp = driver.find_element_by_id('divPpp').text
-            divPpp = divPpp.split("\n")
-            print(divPpp)
-            detalhes_internet = driver.find_element_by_link_text('Detalhes')
-            print(detalhes_internet.text)
-            detalhes_internet.click()
-            detalhes_IPv4_head = driver.find_element_by_link_text('IPv4').text
-            print(detalhes_IPv4_head)
-            detalhes_IPv4 = driver.find_element_by_id('tabip-02')
-            detalhes_IPv4 = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td[2]/div[2]/div[1]')
-            time.sleep(1)
-            items_key_internet_ipv4 = detalhes_IPv4.find_elements_by_tag_name("li")
-            detalhes_IPv4_nome = []
-            for i in items_key_internet_ipv4:
-                teste = i.text
-                # print(i.text)
-                detalhes_IPv4_nome.append(teste)
-            print(detalhes_IPv4_nome)
-            detalhes_IPv4 = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td[2]/div[2]/div[2]')
-            items_key = detalhes_IPv4.find_elements_by_tag_name("li")
-            detalhes_IPv4_valor = []
-            for i in items_key:
-                teste = i.text
-                # print(i.text)
-                detalhes_IPv4_valor.append(teste)
-            print(detalhes_IPv4_valor)
-            time.sleep(2)
-            detalhes_IPv6 = driver.find_element_by_link_text('IPv6')
-            detalhes_IPv6.click()
-            time.sleep(1)
-            detalhes_IPv6_head = driver.find_element_by_link_text('IPv6').text
-            print(detalhes_IPv6_head)
-            detalhes_IPv6 = driver.find_element_by_id('tabip-02')
-            detalhes_IPv6 = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td[2]/div[3]/div[1]')
-            time.sleep(1)
-            items_key = detalhes_IPv6.find_elements_by_tag_name("li")
-            detalhes_IPv6_nome = []
-            for item in items_key:
-                teste = item.text
-                # print(item.text)
-                detalhes_IPv6_nome.append(teste)
-            print(detalhes_IPv6_nome)
-            detalhes_IPv6 = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td[2]/div[3]/div[2]')
-            items_key = detalhes_IPv6.find_elements_by_tag_name("li")
-            detalhes_IPv6_valor = []
-            for item in items_key:
-                teste = item.text
-                # print(item.text)
-                detalhes_IPv6_valor.append(teste)
-            print(detalhes_IPv6_valor)
-            time.sleep(2)
-            print('\n\n\n == Criando JSON de saída... == ')
-            json_saida = {
-                "Status":
-                    {
-                        internet:
-                            {
-                                divPpp[0]: divPpp[1],
-                                detalhes_IPv4_head:
-                                    {
-                                        detalhes_IPv4_nome[0]: detalhes_IPv4_valor[0],
-                                        detalhes_IPv4_nome[1]: detalhes_IPv4_valor[1],
-                                        detalhes_IPv4_nome[2]: detalhes_IPv4_valor[2],
-                                        detalhes_IPv4_nome[3]: detalhes_IPv4_valor[3],
-                                        detalhes_IPv4_nome[4]: detalhes_IPv4_valor[4]
-                                    },
-                                detalhes_IPv6_head:
-                                    {
-                                        detalhes_IPv6_nome[0]: detalhes_IPv6_valor[0],
-                                        detalhes_IPv6_nome[1]: detalhes_IPv6_valor[1],
-                                        detalhes_IPv6_nome[2]: detalhes_IPv6_valor[2],
-                                        detalhes_IPv6_nome[3]: detalhes_IPv6_valor[3],
-                                        detalhes_IPv6_nome[4]: detalhes_IPv6_valor[4],
-                                        detalhes_IPv6_nome[5]: detalhes_IPv6_valor[5]
-                                    }
-                            }
-                    }
-            }
+        dict_result = {"result":"failed",
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "checkPPPoEStatus", 
+                        "Probe#": "146", 
+                        "Description": "Verifica o status da conexão PPPoE", 
+                        "obs": None}
+                        
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+        return hgu.checkPPPoEStatus_146(flask_username)
 
-            #json_saida = json.dumps(json_saida, ensure_ascii=False)
-            print(json_saida)
-            driver.quit()
-            return {"Resultado_Probe":"OK", "ControllerName": "gui", "ProbeName": "checkPPPoEStatus", "Probe#": "146", "Description": "Verifica o status da conexão PPPoE", "Resultado": json_saida}
-        except NoSuchElementException as exception:
-            print(exception)
-            driver.quit()
-            return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkPPPoEStatus", "Probe#": "146", "Description": "Verifica o status da conexão PPPoE", "Resultado": str(exception)}
-        except Exception as e:
-            print(e)
-            driver.quit()
-            return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkPPPoEStatus", "Probe#": "146", "Description": "Verifica o status da conexão PPPoE", "Resultado": str(e)}
-
-    def checkRedeGpon(self,ip): ### TUDO OK
-
-        driver = WebDriver.get_driver()
-        print()
-        print()
-        print('-=-' * 20)
-        print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
-        print('-=-' * 20)
-        print('\n\n -- PARAMETROS DE ENTRADA --')
-        print('ip = ' + ip)
-        print('-=-' * 20)
-        try:
-            print('\n\n == Abrindo URL == ')
-            driver.get('http://' + ip + '/index_cliente.asp')
-            gpon = driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
-            divOptical = driver.find_element_by_id('divOptical').text
-            divOptical = divOptical.split("\n")
-            print(divOptical)
-            divOptRx = driver.find_element_by_id('divOptRx').text
-            divOptRx = divOptRx.split("\n")
-            print(divOptRx)
-            divOptTx = driver.find_element_by_id('divOptTx').text
-            divOptTx = divOptTx.split("\n")
-            print(divOptTx)
-            time.sleep(2)
-            print('\n\n\n == Criando JSON de saída... == ')
-            json_saida = {
-                "Status":
-                    {
-                        gpon:
-                            {
-                                divOptical[0]: divOptical[1],
-                                divOptRx[0]: divOptRx[1],
-                                divOptTx[0]: divOptTx[1]
-                            }
-                    }
-            }
-
-            #json_saida = json.dumps(json_saida, ensure_ascii=False)
-            print(json_saida)
-            driver.quit()
-            return {"Resultado_Probe": "OK", "ControllerName": "gui", "ProbeName": "checkPPPoEStatus", "Probe#": "36", "Description": "Verifica o status da conexão PPPoE", "Resultado": json_saida}
-        except NoSuchElementException as exception:
-            print(exception)
-            driver.quit()
-            return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkPPPoEStatus", "Probe#": "36", "Description": "Verifica o status da conexão PPPoE", "Resultado": str(exception)}
-        except Exception as e:
-            print(e)
-            driver.quit()
-            return {"Resultado_Probe": "NOK", "ControllerName": "gui","ProbeName": "checkPPPoEStatus", "Probe#": "36", "Description": "Verifica o status da conexão PPPoE", "Resultado": str(e)}
 
     def getFullConfigASKEY3505(self, ip, username, password): ### DISPOSITIVO ASKEY 3505
         
@@ -797,82 +1373,7 @@ class gui:
         return hgu.verificarSenhaPppDefaultFibra_426(flask_username)
         
         
-    def checkBridgeMode(self, ip, username, password): ### TUDO OK
-        
-        driver = WebDriver.get_driver()
-        usuario = username
-        senha = password
-        print()
-        print()
-        print('-=-' * 20)
-        print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
-        print('-=-' * 20)
-        print('\n\n -- PARAMETROS DE ENTRADA --')
-        print('ip = ' + ip)
-        print('username = ' + username)
-        print('password = ' + password)
-        print('-=-' * 20)
-        try:
-            print('\n\n == Abrindo URL == ')
-            driver.get('http://' + ip + '/')
-            link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a')
-            link.click()
-            time.sleep(1)
-            link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a')
-            link.click()
-            time.sleep(1)
-            print(' == Autenticando == ')
-            driver.get('http://' + ip + '/login.asp')
-            driver.switch_to.default_content()
-            user_input = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            user_input.send_keys(usuario)
-            pass_input = driver.find_element_by_id('txtPass')
-            pass_input.send_keys(senha)
-            login_button = driver.find_element_by_id('btnLogin')
-            time.sleep(1)
-            login_button.click()
-            time.sleep(1)
-            print('\n#############################################'
-                  '\n MENU >> CONFIGURAÇÕES >> MODO DA WAN '
-                  '\n#############################################\n')
-            ### ------------------------------------------ ###
-            ###         CONFIGURAÇÕES > MODO DA WAN
-            ### ------------------------------------------ ###
-            config = driver.find_element_by_link_text('Configurações').click()
-            time.sleep(1)
-            config_modowan = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[7]/a')
-            print(config_modowan.text)
-            config_modowan.click()
-            config_modowan = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[7]/a').text
-            time.sleep(1)
-            config_modowan_bridge = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/div[3]/form/table/thead/tr/th').text
-            print(config_modowan_bridge)
-            time.sleep(1)
-            config_modowan_bridge_modo = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/div[3]/form/table/tbody/tr[1]/td[1]').text
-            print(config_modowan_bridge_modo)
-            config_modowan_bridge_modo_valor = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/div[3]/form/table/tbody/tr[1]/td[2]/select').click()
-            time.sleep(1)
-            select = Select(driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/div[3]/form/table/tbody/tr[1]/td[2]/select'))
-            config_modowan_bridge_modo_valor = []
-            for item in select.options:
-                teste = item.get_attribute('innerText')
-                config_modowan_bridge_modo_valor.append(teste)
-                print(item.get_attribute('value'), item.get_attribute('innerText'))
-            config_modowan_bridge_modo_valor = json.dumps(config_modowan_bridge_modo_valor, ensure_ascii=False)
-            print(config_modowan_bridge_modo_valor)
-            print(type(config_modowan_bridge_modo_valor))
-            time.sleep(2)
-            driver.quit()
-            return {"Resultado_Probe": "OK", "ControllerName": "gui", "ProbeName": "checkBridgeMode", "Probe#": "21", "Description": "Verificar se existe campo para habilitar Bridge", "Resultado": config_modowan_bridge_modo_valor}
-        except NoSuchElementException as exception:
-            print(exception)
-            driver.quit()
-            return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkBridgeMode", "Probe#": "21", "Description": "Verificar se existe campo para habilitar Bridge", "Resultado": str(exception)}
-        except Exception as e:
-            print(e)
-            driver.quit()
-            return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkBridgeMode", "Probe#": "21", "Description": "Verificar se existe campo para habilitar Bridge", "Resultado": str(e)}
-
+   
     def checkFacebook(self): ### TUDO OK
         
         driver = WebDriver.get_driver()
@@ -7357,74 +7858,6 @@ class gui:
             print(e)
             return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "accessBancoCaixa", "Probe#": "XXXXXXX", "Description": "Acessa site Bando Caixa", "Resultado": str(e)}
 
-    def execPingWizard(self, ip, username, password, destino, tentativas):
-        
-        driver = WebDriver.get_driver()
-        driver.execute_script("window.alert = function() {};")
-        usuario = username
-        senha = password
-        destino = destino
-        tentativas = tentativas
-        print()
-        print()
-        print('-=-' * 20)
-        print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
-        print('-=-' * 20)
-        print('\n\n -- PARAMETROS DE ENTRADA --')
-        print('ip = ' + ip)
-        print('username = ' + username)
-        print('password = ' + password)
-        print('destino = ' + destino)
-        print('tentativas = ' + tentativas)
-        print('-=-' * 20)
-
-        try:
-            print('\n\n == Abrindo URL == ')
-            driver.get('http://' + ip + '/')
-            link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a')
-            link.click()
-            time.sleep(1)
-            link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a')
-            link.click()
-            time.sleep(1)
-            print(' == Autenticando == ')
-            driver.get('http://' + ip + '/login.asp')
-            driver.switch_to.default_content()
-            user_input = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            user_input.send_keys(usuario)
-            pass_input = driver.find_element_by_id('txtPass')
-            pass_input.send_keys(senha)
-            login_button = driver.find_element_by_id('btnLogin')
-            time.sleep(1)
-            login_button.click()
-            time.sleep(1)
-            gerenc = driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/a').click()
-            print('Clicou em Gerenciamento')
-            time.sleep(1)
-            gerenc_Ferram = driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/ul/li[6]/a').click()
-            print('Clicou em Ferramentas')
-            time.sleep(1)
-            gerenc_Ferram_dest = driver.find_element_by_xpath('//*[@id="txtDest"]').send_keys(destino)
-            gerenc_Ferram_tenta = driver.find_element_by_xpath('//*[@id="txtNum"]').send_keys(tentativas)
-            gerenc_Ferram_tenta_exec = driver.find_element_by_xpath('//*[@id="btnTest"]').click()
-            time.sleep(6)
-            result = driver.find_element_by_xpath('//*[@id="txtResult"]').get_property('value')
-
-            json_saida = {
-                "Resultados":result
-            }
-            print(json_saida)
-            driver.quit()
-
-            return {"Resultado_Probe": "OK", "ControllerName": "gui", "ProbeName": "execPingWizard", "Probe#": "XXXXXXX", "Description": "Executa teste de Ping via Web GUI", "Resultado": result}
-
-        except NoSuchElementException as exception:
-            print(exception)
-            return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "execPingWizard", "Probe#": "XXXXXXX", "Description": "Executa teste de Ping via Web GUI", "Resultado": str(exception)}
-
-        except Exception as e:
-            print(e)
-            return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "execPingWizard", "Probe#": "XXXXXXX", "Description": "Executa teste de Ping via Web GUI", "Resultado": str(e)}
 
     def changePPPoESettings(self, ip, username, password, pppoe_user, pppoe_paswd):
         
@@ -7496,75 +7929,6 @@ class gui:
             print(e)
             return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "changePPPoESettings", "Probe#": "XXXXXXX", "Description": "Altera usuário/senha de PPPoE via Web GUI", "Resultado": str(e)}
 
-    def changePPPoESettingsWrong(self, ip, username, password, pppoe_user, pppoe_paswd):
-        
-        driver = WebDriver.get_driver()
-        driver.execute_script("window.alert = function() {};")
-        usuario = username
-        senha = password
-        pppoe_user = pppoe_user
-        pppoe_paswd = pppoe_paswd
-        print()
-        print()
-        print('-=-' * 20)
-        print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
-        print('-=-' * 20)
-        print('\n\n -- PARAMETROS DE ENTRADA --')
-        print('ip = ' + ip)
-        print('username = ' + username)
-        print('password = ' + password)
-        print('pppoe_user = ' + pppoe_user)
-        print('pppoe_paswd = ' + pppoe_paswd)
-        print('-=-' * 20)
-
-        try:
-            print('\n\n == Abrindo URL == ')
-            driver.get('http://' + ip + '/')
-            link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a')
-            link.click()
-            time.sleep(1)
-            link = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a')
-            link.click()
-            time.sleep(1)
-            print(' == Autenticando == ')
-            driver.get('http://' + ip + '/login.asp')
-            driver.switch_to.default_content()
-            user_input = driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            user_input.send_keys(usuario)
-            pass_input = driver.find_element_by_id('txtPass')
-            pass_input.send_keys(senha)
-            login_button = driver.find_element_by_id('btnLogin')
-            time.sleep(1)
-            login_button.click()
-            time.sleep(1)
-            config = driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
-            print('Clicou em Configurações')
-            time.sleep(1)
-            config_internet = driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
-            print('Clicou em Internet')
-            time.sleep(1)
-            config_internet_user = driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
-            config_internet_user = driver.find_element_by_xpath('//*[@id="txtUsername"]').send_keys(pppoe_user)
-            config_internet_passwd = driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
-            config_internet_passwd = driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys(pppoe_paswd)
-            config_internet_salvar = driver.find_element_by_xpath('//*[@id="btnSave"]').click()
-            if driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/div[2]/table/tbody/tr[2]/td[2]/span'):
-                result = '200_OK'
-            else:
-                result = '400_NOK'
-
-            time.sleep(8)
-            driver.quit()
-
-            return {"Resultado_Probe": "OK", "ControllerName": "gui", "ProbeName": "changePPPoESettingsWrong", "Probe#": "XXXXXXX", "Description": "Altera usuário/senha de PPPoE via Web GUI", "Resultado": result}
-
-        except NoSuchElementException as exception:
-            print(exception)
-            return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "changePPPoESettingsWrong", "Probe#": "XXXXXXX", "Description": "Altera usuário/senha de PPPoE via Web GUI", "Resultado": str(exception)}
-
-        except Exception as e:
-            print(e)
-            return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "changePPPoESettingsWrong", "Probe#": "XXXXXXX", "Description": "Altera usuário/senha de PPPoE via Web GUI", "Resultado": str(e)}
 
     def execEnablePortMirror(self, ip, username, password):
         
