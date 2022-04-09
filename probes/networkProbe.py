@@ -1,4 +1,4 @@
-import requests
+""" import requests
 import sys
 import time
 import os
@@ -298,3 +298,4 @@ class network:
             return {"Resultado_Probe": "OK", "ControllerName": "network", "ProbeName": "execIperf",
                     "Probe#": "XX",
                     "Description": "Executar teste de velocidade", "Resultado": "ERROR"}
+ """
