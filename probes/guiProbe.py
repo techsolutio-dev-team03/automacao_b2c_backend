@@ -1004,6 +1004,7 @@ class gui:
     #399
     def testeSiteWizard(self, ip, username, password, model_name, flask_username, **kwargs):
         driver = WebDriver.get_driver()
+
         dict_result = {"result":"failed",
                         "Resultado_Probe": "NOK", 
                         "ControllerName": "gui", 
@@ -1019,6 +1020,7 @@ class gui:
                                      driver=driver,
                                      password=password, 
                                      dict_result=dict_result)
+
         return hgu.testeSiteWizard_399(flask_username)
 
 
