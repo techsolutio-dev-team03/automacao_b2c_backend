@@ -5385,7 +5385,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             if set(ipv4) == set(ipv4_wizard_list) and set(ipv6) == set(ipv6_wizard_list) and ppp != '':
                 self._dict_result.update({"obs": "Teste OK", "result":"passed", "Resultado_Probe": "OK"})
             else:
-                self._dict_result.update({"obs": f"Teste inscorreto, retorno PPP: {ppp} IPv4: {ipv4} | IPv6: {ipv6}"})
+                self._dict_result.update({"obs": f"Teste incorreto, retorno PPP: {ppp} IPv4: {ipv4} | IPv6: {ipv6}"})
 
         return self._dict_result
 
@@ -5546,8 +5546,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         site1 = 'http://menuvivofibra.br'
         site2 = 'http://192.168.15.1/instalador'
         site3 = 'http://instaladorvivofibra.br'
-        print('-=-' * 20)
-        print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
         print('-=-' * 20)
         print('\n\n -- PARAMETROS DE ENTRADA --')
         print('site1 = ' + site1)
