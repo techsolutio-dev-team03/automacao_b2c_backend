@@ -22,7 +22,8 @@ from selenium.common.exceptions import InvalidSelectorException, NoSuchElementEx
 import paramiko
 from paramiko.ssh_exception import AuthenticationException, BadAuthenticationType, BadHostKeyException
 from paramiko.ssh_exception import SSHException
-import socket   
+import socket
+from selenium.common.exceptions import UnexpectedAlertPresentException
 
 from HGUmodels.main_session import MainSession
 
@@ -5205,9 +5206,9 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             time.sleep(1)
             config_internet = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
             time.sleep(1)
-            config_internet_user = self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
-            config_internet_passwd = self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
-            config_internet_salvar = self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
+            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
             time.sleep(1)
             try:
                 if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/span') or self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[2]/span'):
@@ -5247,22 +5248,18 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
             self._driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys('vivo')
             self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
+            time.sleep(15)
             try:
-                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/span') or self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[2]/span'):
-                    self._dict_result.update({"obs": "Teste falhou"})
-
-            except:
-                self._dict_result.update({"obs": "Usuario aceito", "result":"passed", "Resultado_Probe": "OK"})
-            
-            time.sleep(1)
-            # Deixando o valor padrao de volta
-            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
-            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').send_keys('cliente@cliente')
-            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
-            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys('cliente')
-            self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
-
-            self._driver.quit()
+                time.sleep(8)
+                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
+                    if self._driver.find_element_by_xpath('//*[@id="txtUsername"]').get_attribute('value') == 'vivo@cliente':
+                        self._dict_result.update({"obs": "Usuario aceito", "result":"passed", "Resultado_Probe": "OK"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito"})
+            except UnexpectedAlertPresentException as e:                
+                self._dict_result.update({"obs": f"Teste falhou. {e}"})
+            finally:
+                self._driver.quit()
         except Exception as e:
             self._dict_result.update({"obs": e})
         finally:
@@ -5274,6 +5271,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         try:
             try:
                 self._driver.get('https://' + self._address_ip + '/')
+                time.sleep(1)
                 self._dict_result.update({"obs": "Acesso via HTTPS OK", "result":"passed", "Resultado_Probe": "OK"})
             except:
                 self._dict_result.update({"obs": "Nao foi possivel acessar via HTTPS"})
@@ -5335,7 +5333,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         destino = '8.8.8.8',
         tentativas = "1"
         try:
-            
             self._driver.get('http://' + self._address_ip + '/login.asp')
             self._driver.switch_to.default_content()
             user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
@@ -5346,21 +5343,17 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             time.sleep(1)
             login_button.click()
             time.sleep(1)
-            gerenc = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/a').click()
+            self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/a').click()
             time.sleep(1)
-            gerenc_Ferram = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/ul/li[6]/a').click()
+            self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/ul/li[6]/a').click()
             time.sleep(1)
             self._driver.find_element_by_xpath('//*[@id="txtDest"]').send_keys(destino)
             self._driver.find_element_by_xpath('//*[@id="txtNum"]').send_keys(tentativas)
             self._driver.find_element_by_xpath('//*[@id="btnTest"]').click()
-            time.sleep(6)
+            time.sleep(5)
             result = self._driver.find_element_by_xpath('//*[@id="txtResult"]').get_property('value')
-
-            json_saida = {"Resultados":result}
-            print(json_saida)
             self._driver.quit()
-            self._dict_result.update({"obs": f"{json_saida['Resultados']}", "result":"passed", "Resultado_Probe": "OK"})
-
+            self._dict_result.update({"obs": f"Resultado: {result}", "result":"passed", "Resultado_Probe": "OK"})
         except NoSuchElementException as exception:
             self._dict_result.update({"obs": exception})
 

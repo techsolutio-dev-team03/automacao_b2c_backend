@@ -16,6 +16,9 @@ from daos.mongo_dao import MongoConnSigleton
 from collections import namedtuple
 from HGUmodels.utils import chunks
 
+from selenium.common.exceptions import UnexpectedAlertPresentException
+
+
 import paramiko
 from paramiko.ssh_exception import AuthenticationException, BadAuthenticationType, BadHostKeyException
 from paramiko.ssh_exception import SSHException
@@ -3067,9 +3070,167 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
             return self._dict_result
 
 
+    def changePPPoESettingsWrong_376(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/')
+            self.login_admin()
+            time.sleep(1)
+            self._driver.switch_to.frame('mainFrame')
+
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[1]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
+            time.sleep(1)
+            try:
+                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/span') or self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[2]/span'):
+                    self._dict_result.update({"obs": "Verificacao OK", "result":"passed", "Resultado_Probe": "OK"})
+            except:
+                self._dict_result.update({"obs": "Teste falhou"})
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            return self._dict_result  
 
 
+    def changePPPoESettingsWrong_377(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/')
+        
+            self.login_admin()
+            time.sleep(1)
+            self._driver.switch_to.frame('mainFrame')
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[1]/a').click()
+            print(self._driver.find_element_by_xpath('//*[@id="txtUsername"]').get_attribute('value'))
+        
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').send_keys('vivo@cliente')
+            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys('vivo')
+            self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
+            try:
+                time.sleep(22)
+                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
+                    if self._driver.find_element_by_xpath('//*[@id="txtUsername"]').get_attribute('value') == 'vivo@cliente':
+                       self._dict_result.update({"obs": "Usuario aceito", "result":"passed", "Resultado_Probe": "OK"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito"})
 
+            except UnexpectedAlertPresentException as e:
+                time.sleep(2)
+                self._dict_result.update({"obs": f"Teste falhou. {e}"})
+            finally:
+                self._driver.quit()
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            return self._dict_result  
+
+
+    def connectWizardhttps_379(self,flask_username):
+        try:
+            try:
+                self._driver.get('https://' + self._address_ip + '/')
+                time.sleep(1)
+                self._dict_result.update({"obs": "Acesso via HTTPS OK", "result":"passed", "Resultado_Probe": "OK"})
+            except:
+                self._dict_result.update({"obs": "Nao foi possivel acessar via HTTPS"})
+
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": exception})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        
+        finally:
+            self._driver.quit()
+            return self._dict_result    
+
+
+    def checkPPPoEStatus_380(self, flask_username):
+        try:
+            try:
+                self._driver.get('http://' + self._address_ip + '/')
+                self._driver.switch_to.frame('mainFrame')
+                time.sleep(1)
+                gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
+                div = [value.text.replace('\n', '') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[1]//div')]
+                dict_saida = {
+                    "Status":
+                        {
+                            gpon:
+                                {div[0].split(':')[0]: div[0].split(':')[1],
+                                div[1].split(':')[0]: div[1].split(':')[1],
+                                div[2].split(':')[0]: div[2].split(':')[1],
+                                }
+                        }
+                }
+                print(dict_saida)
+                self._dict_result.update({"obs": dict_saida, "result":"passed", "Resultado_Probe": "OK"})
+            except:
+                self._dict_result.update({"obs": "Nao foi possivel acessar sem login"})
+
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": exception})
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            return self._dict_result
+
+
+    def getFullConfig_382(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            idioma = result['Gerenciamento']['IDIOMA']
+            if idioma == 'Português':
+                self._dict_result.update({"obs": "Idioma: Português", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Idioma: {idioma}"})
+        return self._dict_result
+
+
+    def execPingWizard_384(self, flask_username):
+
+        destino = '8.8.8.8',
+        tentativas = "1"
+        try:
+            
+            self._driver.get('http://' + self._address_ip + '/')
+            self.login_admin()
+            time.sleep(1)
+            self._driver.switch_to.frame('mainFrame')
+
+            gerenc = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/ul/li[6]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="txtDest"]').send_keys(destino)
+            self._driver.find_element_by_xpath('//*[@id="txtNum"]').send_keys(tentativas)
+            self._driver.find_element_by_xpath('//*[@id="btnTest"]/span').click()
+            time.sleep(6)
+            result = self._driver.find_element_by_xpath('//*[@id="txtResult"]').get_property('value')
+            self._driver.quit()
+            self._dict_result.update({"obs": f"Resultado: {result}", "result":"passed", "Resultado_Probe": "OK"})
+
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": exception})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+
+        finally:
+            return self._dict_result
 
 
 
