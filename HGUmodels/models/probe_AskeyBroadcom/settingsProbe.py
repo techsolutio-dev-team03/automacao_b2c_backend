@@ -3119,13 +3119,13 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
                 time.sleep(22)
                 if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
                     if self._driver.find_element_by_xpath('//*[@id="txtUsername"]').get_attribute('value') == 'vivo@cliente':
-                       self._dict_result.update({"obs": "Usuario aceito", "result":"passed", "Resultado_Probe": "OK"})
+                       self._dict_result.update({"obs": "Usuario aceito"})
                     else:
-                        self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito"})
+                        self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito", "result":"passed", "Resultado_Probe": "OK"})
 
             except UnexpectedAlertPresentException as e:
                 time.sleep(2)
-                self._dict_result.update({"obs": f"Teste falhou. {e}"})
+                self._dict_result.update({"obs": f"Teste falhou. {e}", "result":"passed", "Resultado_Probe": "OK"})
             finally:
                 self._driver.quit()
         except Exception as e:
