@@ -3644,3 +3644,56 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno VoIP: {status}"})
         return self._dict_result
+
+    def testeSiteWizard_399(self, flask_username):
+        site1 = 'http://menuvivofibra.br'
+        site2 = f'http://{self._address_ip}/instalador'
+        site3 = 'http://instaladorvivofibra.br'
+        print('-=-' * 20)
+        print('\n\n -- PARAMETROS DE ENTRADA --')
+        print('site1 = ' + site1)
+        print('site2 = ' + site2)
+        print('site3 = ' + site3)
+        print('-=-' * 20)
+        
+        try:
+            self._driver.get(site1)
+            time.sleep(1)
+            elementos = self._driver.find_elements_by_xpath('/html/body/div/div[1]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado1 = 'ok'
+        except:
+            resultado1 = 'falhou'
+        print('site1: ', resultado1)
+        print('-=-' * 20)
+        
+        try:
+            self._driver.get(site2)
+            time.sleep(1)
+            self.admin_authentication_mitraStat()
+            time.sleep(1)
+            elementos = self._driver.find_elements_by_xpath('/html/body/div/div[1]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado2 = 'ok'
+        except:
+            resultado2 = 'falhou'
+        print('site2: ', resultado2)
+        print('-=-' * 20)
+
+        try:
+            self._driver.get(site3)
+            time.sleep(1)
+            elementos = self._driver.find_elements_by_xpath('/html/body/div/div[1]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado3 = 'ok'
+        except:
+            resultado3 = 'falhou'
+        print('site3: ', resultado3)
+        print('-=-' * 20)
+ 
+        self._driver.quit()
+        if resultado1 == 'ok' and resultado2 == 'ok' and resultado3 == 'ok':
+            self._dict_result.update({"obs": "URLs de redirecionamento ok", "result":"passed", "Resultado_Probe": "OK"})
+        else:
+            self._dict_result.update({"obs": f"Teste incorreto, retorno URLs: {site1}: {resultado1}; {site2}: {resultado2}; {site3}: {resultado3}"})
+        return self._dict_result
