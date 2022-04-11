@@ -3,7 +3,7 @@ from cgi import print_form
 from os import name
 import re
 import time
-import unidecode
+# import unidecode
 # from jinja2 import pass_context
 #from typing import final
 import paramiko
@@ -3578,14 +3578,12 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
         else:
             statusInternet = result['Status']['Internet']
-            ppp, ipv4, ipv4_wizard_list = statusInternet['PPP:'], statusInternet['IPv4'], wizard_config.INTERNET_IPV4
-            ipv6, ipv6_wizard_list = statusInternet['IPv6'], wizard_config.INTERNET_IPV6
-
-            ipv4 = [unidecode.unidecode(a.upper()) for a in ipv4.keys()]
-            ipv4_wizard_list = [unidecode.unidecode(a.upper()) for a in ipv4_wizard_list]
-            ipv6 = [unidecode.unidecode(a.upper()) for a in ipv6.keys()]
-            ipv6_wizard_list = [unidecode.unidecode(a.upper()) for a in ipv6_wizard_list]
-
+            ppp, ipv4, ipv4_wizard_list = statusInternet['PPP:'], statusInternet['IPv4'], wizard_config.INTERNET_IPV4_MITRA_ECNT
+            ipv6, ipv6_wizard_list = statusInternet['IPv6'], wizard_config.INTERNET_IPV6_MITRA_ECNT
+            # ipv4 = [unidecode.unidecode(a.upper()) for a in ipv4.keys()]
+            # ipv4_wizard_list = [unidecode.unidecode(a.upper()) for a in ipv4_wizard_list]
+            # ipv6 = [unidecode.unidecode(a.upper()) for a in ipv6.keys()]
+            # ipv6_wizard_list = [unidecode.unidecode(a.upper()) for a in ipv6_wizard_list]
             print(set(ipv4), '\n', set(ipv4_wizard_list), '\n', set(ipv6), '\n', set(ipv6_wizard_list))
 
             if set(ipv4) == set(ipv4_wizard_list) and set(ipv6) == set(ipv6_wizard_list) and ppp != '':
@@ -3604,13 +3602,12 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         else:
             ifaceVoip = result['Status']['Telefone']['Rede:']
             registerVoIP = result['Status']['Telefone']['Telefone:']
-
             if ifaceVoip == 'Disponível' and (registerVoIP != 'Não Registrado' or registerVoIP == ''):
                 self._dict_result.update({"obs": f"Rede: Disponível | Telefone: {registerVoIP}", "result":"passed", "Resultado_Probe": "OK"})
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno Rede: Disponível | Telefone: {registerVoIP}"})
-
         return self._dict_result
+        
 
     # como fazer wizard config consistente entre os modelos?
     def statusWizardIptv_389(self, flask_username):
@@ -3620,18 +3617,18 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
         else:
             status = result['Status']['TV']
-            status = [unidecode.unidecode(a.upper()) for a in status.keys()]
-            print(status)
-            iptv = wizard_config.IPTV
-            iptv = [unidecode.unidecode(a.upper()) for a in iptv]
-            print(iptv)
-
+            # status = [unidecode.unidecode(a.upper()) for a in status.keys()]
+            # print(status)
+            iptv = wizard_config.IPTV_MITRA_ECNT
+            # iptv = [unidecode.unidecode(a.upper()) for a in iptv]
+            # print(iptv)
             if set(status) == set(iptv):
                 self._dict_result.update({"obs": f"Teste OK", "result":"passed", "Resultado_Probe": "OK"})
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno TV: {status}"})
             
         return self._dict_result
+
 
     # como fazer wizard config consistente entre os modelos?
     def statusWizardVoip_390(self, flask_username):
@@ -3641,13 +3638,9 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
         else:
             status = result['Status']['Telefone']
-            print(status)
             voip = wizard_config.VOIP
-            print(voip)
-
             if set(status) == set(voip):
                 self._dict_result.update({"obs": f"Teste OK", "result":"passed", "Resultado_Probe": "OK"})
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno VoIP: {status}"})
-            
         return self._dict_result
