@@ -1,5 +1,6 @@
 from .models.AskeyBROADCOM import HGU_AskeyBROADCOM
 from .models.probe_MItraStarECNT.settingsProbe import HGU_MItraStarECNT_settingsProbe
+from .models.probe_MItraStarBROADCOM.settingsProbe import HGU_MItraStarBROADCOM_settingsProbe
 from .models.probe_AskeyECNT.settingsProbe import HGU_AskeyECNT_settingsProbe
 from .models.probe_AskeyBroadcom.settingsProbe import HGU_AskeyBROADCOM_settingsProbe
 
@@ -9,6 +10,10 @@ class HGUModelFactory:
         if model_name == 'HGU1_MItraStar_ECNT':
             if probe == 'settingsProbe':
                 return HGU_MItraStarECNT_settingsProbe(address_ip, model_name, username, password, driver, dict_result)
+
+        elif model_name == 'HGU1_MItraStar_BROADCOM':
+            if probe == 'settingsProbe':
+                return HGU_MItraStarBROADCOM_settingsProbe(address_ip, model_name, username, password, driver, dict_result)
 
         elif model_name == 'HGU2_Askey_ECNT':
             if probe == 'settingsProbe':
