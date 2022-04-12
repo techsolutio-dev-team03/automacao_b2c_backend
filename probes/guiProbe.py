@@ -529,7 +529,7 @@ class gui:
                         "Description": "Altera usuário/senha de PPPoE via Web GUI", 
                         "obs": None}
                         
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -549,7 +549,7 @@ class gui:
                         "Description": "Altera usuário/senha de PPPoE via Web GUI", 
                         "obs": None}
                         
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -598,7 +598,7 @@ class gui:
                         "Description": "Validar erro de conexão com metodo https", 
                         "obs": None}
                         
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -734,7 +734,7 @@ class gui:
                         "Description": "Verifica o status da conexão PPPoE", 
                         "obs": None}
                         
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -754,7 +754,7 @@ class gui:
                         "Description": "Idioma padrão do wizard deve ser em Português", 
                         "obs": None}
 
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -843,7 +843,7 @@ class gui:
                         "Description": "Executa teste de Ping via Web GUI", 
                         "obs": None}
 
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username,
@@ -864,7 +864,7 @@ class gui:
                         "Description": "Mostra corretamente o status PPP no índice", 
                         "obs": None}
 
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -884,7 +884,7 @@ class gui:
                         "Description": "Mostrar corretamente as Estatísticas de VoIP caso possua esse serviço.", 
                         "obs": None}
 
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -924,7 +924,7 @@ class gui:
                         "Description": "Informações sobre a conta SIP no Indice caso possua esse serviço.", 
                         "obs": None}
 
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -1012,7 +1012,7 @@ class gui:
                         "Description": "Abrir URL", 
                         "obs": None}
 
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username,
