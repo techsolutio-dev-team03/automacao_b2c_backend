@@ -437,7 +437,7 @@ class gui:
                         "Description": "Verifica o status da conexão PPPoE", 
                         "obs": None}
                         
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
