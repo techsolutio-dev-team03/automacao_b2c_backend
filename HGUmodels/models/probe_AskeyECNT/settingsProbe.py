@@ -22,7 +22,8 @@ from selenium.common.exceptions import InvalidSelectorException, NoSuchElementEx
 import paramiko
 from paramiko.ssh_exception import AuthenticationException, BadAuthenticationType, BadHostKeyException
 from paramiko.ssh_exception import SSHException
-import socket   
+import socket
+from selenium.common.exceptions import UnexpectedAlertPresentException
 
 from HGUmodels.main_session import MainSession
 
@@ -5104,172 +5105,8 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         return self._dict_result
 
 
-    def accessWizard_373(self, flask_username):
-        #TODO: Fazer logica no frontend para garantir que o teste 401 seja executado em conjunto
-        result = session.get_result_from_test(flask_username, 'accessWizard_401')
-        if len(result) == 0:
-            self._dict_result.update({"obs": 'Execute o teste 401 primeiro'})
-        else:
-            ans_500 = result['Resultado_Probe']
-            if 'OK' == ans_500:
-                self._dict_result.update({"Resultado_Probe": "OK", "obs": "Teste OK", "result":"passed"})
-            else:
-                self._dict_result.update({"obs": f"Teste incorreto, retorno: {ans_500}"})
-        return self._dict_result
-
-    def logoutWizard_374(self, flask_username):
-        try:
-            self._driver.get('http://' + self._address_ip + '/')
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a').click()
-            time.sleep(1)
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
-            time.sleep(1)
-            self._driver.get('http://' + self._address_ip + '/login.asp')
-            self.login_support()
-            time.sleep(2)
-            try:
-                self._driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/a').click()
-                self._dict_result.update({"obs": "Logout efetuado com sucesso", "result":"passed", "Resultado_Probe": "OK"})
-            except:
-                self._dict_result.update({"obs": "Nao foi possivel efetuar o logout"})
-        except Exception as e:
-            self._dict_result.update({"obs": e})
-        finally:
-            self._driver.quit()
-            return self._dict_result
-
-
-    def checkRedeGpon_375(self, flask_username):
-        try:
-            self._driver.get('http://' + self._address_ip + '/login.asp')
-
-            self._driver.switch_to.default_content()
-            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            user_input.send_keys(self._username)
-            pass_input = self._driver.find_element_by_id('txtPass')
-            pass_input.send_keys(self._password)
-            login_button = self._driver.find_element_by_id('btnLogin')
-            time.sleep(1)
-            login_button.click()
-            time.sleep(1)
-            self._driver.find_element_by_xpath('//*[@id="accordion"]/li[1]/a').click()
-            time.sleep(1)
-            gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
-            div = [value.text.replace('\n', '') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[1]//div')]
-            dict_saida = {
-                "Status":
-                    {
-                        gpon:
-                            {div[0].split(':')[0]: div[0].split(':')[1],
-                            div[1].split(':')[0]: div[1].split(':')[1],
-                            div[2].split(':')[0]: div[2].split(':')[1],
-                            }
-                    }
-            }
-            print(dict_saida)
-            link = dict_saida['Status']['GPON']['Link']
-            self._driver.quit()
-
-            if link == 'Não Estabelecido':
-                self._dict_result.update({"obs": "Link: Não Estabelecido", "result":"passed", "Resultado_Probe": "OK"})
-            else:
-                self._dict_result.update({"obs": f"Teste incorreto, retorno Link: {link}"})
-
-        except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
-        except Exception as e:
-            self._dict_result.update({"obs": e})
-        finally:
-            self.update_global_result_memory(flask_username, 'checkRedeGpon_375', dict_saida)
-            return self._dict_result
     
-
-    def changePPPoESettingsWrong_376(self, flask_username):
-        try:
-            self._driver.get('http://' + self._address_ip + '/')
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a').click()
-            time.sleep(1)
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
-            time.sleep(1)
-            self._driver.get('http://' + self._address_ip + '/login.asp')
-            self._driver.switch_to.default_content()
-            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            user_input.send_keys(self._username)
-            pass_input = self._driver.find_element_by_id('txtPass')
-            pass_input.send_keys(self._password)
-            login_button = self._driver.find_element_by_id('btnLogin')
-            time.sleep(1)
-            login_button.click()
-            time.sleep(1)
-            config = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
-            time.sleep(1)
-            config_internet = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
-            time.sleep(1)
-            config_internet_user = self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
-            config_internet_passwd = self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
-            config_internet_salvar = self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
-            time.sleep(1)
-            try:
-                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/span') or self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[2]/span'):
-                    self._dict_result.update({"obs": "Verificacao OK", "result":"passed", "Resultado_Probe": "OK"})
-            except:
-                self._dict_result.update({"obs": "Teste falhou"})
-            self._driver.quit()
-        except Exception as e:
-            self._dict_result.update({"obs": e})
-        finally:
-            return self._dict_result  
-
-
-    def changePPPoESettingsWrong_377(self, flask_username):
-        try:
-            self._driver.get('http://' + self._address_ip + '/')
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a').click()
-            time.sleep(1)
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
-            time.sleep(1)
-            self._driver.get('http://' + self._address_ip + '/login.asp')
-            self._driver.switch_to.default_content()
-            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            user_input.send_keys(self._username)
-            pass_input = self._driver.find_element_by_id('txtPass')
-            pass_input.send_keys(self._password)
-            login_button = self._driver.find_element_by_id('btnLogin')
-            time.sleep(1)
-            login_button.click()
-            time.sleep(1)
-            config = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
-            time.sleep(1)
-            config_internet = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
-            time.sleep(1)
-            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
-            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').send_keys('vivo@cliente')
-            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
-            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys('vivo')
-            self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
-            try:
-                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/span') or self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[2]/span'):
-                    self._dict_result.update({"obs": "Teste falhou"})
-
-            except:
-                self._dict_result.update({"obs": "Usuario aceito", "result":"passed", "Resultado_Probe": "OK"})
-            
-            time.sleep(1)
-            # Deixando o valor padrao de volta
-            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
-            self._driver.find_element_by_xpath('//*[@id="txtUsername"]').send_keys('cliente@cliente')
-            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
-            self._driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys('cliente')
-            self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
-
-            self._driver.quit()
-        except Exception as e:
-            self._dict_result.update({"obs": e})
-        finally:
-            return self._dict_result  
-
-
-    
+<<<<<<< HEAD
     def connectWizardhttps_379(self,flask_username):
         try:
             try:
@@ -5443,6 +5280,8 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             
         return self._dict_result
 
+=======
+>>>>>>> 5b6b9110563f0680ace95d66b4574224a79c105b
 
 
     def checkBridgeMode_21(self, flask_username):
@@ -5499,7 +5338,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             self._driver.find_element_by_xpath('//*[@id="tbGPONinfo"]')
             self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": 'Login efetuado com sucesso'})
         except (InvalidSelectorException, NoSuchElementException, NoSuchFrameException) as exception:
-            self._dict_result.update({"obs": 'Nao foi possivel realizar o login com sucesso'})
+            self._dict_result.update({"obs": 'Nao foi possivel realizar o login'})
         finally:
             self._driver.quit()
             return self._dict_result
@@ -5542,6 +5381,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             return self._dict_result
         
 
+<<<<<<< HEAD
     def testeSiteWizard_399(self, flask_username):
         site1 = 'http://menuvivofibra.br'
         site2 = 'http://192.168.15.1/instalador'
@@ -5594,3 +5434,12 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         else:
             self._dict_result.update({"obs": f"Teste incorreto, retorno URLs: {site1}: {resultado1}; {site2}: {resultado2}; {site3}: {resultado3}"})
         return self._dict_result
+=======
+
+
+
+
+
+
+    
+>>>>>>> 5b6b9110563f0680ace95d66b4574224a79c105b
