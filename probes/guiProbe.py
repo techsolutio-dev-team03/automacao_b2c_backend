@@ -180,7 +180,7 @@ class gui:
                        "Probe#": "78", 
                        "Description": "Acessar página padrão "}
 
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -365,7 +365,7 @@ class gui:
                         "Description": "Logout na GUI básica de usuário (Wizard)", 
                         "obs": None}
 
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
