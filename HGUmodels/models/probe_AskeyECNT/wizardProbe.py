@@ -353,9 +353,7 @@ class HGU_AskeyECNT_wizardProbe(HGU_AskeyECNT):
             self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
         else:
             status = result['Status']['Telefone']
-            print(status)
             voip = wizard_config.VOIP
-            print(voip)
 
             if set(status) == set(voip):
                 self._dict_result.update({"obs": f"Teste OK", "result":"passed", "Resultado_Probe": "OK"})
@@ -364,145 +362,45 @@ class HGU_AskeyECNT_wizardProbe(HGU_AskeyECNT):
             
         return self._dict_result
 
-# NAO FOI IMPLEMENTADO
     def testeSiteWizard_399(self, flask_username):
-        # wait = WebDriverWait(self.self._driver, 10)
-        # size = self._driver.set_window_size(1280, 600)
         site1 = 'http://menuvivofibra.br'
-        site2 = 'http://192.168.15.1/instalador'
+        site2 = f'http://{self._address_ip}/instalador'
         site3 = 'http://instaladorvivofibra.br'
+        
         try:
-            self._driver.get(site1 + '/')
-            time.sleep(100)
-            self._driver.switch_to.frame('mainFrame')
-            user_input = self._driver.find_element_by_xpath('//*[@id="txtUser"]')
-            user_input.send_keys(self._username)
-            pass_input = self._driver.find_element_by_xpath('//*[@id="txtPass"]')
-            pass_input.send_keys(self._password)
-            self._driver.find_element_by_xpath('//*[@id="btnLogin"]').click()
-            time.sleep(50)
-
-            print('\n\n == Aguardando redirecionamento de página == ')
-            self._driver.switch_to.default_content()
-            
-            time.sleep(5)
-
-            gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
-            divOptical = self._driver.find_element_by_id('divOptical').text
-            divOptical = divOptical.split("\n")
-            print(divOptical)
-            divOptRx = self._driver.find_element_by_id('divOptRx').text
-            print('#### 1')
-            print(divOptRx)
-
-            divOptRx = divOptRx.split("\n")
-            print(divOptRx)
-
-            divOptTx = self._driver.find_element_by_id('divOptTx').text
-            print('#### 2')
-            print(divOptRx)
-
-            divOptTx = divOptTx.split("\n")
-            print(divOptTx)
-            time.sleep(4)
-            print('\n\n == Abrindo URL ' + site2+ ' == ')
-            self._driver.quit()
-
+            self._driver.get(site1)
+            time.sleep(1)
+            elementos = self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado1 = 'ok'
+        except:
+            resultado1 = 'falhou'
+        
+        try:
             self._driver.get(site2)
-            print('\n\n == Aguardando redirecionamento de página == ')
             time.sleep(1)
-            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            user_input.send_keys('usuario')
-            pass_input = self._driver.find_element_by_id('txtPass')
-            pass_input.send_keys('senha')
-            login_button = self._driver.find_element_by_id('btnLogin')
-            print('\n\n == Abrindo URL ' + site3+ ' == ')
-            self._driver.get(site3 + '/')
-            print('\n\n == Aguardando redirecionamento de página == ')
-            time.sleep(1)
-            gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
-            divOptical = self._driver.find_element_by_id('divOptical').text
-            divOptical = divOptical.split("\n")
-            print(divOptical)
-            divOptRx = self._driver.find_element_by_id('divOptRx').text
-            divOptRx = divOptRx.split("\n")
-            print(divOptRx)
-            divOptTx = self._driver.find_element_by_id('divOptTx').text
-            divOptTx = divOptTx.split("\n")
-            print(divOptTx)
+            self.login_support()
             time.sleep(2)
-            self._driver.quit()
+            elementos = self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado2 = 'ok'
+        except:
+            resultado2 = 'falhou'
 
-
-
-            # print('\n\n == Abrindo URL ' + site1+ ' == ')
-            # self._driver.get(site1 + '/')
-            # time.sleep(3)
-            # self._driver.switch_to.default_content()
-            # user_input = self._driver.find_element_by_id('txtUser')
-            # user_input.send_keys(self._username)
-            # pass_input = self._driver.find_element_by_id('txtPass')
-            # pass_input.send_keys(self._password)
-            # login_button = self._driver.find_element_by_id('btnLogin')
-            # time.sleep(1)
-            # login_button.click()
-            # print('\n\n == Aguardando redirecionamento de página == ')
-            # time.sleep(3)
-            # self._driver.switch_to.frame('basefrm')
-
-            # gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
-            # time.sleep(1)
-            # print('GPON', gpon)
-            # # divOptical = self._driver.find_element_by_id('divOptical').text
-            # time.sleep(1)
-
-            # # divOptical = divOptical.split("\n")
-            # # print(divOptical)
-            # divOptRx = self._driver.find_element_by_id('divOptRx').text
-
-            # time.sleep(1)
-            # divOptRx = divOptRx.split("\n")
-            # print(divOptRx)
-            # divOptTx = self._driver.find_element_by_id('divOptTx').text
-            # time.sleep(1)
-            # divOptTx = divOptTx.split("\n")
-            # print(divOptTx)
-            # time.sleep(2)
-            # print('\n\n == Abrindo URL ' + site2+ ' == ')
-            # self._driver.get(site2 + '/')
-            # print('\n\n == Aguardando redirecionamento de página == ')
-            # time.sleep(1)
-            # user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            # user_input.send_keys(self._username)
-            # pass_input = self._driver.find_element_by_id('txtPass')
-            # pass_input.send_keys(self._password)
-            # login_button = self._driver.find_element_by_id('btnLogin')
-            # print('\n\n == Abrindo URL ' + site3+ ' == ')
-            # self._driver.get(site3 + '/')
-            # print('\n\n == Aguardando redirecionamento de página == ')
-            # time.sleep(1)
-            # gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
-            # divOptical = self._driver.find_element_by_id('divOptical').text
-            # divOptical = divOptical.split("\n")
-            # print(divOptical)
-            # divOptRx = self._driver.find_element_by_id('divOptRx').text
-            # divOptRx = divOptRx.split("\n")
-            # print(divOptRx)
-            # divOptTx = self._driver.find_element_by_id('divOptTx').text
-            # divOptTx = divOptTx.split("\n")
-            # print(divOptTx)
-            # time.sleep(2)
-            # return {"Resultado_Probe": "OK","ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": "200 OK"}
-        except NoSuchElementException as exception:
-            print(exception)
-            return {"Resultado_Probe": "NOK", "ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": str(exception)}
-        except Exception as e:
-            print(e)
-            return {"Resultado_Probe": "NOK", "ProbeName": "testeSite", "Probe#": "44", "Description": "Abrir URL", "Resultado": str(e)}
-
-        finally:
-            # self._driver.quit()
-            self._dict_result.update({"obs": "acabou"})
-            return self._dict_result
+        try:
+            self._driver.get(site3)
+            time.sleep(1)
+            elementos = self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado3 = 'ok'
+        except:
+            resultado3 = 'falhou'
+ 
+        self._driver.quit()
+        if resultado1 == 'ok' and resultado2 == 'ok' and resultado3 == 'ok':
+            self._dict_result.update({"obs": "URLs de redirecionamento ok", "result":"passed", "Resultado_Probe": "OK"})
+        else:
+            self._dict_result.update({"obs": f"Teste incorreto, retorno URLs: {site1}: {resultado1}; {site2}: {resultado2}; {site3}: {resultado3}"})
+        return self._dict_result
 
 

@@ -61,13 +61,11 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
                 self._driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/a').click()
                 self._dict_result.update({"obs": "Logout efetuado com sucesso", "result":"passed", "Resultado_Probe": "OK"})
             except:
-                self._dict_result.update({"obs": "Nao foi possivel efetuar o logout"})
-
-            time.sleep(1)
-            self._driver.quit()
+                    self._dict_result.update({"obs": "Nao foi possivel efetuar o logout"})
         except Exception as e:
             self._dict_result.update({"obs": e})
         finally:
+            self._driver.quit()
             return self._dict_result
 
 
@@ -197,6 +195,8 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
             try:
                 self._driver.get('http://' + self._address_ip + '/')
                 self._driver.switch_to.frame('mainFrame')
+                time.sleep(1)
+                self._driver.find_element_by_xpath('//*[@id="accordion"]/li[1]/a').click()
                 time.sleep(1)
                 gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
                 div = [value.text.replace('\n', '') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[1]//div')]
@@ -347,7 +347,53 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
 
 
 
+    def testeSiteWizard_399(self, flask_username):
+        site1 = 'http://menuvivofibra.br'
+        site2 = f'http://{self._address_ip}/instalador'
+        site3 = 'http://instaladorvivofibra.br'        
+        try:
+            self._driver.get(site1)
+            time.sleep(1)
+            elementos = self._driver.find_elements_by_xpath('/html/body/div/div[1]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado1 = 'ok'
+        except:
+            resultado1 = 'falhou'
 
+        try:
+            self._driver.get(site2)
+            # self.login_support()
+
+            self._driver.switch_to.frame('mainFrame')
+            time.sleep(1)
+            user_input = self._driver.find_element_by_xpath('//*[@id="txtUser"]')
+            user_input.send_keys('support')
+            pass_input = self._driver.find_element_by_xpath('//*[@id="txtPass"]')
+            pass_input.send_keys(self._password)
+            login_button = self._driver.find_element_by_xpath('//*[@id="btnLogin"]')
+            time.sleep(1)
+            login_button.click()
+            time.sleep(2)
+
+            resultado2 = 'ok'
+        except:
+            resultado2 = 'falhou'
+
+        try:
+            self._driver.get(site3)
+            time.sleep(1)
+            elementos = self._driver.find_elements_by_xpath('/html/body/div/div[1]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado3 = 'ok'
+        except:
+            resultado3 = 'falhou'
+ 
+        self._driver.quit()
+        if resultado1 == 'ok' and resultado2 == 'ok' and resultado3 == 'ok':
+            self._dict_result.update({"obs": "URLs de redirecionamento ok", "result":"passed", "Resultado_Probe": "OK"})
+        else:
+            self._dict_result.update({"obs": f"Teste incorreto, retorno URLs: {site1}: {resultado1}; {site2}: {resultado2}; {site3}: {resultado3}"})
+        return self._dict_result
 
 
 
