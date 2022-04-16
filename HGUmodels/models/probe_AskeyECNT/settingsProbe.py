@@ -5106,7 +5106,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     
-<<<<<<< HEAD
     def connectWizardhttps_379(self,flask_username):
         try:
             try:
@@ -5280,8 +5279,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             
         return self._dict_result
 
-=======
->>>>>>> 5b6b9110563f0680ace95d66b4574224a79c105b
 
 
     def checkBridgeMode_21(self, flask_username):
@@ -5381,7 +5378,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             return self._dict_result
         
 
-<<<<<<< HEAD
     def testeSiteWizard_399(self, flask_username):
         site1 = 'http://menuvivofibra.br'
         site2 = 'http://192.168.15.1/instalador'
@@ -5434,12 +5430,3 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         else:
             self._dict_result.update({"obs": f"Teste incorreto, retorno URLs: {site1}: {resultado1}; {site2}: {resultado2}; {site3}: {resultado3}"})
         return self._dict_result
-=======
-
-
-
-
-
-
-    
->>>>>>> 5b6b9110563f0680ace95d66b4574224a79c105b

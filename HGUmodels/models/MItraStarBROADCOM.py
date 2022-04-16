@@ -3,7 +3,7 @@ from ..interface import HGUModelInterface
 from selenium.webdriver.common.action_chains import ActionChains 
 
 
-class HGU_MItraStarECNT(HGUModelInterface):
+class HGU_MItraStarBROADCOM(HGUModelInterface):
 
     def login_support(self):
         time.sleep(5)

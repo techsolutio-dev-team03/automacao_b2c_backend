@@ -37,6 +37,30 @@ class gui:
             print('Excecao', e)
         # driver.quit()
 
+
+    #68
+    def connectFakeWizard(self, ip, username, password, flask_username, model_name, **kwargs):
+
+        driver = WebDriver.get_driver()
+
+        dict_result =  {"result":'failed', 
+                        "obs":None,
+                        "Resultado_Probe": "NOK", 
+                        "ProbeName": "connectFakeWizard", 
+                        "Probe#": "XXXXXX", 
+                        "Description": "Validar que não é possível acessar a URL http://{ip}/wancfg.cmd?action=view".format(ip=ip), 
+                       }
+
+        hgu = HGUModelFactory.getHGU(probe='functionalProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+
+        return hgu.connectFakeWizard_68(flask_username)
+
     def habilitaSSHASKEY3505(self):
         
         driver = WebDriver.get_driver()
@@ -5553,35 +5577,6 @@ class gui:
             print(e)
             return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "checkWifi24SettingsPadrao", "Probe#": "XXXXXXXXXX", "Description": "Verifica as informações de Wifi 2.4Ghz e 5Ghz via página padrão", "Resultado": str(e)}
 
-    def connectFakeWizard(self, site1):
-        
-        driver = WebDriver.get_driver()
-        print()
-        print()
-        print('-=-' * 20)
-        print('\t\t --- INICIANDO ROBO AUTOMAÇÃO ---')
-        print('-=-' * 20)
-        print('\n\n -- PARAMETROS DE ENTRADA --')
-        print('site1 = ' + site1)
-        print('-=-' * 20)
-        try:
-            print('\n\n == Abrindo URL ' + site1 + ' == ')
-            driver.get(site1)
-            print('\n\n == Aguardando redirecionamento de página == ')
-            if driver.find_element_by_xpath('/html/body/h4'):
-                result = driver.find_element_by_xpath('/html/body/h4').text
-                print(result)
-            time.sleep(1)
-            return {"Resultado_Probe": "OK", "ProbeName": "connectFakeWizard", "Probe#": "XXXXXX", "Description": "Validar que não é possível acessar a URL http://+{IP_GATEWAY}+/wancfg.cmd?action=view", "Resultado": result}
-        except NoSuchElementException as exception:
-            print(exception)
-            driver.quit()
-            return {"Resultado_Probe": "NOK", "ProbeName": "connectFakeWizard", "Probe#": "XXXXXX", "Description": "Validar que não é possível acessar a URL http://+{IP_GATEWAY}+/wancfg.cmd?action=view", "Resultado": str(exception)}
-
-        except Exception as e:
-            print(e)
-            driver.quit()
-            return {"Resultado_Probe": "OK", "ProbeName": "connectFakeWizard", "Probe#": "XXXXXX", "Description": "Validar que não é possível acessar a URL http://+{IP_GATEWAY}+/wancfg.cmd?action=view", "Resultado": str(e)}
 
     def checkYoutube(self): ### NECESSARIO CONTA PREMIUM
         
@@ -7685,7 +7680,7 @@ class gui:
             print(e)
             return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "accessBancoBradesco", "Probe#": "XXXXXXX", "Description": "Acessa site Bando Bradesco", "Resultado": str(e)}
 
-    def accessTestMyIPv6(self):
+    def accessTestMyIPv6(self, **kwargs):
         
         driver = WebDriver.get_driver()
         print()
@@ -8365,7 +8360,9 @@ class gui:
             print(e)
             return {"Resultado_Probe": "OK", "ControllerName": "gui", "ProbeName": "execCreateFirewallRule", "Probe#": "XXXXXXX", "Description": "Cria regra de Firewall via Web GUI", "Resultado": str(e)}
 
-    def checkCofoneIPv6(self): ### TUDO OK
+    def checkCofoneIPv6(self, **kwargs): ### TUDO OK
+
+        print('IPV6 TEST')
         
         driver = WebDriver.get_driver()
 
