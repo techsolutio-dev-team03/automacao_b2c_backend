@@ -21,7 +21,7 @@ class HGUModelFactory:
             if probe == 'wizardProbe':
                 return HGU_MItraStarECNT_wizardProbe(address_ip, model_name, username, password, driver, dict_result)
 
-        elif model_name == 'HGU1_MItraStar_BROADCOM':
+        elif model_name == 'HGU4_MItraStar_BROADCOM':
             if probe == 'settingsProbe':
                 return HGU_MItraStarBROADCOM_settingsProbe(address_ip, model_name, username, password, driver, dict_result)
             if probe == 'wizardProbe':
@@ -34,7 +34,7 @@ class HGUModelFactory:
                 return HGU_AskeyECNT_wizardProbe(address_ip, model_name, username, password, driver, dict_result)
 
 
-        elif model_name == 'HGU2_Askey_BROADCOM':
+        elif model_name == 'HGU3_Askey_BROADCOM':
             if probe == 'settingsProbe':
                 return HGU_AskeyBROADCOM_settingsProbe(address_ip, model_name, username, password, driver, dict_result)
             if probe == 'wizardProbe':
