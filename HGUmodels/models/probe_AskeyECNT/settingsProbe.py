@@ -5120,36 +5120,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         except Exception as e:
             self._dict_result.update({"obs": e})
         
-        finally:
-            self._driver.quit()
-            return self._dict_result
-
-
-    def checkPPPoEStatus_380(self, flask_username):
-        try:
-            self._driver.get('http://' + self._address_ip + '/index_cliente.asp')
-            time.sleep(1)
-            gpon = self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text
-            div = [value.text.replace('\n', '') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[1]/td[1]//div')]
-            dict_saida = {
-                "Status":
-                    {
-                        gpon:
-                            {div[0].split(':')[0]: div[0].split(':')[1],
-                            div[1].split(':')[0]: div[1].split(':')[1],
-                            div[2].split(':')[0]: div[2].split(':')[1],
-                            }
-                    }
-            }
-            print(dict_saida)
-            self._dict_result.update({"obs": dict_saida, "result":"passed", "Resultado_Probe": "OK"})
-        except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
-        except Exception as e:
-            self._dict_result.update({"obs": e})
-        finally:
-            self._driver.quit()
-            return self._dict_result
 
 
     def getFullConfig_382(self, flask_username):

@@ -18,6 +18,7 @@ class HGU_AskeyBROADCOM(HGUModelInterface):
 
     def login_admin(self):
         self._driver.switch_to.frame('mainFrame')
+        self.check_before_login()
         time.sleep(2)
         user_input = self._driver.find_element_by_xpath('//*[@id="txtUser"]')
         user_input.send_keys(self._username)
@@ -27,3 +28,14 @@ class HGU_AskeyBROADCOM(HGUModelInterface):
         time.sleep(2)
         login_button.click()
         time.sleep(1)
+
+
+    def check_before_login(self):
+        try:
+            if self._driver.find_element_by_xpath('//*[@id="status"]/tbody/tr[1]/th/span').text == 'GPON':
+                self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+                time.sleep(1)
+                self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
+        except:
+            pass
+

@@ -16,6 +16,18 @@ class HGU_MItraStarECNT(HGUModelInterface):
         login_button = self._driver.find_element_by_id('Login_ID')
         login_button.click()
         time.sleep(5)
+    
+    def login_admin(self):
+        time.sleep(5)
+        user_input = self._driver.find_element_by_id('Loginuser')
+        user_input.send_keys(self._username)
+        time.sleep(5)
+        pass_input = self._driver.find_element_by_id('LoginPassword')
+        pass_input.send_keys(self._password)
+        time.sleep(5)
+        login_button = self._driver.find_element_by_id('Login_ID')
+        login_button.click()
+        time.sleep(5)
 
     def open_change_password_mitraStar(self):
         time.sleep(10)
