@@ -1112,7 +1112,7 @@ class gui:
                         "Description": "Verificar se existe campo para habilitar Bridge", 
                         "obs": None}
 
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username,
@@ -1131,7 +1131,7 @@ class gui:
                         "Description": "Verifica o status da conexão PPPoE", 
                         "obs": None}
                         
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -1153,7 +1153,7 @@ class gui:
                        "Probe#": "79", 
                        "Description": "Acessar página padrão "}
                        
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
@@ -1174,7 +1174,7 @@ class gui:
                         "Description": "Verifica o status da conexão PPPoE", 
                         "obs": None}
                         
-        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+        hgu = HGUModelFactory.getHGU(probe='wizardProbe',
                                      address_ip=ip, 
                                      model_name=model_name, 
                                      username=username, 
