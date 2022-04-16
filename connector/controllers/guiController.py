@@ -56,6 +56,7 @@ class gui(Resource):
         }
 
         result = getattr(obj, method)(**user_dict)
+        print(result)
         
         test_result = result.get('result', None)
         obs = result.get('obs', None)
