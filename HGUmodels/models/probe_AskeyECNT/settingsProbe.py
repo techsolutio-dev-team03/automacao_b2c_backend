@@ -5656,11 +5656,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             self._dict_result.update({"obs": f"Teste incorreto, retorno URLs: {site1}: {resultado1}; {site2}: {resultado2}; {site3}: {resultado3}"})
         return self._dict_result
 
-
-
-
-
-
     
 
     def testeSiteWizard_399(self, flask_username):
