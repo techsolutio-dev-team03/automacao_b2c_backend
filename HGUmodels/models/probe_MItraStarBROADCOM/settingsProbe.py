@@ -234,10 +234,169 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 return self._dict_result 
 
 
+    def checkWanInterface_420(self, flask_username):
+        try:
+
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="folder1"]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="folder3"]/table/tbody/tr/td/a').click()
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+       
+            keys = []
+            dict_saida420 = {}
+            for m, row in enumerate(self._driver.find_elements_by_xpath('/html/body/blockquote/form/center/table/tbody/tr')):
+                for n, cell in enumerate(row.find_elements_by_tag_name('td')):
+                    if m == 0: keys.append(cell.text)
+                    else: 
+                        if n == 0: 
+                            interface = cell.text
+                            dict_saida420[cell.text] = {}
+                        else:
+                            dict_saida420[interface][keys[n]] = cell.text
+            ### Adicionando as Vlan Priorities:
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="item14"]/table/tbody/tr/td/a').click()
+            time.sleep(1)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            vlan_p = self._driver.find_element_by_xpath('/html/body/blockquote/form/center/table/tbody/tr[1]/td[6]').text
+            
+            for m, row in enumerate(self._driver.find_elements_by_xpath('/html/body/blockquote/form/center/table/tbody//tr')):
+                for n, cell in enumerate(row.find_elements_by_tag_name('td')):
+                    if cell.text in dict_saida420:
+                        dict_saida420[cell.text][vlan_p] = row.text.split(' ')[4]
+            self._driver.quit()
+            ###
+            print(dict_saida420)
+            
+            cpe_config = config_collection.find_one()
+            for k, item in dict_saida420.items():
+                if True: # cpe_config['REDE'] == 'VIVO_1':
+                    if item['Type'] == 'PPPoE':
+                        if item['VlanMuxId'] == '10': 
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "Encapsulamento: PPPoE | VlanId: 10", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno: Encapsulamento:{item['Type']}, VlanId:{item['VlanMuxId']}"})
+                            break
+                elif cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'FIBER' and cpe_config['TYPE'] == 'FIBER':
+                    if item['Type'] == 'PPPoE':
+                        if item['VlanMuxId'] == '600': 
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "Encapsulamento: PPPoE | VlanId: 600", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno: Encapsulamento:{item['Type']}, VlanId:{item['VlanMuxId']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": f"REDE: {cpe_config['REDE']}, ACCESS: {cpe_config['ACCESS']}, TYPE: {cpe_config['TYPE']}"})
+
+        except Exception as exception:
+            print(exception)
+            self._dict_result.update({"obs": exception})
+        finally:
+            self.update_global_result_memory(flask_username, 'checkWanInterface_420', dict_saida420)
+            return self._dict_result
 
 
+    def prioridadePPPoE_421(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['ACCESS'] == 'FIBER' and cpe_config['TYPE'] == 'FIBER':
+                for _, sub_dict in result.items():
+                    iface_type = sub_dict.get('Type')
+                    if iface_type == 'PPPoE': 
+                        if sub_dict['Vlan8021p'] == '0':
+                            self._dict_result.update({"obs": 'Encapsulamento: PPPoE, Prioridade: 0', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno Prioridade: {sub_dict['Vlan8021p']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": "Interface nao disponivel"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Encapsulamento: {iface_type}, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
 
 
+    def tipoRedeInet_422(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['ACCESS'] == 'FIBER' and cpe_config['TYPE'] == 'FIBER':
+                for _, sub_dict in result.items():
+                    iface_id = sub_dict.get('VlanMuxId')
+                    if iface_id == '10': 
+                        if sub_dict['Type'] == 'PPPoE':
+                            self._dict_result.update({"obs": 'VlanId: 10, tipo: PPPoE', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno Tipo: {sub_dict['Type']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": "Interface nao disponivel"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+
+    def checkNatSettings_423(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        self._driver.quit()
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['ACCESS'] == 'FIBER' and cpe_config['TYPE'] == 'FIBER':
+                try:
+                    nat = result['ppp0.1']['NAT']
+                    if nat == 'Enabled':
+                        self._dict_result.update({"obs": 'Interface PPPoE: NAT Habilitado', "result":'passed', "Resultado_Probe":"OK"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno Interface PPPoE: NAT Desabilitado"})
+                except:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Interface não disponível"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+
+    def checkMulticastSettings_424(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        self._driver.quit()
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['ACCESS'] == 'FIBER' and cpe_config['TYPE'] == 'FIBER':
+                try:
+                    igmp = result['ppp0.1']['Igmp Src Enbl']
+                    if igmp == 'Disabled':
+                        self._dict_result.update({"obs": 'Interface PPPoE: Igmp Desabilitado', "result":'passed', "Resultado_Probe":"OK"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno Interface PPPoE: Igmp Habilitado"})
+                except:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Interface não disponível"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
 
 
     def getFullConfig_425(self, flask_username):
@@ -663,88 +822,88 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         ### ------------------------------------------ ###
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('menufrm')
-        config_wifi5 = self._driver.find_element_by_xpath('/html/body/div[1]/div/div/ul/li[2]/ul/li[4]/a/span')
+        config_wifi5 = self._driver.find_element_by_xpath('/html/body/div/div/div/ul/li[2]/ul/li[4]/a')
         print(config_wifi5.text)
         config_wifi5.click()
         time.sleep(2)
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('basefrm')
-        config_wifi5_basico = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/thead/tr/th/span').text
+        config_wifi5_basico = self._driver.find_element_by_xpath('//*[@id="tab-01"]/form/table/thead/tr/th').text
         print(config_wifi5_basico)
-        config_wifi5_basico_redeprivada = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[1]/td[1]/span').text.strip(': ')
+        config_wifi5_basico_redeprivada = self._driver.find_element_by_xpath('//*[@id="tab-01"]/form/table/tbody/tr[1]/td[1]').text.strip(': ')
         print(config_wifi5_basico_redeprivada)
-        config_wifi5_basico_redeprivada_valor = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[1]/td[2]/input[1]').get_attribute('checked')
+        config_wifi5_basico_redeprivada_valor = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/div[4]/form/table/tbody/tr[1]/td[2]/input[1]').get_attribute('checked')
         if config_wifi5_basico_redeprivada_valor == 'true':
             config_wifi5_basico_redeprivada_valor = 'Habilitado'
         else:
             config_wifi5_basico_redeprivada_valor = 'Desabilitado'
         print(config_wifi5_basico_redeprivada_valor)
 
-        config_wifi5_basico_anuncio = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[2]/td[1]/span').text.strip(': ')
+        config_wifi5_basico_anuncio = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/div[4]/form/table/tbody/tr[2]/td[1]').text.strip(': ')
         print(config_wifi5_basico_anuncio)
-        config_wifi5_basico_anuncio_valor = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[2]/td[2]/input[1]').get_attribute('checked')
+        config_wifi5_basico_anuncio_valor = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/div[4]/form/table/tbody/tr[2]/td[2]/input[1]').get_attribute('checked')
         if config_wifi5_basico_anuncio_valor == 'true':
             config_wifi5_basico_anuncio_valor = 'Habilitado'
         else:
             config_wifi5_basico_anuncio_valor = 'Desabilitado'
         print(config_wifi5_basico_anuncio_valor)
 
-        config_wifi5_basico_ssid = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[3]/td[1]/span').text.strip(': ')
+        config_wifi5_basico_ssid = self._driver.find_element_by_xpath('//*[@id="tab-01"]/form/table/tbody/tr[3]/td[1]').text.strip(': ')
         print(config_wifi5_basico_ssid)
-        config_wifi5_basico_ssid_valor = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[3]/td[2]/input').get_property('value')
+        config_wifi5_basico_ssid_valor = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/div[4]/form/table/tbody/tr[3]/td[2]/input').get_property('value')
         print(config_wifi5_basico_ssid_valor)
 
-        config_wifi5_basico_ssid_senha = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[4]/td[1]/span').text.strip(': ')
+        config_wifi5_basico_ssid_senha = self._driver.find_element_by_xpath('//*[@id="tr_password"]/td[1]').text.strip(': ')
         print(config_wifi5_basico_ssid_senha)
-        config_wifi5_basico_ssid_senha_valor = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[4]/td[2]/input').get_property('value')
+        config_wifi5_basico_ssid_senha_valor = self._driver.find_element_by_xpath('//*[@id="password"]').get_property('value')
         print(config_wifi5_basico_ssid_senha_valor)
-        config_wifi5_basico_seguranca = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[5]/td[1]/span').text.strip(': ')
+        config_wifi5_basico_seguranca = self._driver.find_element_by_xpath('//*[@id="tab-01"]/form/table/tbody/tr[5]/td[1]').text.strip(': ')
         print(config_wifi5_basico_seguranca)
-        config_wifi5_basico_seguranca_valor = Select(self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[5]/td[2]/select')).first_selected_option.text
+        config_wifi5_basico_seguranca_valor = Select(self._driver.find_element_by_xpath('//*[@id="tab-01"]/form/table/tbody/tr[5]/td[2]/select')).first_selected_option.text
         print(config_wifi5_basico_seguranca_valor)
 
-        config_wifi5_basico_wps = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[6]/td[1]').text
+        config_wifi5_basico_wps = self._driver.find_element_by_xpath('//*[@id="tr_wps"]/td[1]').text
         print(config_wifi5_basico_wps)
-        config_wifi5_basico_wps_valor = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[3]/form/table/tbody/tr[6]/td[2]/input[1]').get_attribute('checked')
+        config_wifi5_basico_wps_valor = self._driver.find_element_by_xpath('//*[@id="wlWscMode"]').get_attribute('checked')
         if config_wifi5_basico_wps_valor == 'true':
             config_wifi5_basico_wps_valor = 'Habilitado'
         else:
             config_wifi5_basico_wps_valor = 'Desabilitado'
         print(config_wifi5_basico_wps_valor)
 
-        config_wifi5_avancado = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[2]/ul/li[2]/a/span')
+        config_wifi5_avancado = self._driver.find_element_by_xpath('//*[@id="tabtitle-02"]')
         config_wifi5_avancado.click()
         time.sleep(1)
-        config_wifi5_avancado = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/thead/tr/th/span').text
+        config_wifi5_avancado = self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table[1]/thead/tr/th').text
         print(config_wifi5_avancado)
 
-        config_wifi5_avancado_modooperacao = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/tbody/tr[1]/td[1]/span').text.strip(': ')
+        config_wifi5_avancado_modooperacao = self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table[1]/tbody/tr[1]/td[1]').text.strip(': ')
         print(config_wifi5_avancado_modooperacao)
-        config_wifi5_avancado_modooperacao_valor = Select(self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/tbody/tr[1]/td[2]/select')).first_selected_option.text
+        config_wifi5_avancado_modooperacao_valor = Select(self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table[1]/tbody/tr[1]/td[2]/select')).first_selected_option.text
         print(config_wifi5_avancado_modooperacao_valor)
 
-        config_wifi5_avancado_canal = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/tbody/tr[2]/td[1]/span').text.strip(': ')
+        config_wifi5_avancado_canal = self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table[1]/tbody/tr[2]/td[1]').text.strip(': ')
         print(config_wifi5_avancado_canal)
-        config_wifi5_avancado_canal_valor = Select(self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/tbody/tr[2]/td[2]/select')).first_selected_option.text
+        config_wifi5_avancado_canal_valor = Select(self._driver.find_element_by_xpath('//*[@id="wlChannel"]')).first_selected_option.text
         print(config_wifi5_avancado_canal_valor)
 
-        config_wifi5_avancado_largurabanda = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/tbody/tr[3]/td[1]/span').text.strip(': ')
+        config_wifi5_avancado_largurabanda = self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table[1]/tbody/tr[3]/td[1]').text.strip(': ')
         print(config_wifi5_avancado_largurabanda)
-        config_wifi5_avancado_largurabanda_valor = Select(self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/tbody/tr[3]/td[2]/select')).first_selected_option.text
+        config_wifi5_avancado_largurabanda_valor = Select(self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table[1]/tbody/tr[3]/td[2]/select')).first_selected_option.text
         print(config_wifi5_avancado_largurabanda_valor)
 
-        config_wifi5_avancado_wmm = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/tbody/tr[4]/td[1]').text.strip(": ")
+        config_wifi5_avancado_wmm = self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table[1]/tbody/tr[4]/td[1]').text.strip(": ")
         print(config_wifi5_avancado_wmm)
-        config_wifi5_avancado_wmm_valor = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/tbody/tr[4]/td[2]/input[1]').get_attribute('checked')
+        config_wifi5_avancado_wmm_valor = self._driver.find_element_by_xpath('//*[@id="wlDisableWme_wl0v0"]').get_attribute('checked')
         if config_wifi5_avancado_wmm_valor == 'true' :
             config_wifi5_avancado_wmm_valor = 'Habilitado' 
         else:
             config_wifi5_avancado_wmm_valor = 'Desabilitado'
         print(config_wifi5_avancado_wmm_valor)
 
-        config_wifi5_avancado_mac = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/tbody/tr[5]/td[1]/span').text.strip(': ')
+        config_wifi5_avancado_mac = self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table[1]/tbody/tr[5]/td[1]').text.strip(': ')
         print(config_wifi5_avancado_mac)
-        config_wifi5_avancado_mac_valor = self._driver.find_element_by_xpath('/html/body/div[2]/div[1]/div[1]/div[4]/form/table[1]/tbody/tr[5]/td[2]').text
+        config_wifi5_avancado_mac_valor = self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table[1]/tbody/tr[5]/td[2]').text
         print(config_wifi5_avancado_mac_valor)
           
         time.sleep(1)
@@ -756,7 +915,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         ### ------------------------------------------ ###
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('menufrm')
-        config_firewall = self._driver.find_element_by_xpath('/html/body/div[1]/div/div/ul/li[2]/ul/li[6]/a/span')
+        config_firewall = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[6]/a')
         config_firewall.click()
         config_firewall = config_firewall.text
         print(config_firewall)
@@ -764,22 +923,22 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         self._driver.switch_to.frame('basefrm')
         
         time.sleep(2)
-        config_firewall_politicapadrao = self._driver.find_element_by_xpath('/html/body/form/div[1]/div/div[1]/table/thead[1]/tr/th/span').text
+        config_firewall_politicapadrao = self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/table[1]/thead[1]/tr/th').text
         print(config_firewall_politicapadrao)
-        config_firewall_politicapadrao_status = self._driver.find_element_by_xpath('/html/body/form/div[1]/div/div[1]/table/tbody[1]/tr/td[1]/span').text.strip(': ')
+        config_firewall_politicapadrao_status = self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/table[1]/tbody[1]/tr/td[1]').text.strip(': ')
         print(config_firewall_politicapadrao_status)
-        config_firewall_politicapadrao_valor = self._driver.find_element_by_xpath('/html/body/form/div[1]/div/div[1]/table/tbody[1]/tr/td[2]/input[1]').get_attribute('checked')
+        config_firewall_politicapadrao_valor = self._driver.find_element_by_xpath('//*[@id="dAction"]').get_attribute('checked')
         if config_firewall_politicapadrao_valor == 'true':
             config_firewall_politicapadrao_valor = 'Aceita'
         else:
             config_firewall_politicapadrao_valor = 'Rejeita'
         print(config_firewall_politicapadrao_valor)
 
-        config_firewall_pingwan = self._driver.find_element_by_xpath('/html/body/form/div[1]/div/div[1]/table/thead[2]/tr/th').text.strip(': ')
+        config_firewall_pingwan = self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/table[1]/thead[2]/tr/th').text.strip(': ')
         print(config_firewall_pingwan)
-        config_firewall_pingwan_status = self._driver.find_element_by_xpath('/html/body/form/div[1]/div/div[1]/table/tbody[2]/tr/td[1]/span').text.strip(': ')
+        config_firewall_pingwan_status = self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/table[1]/tbody[2]/tr/td[1]').text.strip(': ')
         print(config_firewall_pingwan_status)
-        config_firewall_pingwan_valor = self._driver.find_element_by_xpath('/html/body/form/div[1]/div/div[1]/table/tbody[2]/tr/td[2]/input[1]').get_attribute('checked')
+        config_firewall_pingwan_valor = self._driver.find_element_by_xpath('//*[@id="icmpStatus"]').get_attribute('checked')
         if config_firewall_pingwan_valor == 'true':
             config_firewall_pingwan_valor = 'Aceita'
         else:
@@ -797,19 +956,19 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         ### ------------------------------------------ ###
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('menufrm')
-        config_modowan = self._driver.find_element_by_xpath('/html/body/div[1]/div/div/ul/li[2]/ul/li[7]/a/span')
-        print(config_modowan.text)
+        config_modowan = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[7]/a')
         config_modowan.click()
-        config_modowan = self._driver.find_element_by_xpath('/html/body/div[1]/div/div/ul/li[2]/ul/li[7]/a/span').text
+        config_modowan = config_modowan.text
+        print(config_modowan)
         time.sleep(1)
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('basefrm')
-        config_modowan_bridge = self._driver.find_element_by_xpath('/html/body/div[1]/div/div[1]/div[3]/form/table/thead/tr/th/span').text
+        config_modowan_bridge = self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table/thead/tr/th').text
         print(config_modowan_bridge)
 
-        config_modowan_bridge_modo = self._driver.find_element_by_xpath('/html/body/div[1]/div/div[1]/div[3]/form/table/tbody/tr[1]/td[1]/span').text.strip(': ')
+        config_modowan_bridge_modo = self._driver.find_element_by_xpath('//*[@id="tab-02"]/form/table/tbody/tr[1]/td[1]').text.strip(': ')
         print(config_modowan_bridge_modo)
-        config_modowan_bridge_modo_valor = Select(self._driver.find_element_by_xpath('/html/body/div[1]/div/div[1]/div[3]/form/table/tbody/tr[1]/td[2]/select')).first_selected_option.text
+        config_modowan_bridge_modo_valor = Select(self._driver.find_element_by_xpath('//*[@id="op_mode"]')).first_selected_option.text
         print(config_modowan_bridge_modo_valor)
 
         time.sleep(1)
@@ -821,21 +980,21 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         ### ------------------------------------------ ###
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('menufrm')
-        gerenciamento = self._driver.find_element_by_xpath('/html/body/div[1]/div/div/ul/li[3]/a/span')
-        print(gerenciamento.text)
+        gerenciamento = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/a')
         gerenciamento.click()
         gerenciamento = gerenciamento.text
+        print(gerenciamento)
         time.sleep(2)
-        gerenciamento_idioma = self._driver.find_element_by_xpath('/html/body/div[1]/div/div/ul/li[3]/ul/li[1]/a/span')
+        gerenciamento_idioma = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/ul/li[1]/a')
         gerenciamento_idioma.click()
         gerenciamento_idioma = gerenciamento_idioma.text
         print(gerenciamento_idioma)
         time.sleep(2)
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('basefrm')
-        gerenciamento_idioma = self._driver.find_element_by_xpath('/html/body/form/div/div/div/table/thead/tr/th/span').text
+        gerenciamento_idioma = self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/table/thead/tr/th').text
         print(gerenciamento_idioma)
-        gerenciamento_idioma_valor = self._driver.find_element_by_xpath('/html/body/form/div/div/div/table/tbody/tr[2]/td/label[1]/input').get_attribute('checked')
+        gerenciamento_idioma_valor = self._driver.find_element_by_xpath('//*[@id="currentLanguagePor"]').get_attribute('checked')
         if gerenciamento_idioma_valor == 'true':
             gerenciamento_idioma_valor = 'Português'
         else:
@@ -851,60 +1010,57 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         ### ------------------------------------------ ###
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('menufrm')
-        sobre = self._driver.find_element_by_xpath('/html/body/div[1]/div/div/ul/li[4]/a/span')
+        sobre = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[4]/a')
         print(sobre.text)
         sobre.click()
         time.sleep(2)
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('basefrm')
-        sobre = self._driver.find_element_by_xpath('/html/body/div/div[1]/h3/span').text
-        info_dispositivo = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/thead/tr/th/span').text
+        sobre = self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/h3').text
+        info_dispositivo = self._driver.find_element_by_xpath('//*[@id="table_model"]/thead/tr/th').text
         print(info_dispositivo)
-        info_dispositivo_fabricante = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[1]/td[1]/strong/span').text.strip(': ')
+
+        info_dispositivo_fabricante = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[1]/td[1]/strong').text.strip(': ')
         print(info_dispositivo_fabricante)
-        info_dispositivo_fabricante_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[1]/td[2]').text
+        info_dispositivo_fabricante_valor = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[1]/td[2]').text
         print(info_dispositivo_fabricante_valor)
 
-        info_dispositivo_firmware = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[2]/td[1]/strong/span').text
-        print(info_dispositivo_firmware)
-        info_dispositivo_firmware_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[2]/td[2]').text
-        print(info_dispositivo_firmware_valor)
-
-        info_dispositivo_serial = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[3]/td[1]/strong/span').text
-        print(info_dispositivo_serial)
-        info_dispositivo_serial_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[3]/td[2]').text
-        print(info_dispositivo_serial_valor)
-
-        info_dispositivo_macwan = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[4]/td[1]/strong/span').text
-        print(info_dispositivo_macwan)
-        info_dispositivo_macwan_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[4]/td[2]').text
-        print(info_dispositivo_macwan_valor)
-
-        info_dispositivo_modelo = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[1]/td[3]/strong/span').text.strip(': ')
+        info_dispositivo_modelo = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[1]/td[3]/strong').text.strip(': ')
         print(info_dispositivo_modelo)
-        iinfo_dispositivo_modelo_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[1]/td[4]').text
+        iinfo_dispositivo_modelo_valor = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[1]/td[4]').text
         print(iinfo_dispositivo_modelo_valor)
 
-        info_dispositivo_hardware = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[2]/td[3]/strong/span').text
+        info_dispositivo_firmware = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[2]/td[1]/strong').text
+        print(info_dispositivo_firmware)
+        info_dispositivo_firmware_valor = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[2]/td[2]').text
+        print(info_dispositivo_firmware_valor)
+
+        info_dispositivo_hardware = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[2]/td[3]/strong').text
         print(info_dispositivo_hardware)
-        info_dispositivo_hardware_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[2]/td[4]').text
+        info_dispositivo_hardware_valor = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[2]/td[4]').text
         print(info_dispositivo_hardware_valor)
 
-        info_dispositivo_serialgpon = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[3]/td[3]/strong/span').text.strip(': ')
+        info_dispositivo_serial = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[3]/td[1]/strong').text
+        print(info_dispositivo_serial)
+        info_dispositivo_serial_valor = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[3]/td[2]').text
+        print(info_dispositivo_serial_valor)
+
+        info_dispositivo_serialgpon = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[3]/td[3]/strong').text.strip(': ')
         print(info_dispositivo_serialgpon)
-        info_dispositivo_serialgpon_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[3]/td[4]').text
+        info_dispositivo_serialgpon_valor = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[3]/td[4]').text
         print(info_dispositivo_serialgpon_valor)
 
-        info_dispositivo_maclan = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[4]/td[3]/strong/span').text.strip(': ')
+        info_dispositivo_macwan = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[4]/td[1]/strong').text
+        print(info_dispositivo_macwan)
+        info_dispositivo_macwan_valor = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[4]/td[2]').text
+        print(info_dispositivo_macwan_valor)
+
+        info_dispositivo_maclan = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[4]/td[3]/strong').text.strip(': ')
         print(info_dispositivo_maclan)
-        info_dispositivo_maclan_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/table[1]/tbody/tr[4]/td[4]').text
+        info_dispositivo_maclan_valor = self._driver.find_element_by_xpath('//*[@id="table_model"]/tbody/tr[4]/td[4]').text
         print(info_dispositivo_maclan_valor)
 
-
-
-
         print('\n\n\n == Criando JSON de saída... == ')
-        print(gpon, internet, detalhes_IPv6_head)
         dict_saida425 = {
                         "Status":
                             {
@@ -1080,4 +1236,633 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             self._dict_result.update({"obs": f"Teste incorreto, retorno Usuario: {user}"})
 
         self.update_global_result_memory(flask_username, 'getFullConfig_425', dict_saida425)
+        return self._dict_result
+
+
+    def vivo_1_ADSL_vlanIdPPPoE_431(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                for _, sub_dict in result.items():
+                    iface_type = sub_dict.get('Type')
+                    if iface_type == 'PPPoE': 
+                        if sub_dict['VlanMuxId'] == '8,35': # ??? valor inconsistente ???
+                            self._dict_result.update({"obs": 'Encapsulamento: PPPoE, VlanId: 8,35', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno VlanMuxId: {sub_dict['VlanMuxId']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": "Interface nao disponivel"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Encapsulamento: {iface_type}, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+
+    def vivo_1_ADSL_vlanIdPPPoE_432(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                for _, sub_dict in result.items():
+                    iface_id = sub_dict.get('VlanMuxId')
+                    if iface_id == '8,35': 
+                        if sub_dict['Type'] == 'PPPoE':
+                            self._dict_result.update({"obs": 'VlanId: 8,35, tipo: PPPoE', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno Tipo: {sub_dict['Type']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": "Interface nao disponivel"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+
+    def vivo_1_ADSL_vlanIdPPPoE_433(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                try:
+                    nat = result['ppp0.1']['NAT']
+                    if nat == 'Enabled':
+                        self._dict_result.update({"obs": 'Interface PPPoE: NAT Habilitado', "result":'passed', "Resultado_Probe":"OK"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno Interface PPPoE: NAT Desabilitado"})
+                except:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Interface não disponível"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+
+    def vivo_1_usernamePppDefault_435(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 425 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            print(cpe_config)
+            usuario = result['Configurações']['Internet']['Usuário']
+            print("teste 435:", usuario)
+            if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                if usuario == 'cliente@cliente':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Usuário: cliente@cliente', "result":"passed"})
+                else:
+                    self._dict_result.update({"obs": f'Teste incorreto, retorno: Usuário: {usuario}'})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+
+    def vivo_2_ADSL_vlanIdPPPoE_441(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                for _, sub_dict in result.items():
+                    iface_type = sub_dict.get('Type')
+                    if iface_type == 'PPPoE': 
+                        if sub_dict['VlanMuxId'] == '0,35': # ??? valor inconsistente ???
+                            self._dict_result.update({"obs": 'Encapsulamento: PPPoE, VlanId: 0,35', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno VlanMuxId: {sub_dict['VlanMuxId']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": "Interface nao disponivel"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Encapsulamento: {iface_type}, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+
+    def vivo_2_ADSL_vlanIdPPPoE_442(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                for _, sub_dict in result.items():
+                    iface_id = sub_dict.get('VlanMuxId')
+                    if iface_id == '8,35': 
+                        if sub_dict['Type'] == 'PPPoE':
+                            self._dict_result.update({"obs": 'VlanId: 8,35, tipo: PPPoE', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno Tipo: {sub_dict['Type']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": "Interface nao disponivel"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+
+    def vivo_2_ADSL_vlanIdPPPoE_443(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                try:
+                    nat = result['ppp0.1']['NAT']
+                    if nat == 'Enabled':
+                        self._dict_result.update({"obs": 'Interface PPPoE: NAT Habilitado', "result":'passed', "Resultado_Probe":"OK"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno Interface PPPoE: NAT Desabilitado"})
+                except:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Interface não disponível"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+
+    def vivo_2_usernamePppDefault_445(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        try:
+            result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+            cpe_config = config_collection.find_one()
+            usuario = result['Configurações']['Internet']['Usuário']
+            print('\n #445 usuario:', usuario)
+            if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                if usuario == 'cliente@cliente':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Usuário: cliente@cliente', "result":"passed"})
+                else:
+                    self._dict_result.update({"obs": f'Teste incorreto, retorno Usuário: {usuario}'})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+        except Exception:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        finally:
+            return self._dict_result
+
+
+    def vivo_1_vlanIdIptvVivo1_450(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['REDE'] == 'VIVO_1':
+                for _, sub_dict in result.items():
+                    iface_type = sub_dict.get('Description')
+                    if iface_type == 'Mediaroom': 
+                        if sub_dict['VlanMuxId'] == '20': 
+                            self._dict_result.update({"obs": 'Mediaroom, VlanId: 20', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno Mediaroom VlanMuxId: {sub_dict['VlanMuxId']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": "Interface nao disponivel"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno REDE:{cpe_config['REDE']}"})
+        return self._dict_result
+
+
+    def vivo_1_prioridadeIptv_451(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['REDE'] == 'VIVO_1':
+                for _, sub_dict in result.items():
+                    iface_type = sub_dict.get('Description')
+                    if iface_type == 'Mediaroom': 
+                        if sub_dict['Vlan8021p'] == '3':
+                            self._dict_result.update({"obs": 'Mediaroom, Prioridade: 3', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno Prioridade: {sub_dict['Vlan8021p']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": "Interface nao disponivel"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno REDE:{cpe_config['REDE']}"})
+        return self._dict_result
+
+
+    def vivo_1_validarNatIptv_452(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['REDE'] == 'VIVO_1':
+                try:
+                    nat = result['veip0.3']['NAT']
+                    if nat == 'Enabled':
+                        self._dict_result.update({"obs": 'Interface Mediaroom: NAT Habilitado', "result":'passed', "Resultado_Probe":"OK"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno Interface Mediaroom: NAT Desabilitado"})
+                except:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Interface não disponível"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno REDE:{cpe_config['REDE']}"})
+        return self._dict_result
+
+
+    def vivo_1_igmpIptv_453(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        self._driver.quit()
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if True: # cpe_config['REDE'] == 'VIVO_1':
+                try:
+                    igmp = result['veip0.3']['Igmp Src Enbl']
+                    if igmp == 'Enabled':
+                        self._dict_result.update({"obs": 'Interface Mediaroom: Igmp Habilitado', "result":'passed', "Resultado_Probe":"OK"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno Interface Mediaroom: Igmp Desabilitado"})
+                except:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Interface não disponível"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno REDE:{cpe_config['REDE']}"})
+        return self._dict_result
+
+
+    def vivo1_vlanIdVoip_460(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            for k, item in result.items():
+                if True: # cpe_config['REDE'] == 'VIVO_1':
+                    if item['Description'] == 'VoIP':
+                        if item['VlanMuxId'] == '30': 
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "VoIP | VlanId: 30", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno: VoIP, VlanId:{item['VlanMuxId']}"})
+                            break
+                elif cpe_config['REDE'] == 'VIVO_2':
+                    if item['Description'] == 'VoIP':
+                        if item['VlanMuxId'] == '601': 
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "VoIP | VlanId: 601", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno: VoIP, VlanId:{item['VlanMuxId']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": f"REDE: {cpe_config['REDE']}"})
+        return self._dict_result
+
+
+    def vivo2_prioridadeVoip_461(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            for k, item in result.items():
+                if True: # cpe_config['REDE'] == 'VIVO_1':
+                    if item['Description'] == 'VoIP':
+                        if item['Vlan8021p'] == '5': 
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "VoIP | Prioridade: 5", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno: VoIP, Prioridade: {item['Vlan8021p']}"})
+                            break
+                elif cpe_config['REDE'] == 'VIVO_2':
+                    if item['Description'] == 'VoIP':
+                        if item['Vlan8021p'] == '601': 
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "VoIP | Prioridade: 601", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno: VoIP, Prioridade: {item['Vlan8021p']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": f"REDE: {cpe_config['REDE']}"})
+        return self._dict_result
+
+
+    def vivo1_validarNatVoip_462(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            for k, item in result.items():
+                if True: # cpe_config['REDE'] == 'VIVO_1':
+                    if item['Description'] == 'VoIP':
+                        if item['NAT'] == 'Enabled': 
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "VoIP | NAT: Habilitado", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno: VoIP, NAT: {item['NAT']}"})
+                            break
+                elif cpe_config['REDE'] == 'VIVO_2':
+                    if item['Description'] == 'VoIP':
+                        if item['NAT'] == 'Enabled': 
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "VoIP | NAT: Habilitado", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno: VoIP, NAT: {item['NAT']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": f"REDE: {cpe_config['REDE']}"})
+        return self._dict_result
+
+
+    def vivo_1_igmpVoip_463(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            for k, item in result.items():
+                if True: # cpe_config['REDE'] == 'VIVO_1':
+                    if item['Description'] == 'VoIP':
+                        if item['Igmp Src Enbl'] == 'Enabled': 
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "VoIP | IGMP: Habilitado", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno: VoIP, IGMP: {item['Igmp Src Enbl']}"})
+                            break
+                elif cpe_config['REDE'] == 'VIVO_2':
+                    if item['Description'] == 'VoIP':
+                        if item['Igmp Src Enbl'] == 'Enabled': 
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "VoIP | IGMP: Habilitado", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f"Teste incorreto, retorno: VoIP, IGMP: {item['Igmp Src Enbl']}"})
+                            break
+                else:
+                    self._dict_result.update({"obs": f"REDE: {cpe_config['REDE']}"})
+        return self._dict_result
+        
+
+    def verificarWifi24SsidDefault_470(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            result_ssid = result['Configurações']['Rede Wifi 2.4Ghz']['Configurações Básicas']['SSID']
+            ssid = re.findall("^VIVOFIBRA-\w{4}", result_ssid)
+            #print("\n #470 SSID:", result_ssid, " ", ssid)
+            if ssid:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'SSID: OK', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": 'SSID: NOK'})
+        return self._dict_result
+
+
+    def verificarWifi24Habilitado_471(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            rede_pv = result['Configurações']['Rede Wifi 2.4Ghz']['Configurações Básicas']['Rede Wi-Fi Privada']
+            #print("\n #471 WiFi:", rede_pv)
+            if rede_pv == 'Habilitado':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Rede Wi-Fi Privada: Habilitado', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno Rede Wi-Fi Privada: {rede_pv}'})
+        return self._dict_result
+
+
+    def verificarWifi24Padrao_472(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            modo_ope = result['Configurações']['Rede Wifi 2.4Ghz']['Configurações Avançadas']['Modo de Operação']
+            #print("\n #472 Wifi:", modo_ope)
+            if modo_ope == '802.11g/n':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Modo de Operação: 802.11g/n', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retornoModo de Operação: {modo_ope}'})
+        return self._dict_result
+
+
+    def verificarWifi24AutoChannel_474(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            canal = result['Configurações']['Rede Wifi 2.4Ghz']['Configurações Avançadas'].get('Canal:')
+            #print("\n #474: ", canal)
+            if canal == 'Automático':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Canal: Automático', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno Canal: {canal}'})
+            
+        return self._dict_result
+
+
+    def verificarWifi24LarguraBanda_475(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            larg_banda_canal = result['Configurações']['Rede Wifi 2.4Ghz']['Configurações Avançadas']['Largura de Banda do Canal']
+            #print("\n #475: ", larg_banda_canal)
+            if larg_banda_canal == '20MHz':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Largura de Banda do Canal: 20 MHz', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno Largura de Banda do Canal: {larg_banda_canal}'})
+            
+        return self._dict_result
+
+
+    def verificarWifi24Seguranca_476(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            seguranca = result['Configurações']['Rede Wifi 2.4Ghz']['Configurações Básicas']['Modo de Segurança']
+            #print("\n 476: ", seguranca)
+            if seguranca == 'WPA2':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Modo de Segurança: WPA2', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retornoModo de Segurança: {seguranca}'})          
+        return self._dict_result
+
+
+    def verificarWifi24WPS_479(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            wps = result['Configurações']['Rede Wifi 2.4Ghz']['Configurações Básicas']['WPS']
+            #print("\n 479: ", wps)
+            if wps == 'Habilitado':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'WPS: Habilitado', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno WPS: {wps}'})          
+        return self._dict_result
+
+
+    def verificarWifi5SsidDefault_480(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            result_ssid = result['Configurações']['Rede Wifi 5Ghz']['Configurações Básicas']['SSID']
+            ssid = re.findall("^VIVOFIBRA-\w{4}.*-5G$", result_ssid)
+            #print("\n 480: ", result_ssid, ", ", ssid)
+            if ssid:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'SSID: OK', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": 'Teste incorreto, retorno SSID: NOK'})
+
+        return self._dict_result
+
+
+    def verificarWifi5Habilitado_481(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            rede_pv = result['Configurações']['Rede Wifi 5Ghz']['Configurações Básicas'].get('Rede Wi-Fi Privada')
+            #print("\n 481: ", rede_pv)
+            if rede_pv == 'Habilitado':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Rede Wi-Fi Privada: Habilitado', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno Rede Wi-Fi Privada: {rede_pv}'})        
+        return self._dict_result
+
+
+    def verificarWifi5Padrao_482(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            modo_ope = result['Configurações']['Rede Wifi 5Ghz']['Configurações Avançadas'].get('Modo de Operação')
+            #print("\n 482: ", modo_ope)
+            if modo_ope == '802.11n/ac':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Modo de Operação: 802.11n/ac', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno Modo de Operação: {modo_ope}'})           
+        return self._dict_result
+
+
+    def verificarWifi5AutoChannel_484(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            canal = result['Configurações']['Rede Wifi 5Ghz']['Configurações Avançadas'].get('Canal')
+            if canal == 'Automático':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Canal: Automático', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno Canal: {canal}'})         
+        return self._dict_result
+
+
+    def verificarWifi5LarguraBanda_485(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            larg_banda_canal = result['Configurações']['Rede Wifi 5Ghz']['Configurações Avançadas'].get('Largura de Banda do Canal')
+            if larg_banda_canal == '80MHz':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Largura de Banda do Canal: 80 MHz', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno Largura de Banda do Canal: {larg_banda_canal}'})
+            
+        return self._dict_result
+
+
+    def verificarWifi5Seguranca_486(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            seguranca = result['Configurações']['Rede Wifi 5Ghz']['Configurações Básicas'].get('Modo de Segurança')
+            if seguranca == 'WPA2':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Modo de Segurança: WPA2', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno Modo de Segurança: {seguranca}'})          
+        return self._dict_result
+
+
+    def verificarWifi5PasswordDefault_487(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            result_senha = result['Configurações']['Rede Wifi 5Ghz']['Configurações Básicas'].get('Senha')
+            senha = re.findall("^\w{8}", result_senha)
+            if senha:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Senha: OK', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": 'Teste incorreto, retorno Senha: NOK'})          
+        return self._dict_result
+
+
+    def linkLocalType_498(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            linkLocal = result['Status']['INTERNET']['IPv6'].get('Endereço IPv6 Link-Local - LAN:')
+            try:
+                if linkLocal.split('/')[1] == '64':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "link local: 64", "result":"passed"})
+            except:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno link local: {linkLocal}"})
+
+        return self._dict_result
+
+
+    def lanGlobalType_499(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            linkGlobal = result['Status']['INTERNET']['IPv6'].get('Endereço IPv6 Global - WAN:')
+            try:
+                if linkGlobal.split('/')[1] == '64':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "WAN global identifier: 64", "result":"passed"})
+            except:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno WAN global identifier: {linkGlobal}"})
         return self._dict_result

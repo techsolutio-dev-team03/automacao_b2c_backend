@@ -5106,25 +5106,19 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     
-<<<<<<< HEAD
+    # def connectWizardhttps_379(self,flask_username):
+    #     try:
+    #         try:
+    #             self._driver.get('https://' + self._address_ip + '/')
+    #             self._dict_result.update({"obs": "Acesso via HTTPS OK", "result":"passed", "Resultado_Probe": "OK"})
+    #         except:
+    #             self._dict_result.update({"obs": "Nao foi possivel acessar via HTTPS"})
 
-=======
->>>>>>> 4275b090d64b6a11687285f79c1f48edc99f780e
-    def connectWizardhttps_379(self,flask_username):
-        try:
-            try:
-                self._driver.get('https://' + self._address_ip + '/')
-                self._dict_result.update({"obs": "Acesso via HTTPS OK", "result":"passed", "Resultado_Probe": "OK"})
-            except:
-                self._dict_result.update({"obs": "Nao foi possivel acessar via HTTPS"})
+    #     except NoSuchElementException as exception:
+    #         self._dict_result.update({"obs": exception})
 
-        except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
-
-        except Exception as e:
-            self._dict_result.update({"obs": e})
-<<<<<<< HEAD
-=======
+    #     except Exception as e:
+    #         self._dict_result.update({"obs": e})
         
 
 
@@ -5352,11 +5346,8 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         finally:
             self._driver.quit()
             return self._dict_result
->>>>>>> 4275b090d64b6a11687285f79c1f48edc99f780e
         
-        finally:
-            self._driver.quit()
-            return self._dict_result
+  
 
 
     def checkPPPoEStatus_380(self, flask_username):
