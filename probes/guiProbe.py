@@ -84,7 +84,19 @@ class gui:
 
         new_password ='S@oP@ulo*15'
 
-        return hgu.changeAdminPassword_69(flask_username, new_password)
+        res1 = hgu.changeAdminPassword_69(flask_username, new_password)
+
+        hgu2 = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+
+        res2 = hgu2.accessWizard_401(flask_username)
+
+        return res2
 
 
     def habilitaSSHASKEY3505(self):
