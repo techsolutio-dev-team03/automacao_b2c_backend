@@ -98,7 +98,7 @@ class HGU_AskeyECNT_functionalProbe(HGU_AskeyECNT):
             time.sleep(8)  ### Tempo para recarregar a página após salvar as configs
 
         def change_password_back(driver, user, old_password, new_password):
-            admin_authentication(driver, user, new_password)
+            open_change_password(driver)
             changing_password(driver, new_password, old_password)
 
         self._driver.execute_script("window.alert = function() {};")
@@ -119,17 +119,20 @@ class HGU_AskeyECNT_functionalProbe(HGU_AskeyECNT):
                 admin_authentication(self._driver, self._username, self._password)
                 time.sleep(5)
 
-
                 #########################################################################################
                 print(' == Troca de senha == ')
                 changing_password(self._driver, self._password, new_password)
+
+                
+                time.sleep(5)
+                self._driver.get('http://' + self._address_ip + '/')
 
 
                 change_password_back(self._driver, self._username, self._password, new_password)
 
                 self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": None})
 
-            except NoSuchElementException as exception:
+            except Exception as exception:
                 print(exception)
                 self._dict_result.update({"obs": str(exception)})
 
