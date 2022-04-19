@@ -18,7 +18,7 @@ class HGUModelFactory:
     def getHGU(probe, dict_result, model_name, username=None, password=None, address_ip=None, driver=None ):
         print(model_name)
 
-        if model_name == 'HGU1_MitraStar_ECNT':
+        if model_name == 'HGU1_MItraStar_ECNT':
             if probe == 'settingsProbe':
                 return HGU_MItraStarECNT_settingsProbe(address_ip, model_name, username, password, driver, dict_result)
             if probe == 'wizardProbe':

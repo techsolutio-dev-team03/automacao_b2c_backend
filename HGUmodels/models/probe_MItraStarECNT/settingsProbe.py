@@ -471,8 +471,8 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             for k, item in dict_saida420.items():
                 cpe_config = config_collection.find_one()
                 if  cpe_config['REDE'] == 'VIVO_1':
-                    if item['Encapsulamento'] == 'PPPoE' and item['VID/Prioridade'].split('/')[0] == '600': 
-                        self._dict_result.update({"Resultado_Probe": "OK", "obs": "Encapsulamento: PPPoE | VID/Prioridade: 600", "result":"passed"})
+                    if item['Encapsulamento'] == 'PPPoE' and item['VID/Prioridade'].split('/')[0] == '10': 
+                        self._dict_result.update({"Resultado_Probe": "OK", "obs": "Encapsulamento: PPPoE | VID/Prioridade: 10", "result":"passed"})
                         break
                     else:
                         self._dict_result.update({"obs": f"Teste incorreto, retorno: Encapsulamento:{item['Encapsulamento']}, VID/Prioridade:{item['VID/Prioridade']}"})
@@ -1969,7 +1969,7 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
 
     
     def vivo_1_vlanIdIptvVivo1_450(self, flask_username):
-        #TODO: Fazer logica no frontend para garantir que o teste 427 seja executado em conjunto
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
         if len(result) == 0:
             self._dict_result.update({"obs": 'Execute o teste 420 primeiro'})
@@ -3067,7 +3067,6 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             else:
                 self._dict_result.update({"obs": f'Teste incorreto, retorno WPS: {wps}'})          
         return self._dict_result
-
 
 
     def checkVoIPSettings_490(self, flask_username, interface=1):
