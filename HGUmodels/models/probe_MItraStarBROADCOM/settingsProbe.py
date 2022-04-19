@@ -231,7 +231,58 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 except Exception as exception:
                     self._dict_result.update({"obs": str(exception)})
             finally:
-                return self._dict_result 
+                return self._dict_result
+
+
+    def checkACSSettings_411(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="folder70"]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="folder78"]/table/tbody/tr/td/a/span').click()
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            acs_names = [value.text for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[2]/tbody//td') if value.text != '']
+            acs_values = [value.get_attribute('value') for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[2]/tbody/tr/td//input')]
+            acs_password = self._driver.find_element_by_name('acsPwd')
+            print('aaaaa',acs_password)
+            dict_saida = {}
+            for a, b in zip(acs_names, acs_values):
+                dict_saida[a.replace(":", "")] = b
+            print(dict_saida)
+            acs_url = dict_saida['ACS URL']
+            if  acs_url == 'http://acs.telesp.net.br:7005/cwmpWeb/WGCPEMgt':
+                self._dict_result.update({"obs": acs_url, "Resultado_Probe": "OK", 'result':'passed'})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno ACS URL: {acs_url}"})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            self.update_global_result_memory(flask_username, 'checkACSSettings_411', dict_saida)
+
+            return self._dict_result
+
+
+    def validarDefaultUserACS_412(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 411 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkACSSettings_411')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 411 primeiro"})
+        
+        else:
+            value = result['ACS User Name']
+            if value == 'acsclient':
+                self._dict_result.update({"obs": "Usuario: acsclient", "result":'passed', "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Usuario: {value}"})
+        return self._dict_result
+
 
 
     def checkWanInterface_420(self, flask_username):
@@ -1489,7 +1540,6 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
     def vivo_1_igmpIptv_453(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
-        self._driver.quit()
         if len(result) == 0:
             self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
         else:
