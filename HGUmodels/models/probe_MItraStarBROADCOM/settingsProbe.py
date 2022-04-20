@@ -9,7 +9,7 @@ import paramiko
 from paramiko.ssh_exception import AuthenticationException
 import socket
 
-import pyperclip
+# import pyperclip
 
 
 from ..MItraStarBROADCOM import HGU_MItraStarBROADCOM
