@@ -418,14 +418,15 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
     def checkBridgeMode_21(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/')
-            self._driver.switch_to.default_content()
-            self.login_admin()
-            self._driver.switch_to.frame('mainFrame')
             time.sleep(1)
-            self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="MLG_Menu_Settings"]').click()
             time.sleep(1)
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[7]/a').click()
-            config_modowan = [value.get_attribute('text') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/div[3]/form/table/tbody/tr[1]/td[2]/select//option') ]
+            self._driver.find_element_by_xpath('//*[@id="MLG_Menu_WAN_Mode"]').click()
+            self.admin_authentication_mitraStat()
+            time.sleep(1)
+            self._driver.switch_to.frame('basefrm')
+            config_modowan = [value.get_attribute('text') for value in self._driver.find_elements_by_xpath('/html/body/div[1]/div/div[1]/div[3]/form/table/tbody/tr[1]/td[2]/select//option') ]
             if "Bridge" in config_modowan:
                 self._dict_result.update({"obs": f"Modo WAN: {config_modowan}", "result":"passed", "Resultado_Probe": "OK"})
             else:
@@ -439,6 +440,7 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
         finally:
             self._driver.quit()
             return self._dict_result
+
     
     def checkRedeGpon_36(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 375 seja executado em conjunto
@@ -458,13 +460,10 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
     def accessPadrao_79(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
-            time.sleep(3)
-
             self.login_support()
-            time.sleep(3)
-            self._driver.switch_to.frame('basefrm')
             time.sleep(1)
-            self._driver.find_element_by_xpath('/html/body/blockquote/form/b')
+            self._driver.switch_to.frame('mainFrame')
+            self._driver.find_element_by_xpath('/html/body/div[1]')
             self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": 'Login efetuado com sucesso'})
         except (InvalidSelectorException, NoSuchElementException, NoSuchFrameException) as exception:
             self._dict_result.update({"obs": 'Nao foi possivel realizar o login'})
@@ -472,16 +471,26 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
             self._driver.quit()
             return self._dict_result
 
-
+# 
     def checkPPPoEStatus_146(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/')
             time.sleep(1)
-            self.login_admin()
-            self._driver.switch_to.frame('mainFrame')
-            # self._driver.find_element_by_xpath('//*[@id="accordion"]/li[1]/a').click()
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="MLG_Menu_Settings"]').click()
             time.sleep(1)
-            div = [value.text.replace('\n', '') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[1]//div')]
+            self._driver.find_element_by_xpath('//*[@id="MLG_Menu_WAN_Mode"]').click()
+            self.admin_authentication_mitraStat()
+            time.sleep(1)
+
+            self._driver.switch_to.frame('menufrm')
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/div[1]/div/div/ul/li[1]/a/span').click()
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            time.sleep(1)
+            div = [value.text.replace('\n', '') for value in self._driver.find_elements_by_xpath('/html/body/div/div[1]/table/tbody/tr[3]/td[1]//div')]
             dict_saida = {
                 "Status":
                     {
@@ -491,7 +500,6 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
                             }
                     }
             }
-            print(dict_saida)
             ppp = dict_saida["Status"]["Internet"]["PPP"]
             if ppp == 'Conectado':
                 self._dict_result.update({"obs": "PPP: Conectado", "result":"passed", "Resultado_Probe": "OK"})
@@ -505,9 +513,3 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
         finally:
             self._driver.quit()
             return self._dict_result
-
-
-
-
-
-    

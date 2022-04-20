@@ -27,7 +27,7 @@ mongo_conn = MongoConnSigleton(db='config', collection='cpe_config')
 config_collection = mongo_conn.get_collection()
 
 
-class HGU_AskeyBROADCOM_functionalProbe(HGU_AskeyECNT):
+class HGU_AskeyBROADCOM_functionalProbe(HGU_AskeyBROADCOM):
 
     def connectFakeWizard_68(self, flask_username):
 

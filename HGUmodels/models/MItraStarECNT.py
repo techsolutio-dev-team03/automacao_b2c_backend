@@ -6,13 +6,12 @@ from selenium.webdriver.common.action_chains import ActionChains
 class HGU_MItraStarECNT(HGUModelInterface):
 
     def login_support(self):
-        time.sleep(5)
+        time.sleep(2)
         user_input = self._driver.find_element_by_id('Loginuser')
         user_input.send_keys(self._username)
-        time.sleep(5)
         pass_input = self._driver.find_element_by_id('LoginPassword')
         pass_input.send_keys(self._password)
-        time.sleep(5)
+        time.sleep(1)
         login_button = self._driver.find_element_by_id('Login_ID')
         login_button.click()
         time.sleep(5)
