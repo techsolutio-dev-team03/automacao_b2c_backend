@@ -61,6 +61,44 @@ class gui:
 
         return hgu.connectFakeWizard_68(flask_username)
 
+    #69
+    def changeAdminPassword(self, ip, username, password, flask_username, model_name, **kwargs):
+
+        driver = WebDriver.get_driver()
+
+        dict_result =  {"result":'failed', 
+                        "obs":None,
+                        "Resultado_Probe": "NOK", 
+                        "ProbeName": "changeAdminPassword", 
+                        "Probe#": "XXXXXX", 
+                        "Description": "Alterar a senha de acesso ao dispositivo e validar que após a alteração é solicitado nova autenticação", 
+                       }
+
+        hgu = HGUModelFactory.getHGU(probe='functionalProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+
+        new_password ='S@oP@ulo*15'
+
+        res1 = hgu.changeAdminPassword_69(flask_username, new_password)
+
+        hgu2 = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+
+        res2 = hgu2.accessWizard_401(flask_username)
+
+        return res2
+
+
     def habilitaSSHASKEY3505(self):
         
         driver = WebDriver.get_driver()
@@ -6656,135 +6694,6 @@ class gui:
             print(e)
             return {"Resultado_Probe": "NOK", "ControllerName": "gui", "ProbeName": "execDisableWifi5", "Probe#": "XXXXXXX", "Description": "Habilita rede Wifi 5GHz via Web GUI", "Resultado": str(e)}
 
-    def changeAdminPassword(self, ip, username, old_password, new_password, flask_username):
-
-        def open_change_password(driver):
-            time.sleep(10)
-            driver.switch_to.frame("menufrm")
-            link = driver.find_element_by_xpath('//*[@id="MLG_Menu_Management"]')
-            link.click()
-            time.sleep(1)
-            link = driver.find_element_by_xpath('//*[@id="MLG_Menu_Account_Settings"]')
-            link.click()
-            time.sleep(1)
-
-        def admin_authentication(driver):
-            driver.switch_to.default_content()
-            time.sleep(1)
-            driver.switch_to.frame("basefrm")
-            user_input = driver.find_element_by_xpath('//*[@id="Loginuser"]')
-            user_input.send_keys(usuario)
-            pass_input = driver.find_element_by_xpath('//*[@id="LoginPassword"]')
-            pass_input.send_keys(senha_antiga)
-            login_button = driver.find_element_by_xpath('//*[@id="acceptLogin"]')
-            time.sleep(1)
-            login_button.click()
-            time.sleep(1)
-
-        def changing_password(driver):
-            driver.switch_to.default_content()
-            time.sleep(1)
-            driver.switch_to.frame("basefrm")
-            time.sleep(1)
-            gerenc_senha_old_valor = driver.find_element_by_xpath('//*[@id="pwdOld"]').send_keys(str(senha_antiga))
-            time.sleep(1)
-            gerenc_senha_new_valor = driver.find_element_by_xpath('//*[@id="pwdNew"]').send_keys(str(senha_nova))
-            time.sleep(1)
-            gerenc_senha_new_valor2 = driver.find_element_by_xpath('//*[@id="pwdCfm"]').send_keys(str(senha_nova))
-            time.sleep(1)
-            config_wifi5_basico_ssid_senha_salvar = driver.find_element_by_xpath('//*[@id="SOPHIA_UserAccount_Save"]').click()  ### SAVE BUTTON
-            time.sleep(8)  ### Tempo para recarregar a página após salvar as configs
-
-
-        
-        update_test_progress(flask_username, progress=0)
-        
-        driver = WebDriver.get_driver()
-        driver.execute_script("window.alert = function() {};")
-        usuario = username
-        senha_antiga = old_password
-        senha_nova = new_password
-        
-        print('\n\n == Abrindo URL == ')
-        driver.get('http://' + ip + '/')
-
-        update_test_progress(flask_username, progress=10)
-
-        if re.match(r"^.*(?=.{8,})(?=.*\d)(?=.*[a-z]).*$", new_password):
-            print('SenhaAdmin de Entrada cumpre requisitos...')
-            
-            try:
-                print(' == Solicitando troca de senha == ')
-                open_change_password(driver)
-                update_test_progress(flask_username, progress=30)
-
-                ########################################################################################
-                print(' == Autenticando == ')
-                admin_authentication(driver)
-                update_test_progress(flask_username, progress=60)
-                time.sleep(5)
-                update_test_progress(flask_username, progress=90)
-
-
-                #########################################################################################
-                print(' == Troca de senha == ')
-                changing_password(driver)
-                update_test_progress(flask_username, progress=100)
-
-                return '200 OK'
-            except NoSuchElementException as exception:
-                print(exception)
-                update_test_progress(flask_username, progress=100)
-
-                return 'NOK'
-
-            except Exception as e:
-                print(e)
-                update_test_progress(flask_username, progress=100)
-
-                return 'NOK'
-            finally:
-                print(' == Fim do teste == ')
-                driver.quit()
-
-        else:
-            print('Nova SenhaAdmin de entrada NÃO CUMPRE requisitos.')
-            try:
-                print(' == Solicitando troca de senha == ')
-                open_change_password(driver)
-                update_test_progress(flask_username, progress=30)
-
-                ########################################################################################
-                print(' == Autenticando == ')
-                admin_authentication(driver)
-                update_test_progress(flask_username, progress=60)
-                time.sleep(5)
-                update_test_progress(flask_username, progress=90)
-
-
-                #########################################################################################
-                print(' == Troca de senha == ')
-                changing_password(driver)
-                update_test_progress(flask_username, progress=100)
-
-                if driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input'):
-                    print('NÃO ESPERADO!')
-                    erro = 'Foi possível salvar a senha sem os requisitos mínimos.'
-                else:
-                    print('Comportamento esperado!')
-                    result = '200_OK'
-
-                return '200_OK'
-            except NoSuchElementException as exception:
-                print(exception)
-                update_test_progress(flask_username, progress=100)
-                return 'NOK'
-            except Exception as e:
-                print(e)
-                update_test_progress(flask_username, progress=100)
-                return 'NOK' 
-            finally:
-                driver.quit()
 
     def changeAdminPasswordWithoutCurrent(self, ip, username, old_password, new_password):
         

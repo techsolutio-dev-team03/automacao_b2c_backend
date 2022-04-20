@@ -33,7 +33,7 @@ class HGUModelFactory:
                 return HGU_MItraStarECNT_functionalProbe(address_ip, model_name, username, password, driver, dict_result)
 
           
-        elif model_name == 'HGU4_MitraStar_BROADCOM':
+        elif model_name == 'HGU4_MItraStar_BROADCOM':
             if probe == 'settingsProbe':
                 return HGU_MItraStarBROADCOM_settingsProbe(address_ip, model_name, username, password, driver, dict_result)
             if probe == 'wizardProbe':
