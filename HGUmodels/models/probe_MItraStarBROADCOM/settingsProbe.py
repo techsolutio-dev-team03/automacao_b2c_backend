@@ -789,7 +789,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         config_internet_senha = self._driver.find_element_by_xpath('/html/body/div/div[1]/div[1]/form/table/tbody/tr[3]/td[1]').text.strip(': ')
         print('############################## 1')
         print(config_internet_senha)
-        config_internet_senha_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/div[1]/form/table/tbody/tr[3]/td[2]/input').get_attribute('value')
+        config_internet_senha_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/div[1]/form/table/tbody/tr[3]/td[2]/input').get_attribute('text')
         print('############################## 2')
         print(config_internet_senha_valor)
         time.sleep(1)
@@ -1406,6 +1406,28 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"obs": f'Teste incorreto, retorno senha: {senha}'})
             
         return self._dict_result
+        
+
+    def checkWanInterface_x_427(self, flask_username, interface):
+    
+        try:
+
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="item14"]/table/tbody/tr/td/a').click()
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+        except Exception as e:
+            self._driver.update({"obs": e})
+
+        finally:
+            self._driver.quit()
+            return self._dict_result
 
 
     def vivo_1_ADSL_vlanIdPPPoE_431(self, flask_username):
@@ -1495,6 +1517,46 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             else:
                 self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
         return self._dict_result
+
+    
+    def vivo_1_passwordPppDefault_436(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        cpe_config = config_collection.find_one()
+        if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+            senha = result['Configurações']['Internet'].get('Senha:')
+            if senha == 'cliente':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Senha: cliente', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno senha:{senha}'})
+        else:
+            self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        return self._dict_result
+
+
+    def checkWanInterface_x_437(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 427 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_x_427')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 427 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            # if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+            for idx, sub_dict in result.items():
+                if idx == ('IPv6'):
+                    if sub_dict.get('Adm.State') == 'Dual Stack':
+                        self._dict_result.update({"obs": 'IPv6: Adm.State: Dual Stack', "result":'passed', "Resultado_Probe":"OK"})
+                        break
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno IPv6: Adm.State: {sub_dict.get('Adm.State')}"})
+                else:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno IPv6: {idx}"})
+            # else:
+            #     self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})               
+        return self._dict_result
+
 
 
     def vivo_2_ADSL_vlanIdPPPoE_441(self, flask_username):
