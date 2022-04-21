@@ -8,7 +8,7 @@ import time
 import paramiko
 from paramiko.ssh_exception import AuthenticationException
 import socket
-from ..MItraStarECNT import HGU_MItraStarECNT
+from ..MItraStarBROADCOM import HGU_MItraStarBROADCOM
 from selenium.webdriver.common.action_chains import ActionChains 
 from selenium.webdriver.support.select import Select
 from HGUmodels.config import TEST_NOT_IMPLEMENTED_WARNING
@@ -25,5 +25,5 @@ config_collection = mongo_conn.get_collection()
 
 dict_test_result_memory = {}
 
-class HGU_MItraStarBROADCOM_wizardProbe(HGU_MItraStarECNT):
+class HGU_MItraStarBROADCOM_wizardProbe(HGU_MItraStarBROADCOM):
     pass

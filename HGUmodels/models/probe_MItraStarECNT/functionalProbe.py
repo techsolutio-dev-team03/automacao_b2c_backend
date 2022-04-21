@@ -1,7 +1,8 @@
 import re
 import time
 from datetime import datetime
-from ..MitraStarECNT import HGU_MItraStarECNT
+from ..MItraStarECNT import HGU_MItraStarECNT
+
 from json import JSONEncoder
 import json
 import requests
@@ -27,7 +28,7 @@ mongo_conn = MongoConnSigleton(db='config', collection='cpe_config')
 config_collection = mongo_conn.get_collection()
 
 
-class HGU_MItraStarECNT_functionalProbe(HGU_AskeyECNT):
+class HGU_MItraStarECNT_functionalProbe(HGU_MItraStarECNT):
 
     def connectFakeWizard_68(self, flask_username):
 
