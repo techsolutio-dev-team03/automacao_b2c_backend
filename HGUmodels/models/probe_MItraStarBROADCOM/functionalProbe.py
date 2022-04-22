@@ -1,7 +1,7 @@
 import re
 import time
 from datetime import datetime
-from ..MitraStar_BROADCOM import HGU_MItraStarBROADCOM
+from ..MItraStarBROADCOM import HGU_MItraStarBROADCOM
 from json import JSONEncoder
 import json
 import requests

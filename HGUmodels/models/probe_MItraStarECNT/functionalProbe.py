@@ -1,7 +1,8 @@
 import re
 import time
 from datetime import datetime
-from ..MitraStarECNT import HGU_MItraStarECNT
+from ..MItraStarECNT import HGU_MItraStarECNT
+
 from json import JSONEncoder
 import json
 import requests

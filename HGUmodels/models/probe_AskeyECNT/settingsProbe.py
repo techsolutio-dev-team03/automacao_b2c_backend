@@ -73,7 +73,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
     Teste 402 e igual ao 401
     ''' 
 
-    def accessPadrao_403(self, flask_username):
+    def accessPadrao_403(self):
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
             user_input = self._driver.find_element_by_id('txtUser')

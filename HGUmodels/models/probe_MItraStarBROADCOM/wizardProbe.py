@@ -8,7 +8,7 @@ import time
 import paramiko
 from paramiko.ssh_exception import AuthenticationException
 import socket
-from ..MItraStarECNT import HGU_MItraStarECNT
+from ..MItraStarBROADCOM import HGU_MItraStarBROADCOM
 from selenium.webdriver.common.action_chains import ActionChains 
 from selenium.webdriver.support.select import Select
 from HGUmodels.config import TEST_NOT_IMPLEMENTED_WARNING

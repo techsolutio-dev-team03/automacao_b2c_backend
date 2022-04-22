@@ -789,7 +789,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         config_internet_senha = self._driver.find_element_by_xpath('/html/body/div/div[1]/div[1]/form/table/tbody/tr[3]/td[1]').text.strip(': ')
         print('############################## 1')
         print(config_internet_senha)
-        config_internet_senha_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/div[1]/form/table/tbody/tr[3]/td[2]/input').get_attribute('value')
+        config_internet_senha_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/div[1]/form/table/tbody/tr[3]/td[2]/input').get_attribute('text')
         print('############################## 2')
         print(config_internet_senha_valor)
         time.sleep(1)
@@ -1408,6 +1408,41 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         return self._dict_result
 
 
+    def checkWanInterface_x_427(self, flask_username, interface):
+    
+        try:
+
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="item14"]/table/tbody/tr/td/a').click()
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            self._driver.find_element_by_xpath('/html/body/blockquote/form/center/table/tbody/tr[4]/td[16]/input').click()
+            time.sleep(2)
+            wan_network = self._driver.find_element_by_xpath('//*[@id="enblv6Info"]/table/tbody/tr/td[1]').text
+            wan_interface = Select(self._driver.find_element_by_xpath('//*[@id="IpProtocalMode"]')).first_selected_option.text
+            
+            dict_saida427 = {wan_network: wan_interface}
+            self.update_global_result_memory(flask_username, 'checkWanInterface_x_427', dict_saida427)
+
+            if wan_interface == 'IPv4&IPv6(Dual Stack)':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "IPv6: Dual Stack", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno: {wan_interface}"})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+
+        finally:
+            self._driver.quit()
+            return self._dict_result
+
+
     def vivo_1_ADSL_vlanIdPPPoE_431(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
@@ -1495,6 +1530,47 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             else:
                 self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
         return self._dict_result
+
+    
+    def vivo_1_passwordPppDefault_436(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        cpe_config = config_collection.find_one()
+        if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+            senha = result['Configurações']['Internet'].get('Senha:')
+            if senha == 'cliente':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Senha: cliente', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno senha:{senha}'})
+        else:
+            self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        return self._dict_result
+
+
+    def checkWanInterface_x_437(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 427 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_x_427')
+        print(result)
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 427 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            # if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+            for idx, sub_dict in result.items():
+                if idx == ('IPv6'):
+                    if sub_dict.get('Adm.State') == 'Dual Stack':
+                        self._dict_result.update({"obs": 'IPv6: Adm.State: Dual Stack', "result":'passed', "Resultado_Probe":"OK"})
+                        break
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno IPv6: Adm.State: {sub_dict.get('Adm.State')}"})
+                else:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno IPv6: {idx}"})
+            # else:
+            #     self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})               
+        return self._dict_result
+
 
 
     def vivo_2_ADSL_vlanIdPPPoE_441(self, flask_username):
@@ -1790,7 +1866,187 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 else:
                     self._dict_result.update({"obs": f"REDE: {cpe_config['REDE']}"})
         return self._dict_result
+
+
+    def checkLANDHCPSettings_x_464(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="folder15"]/table/tbody/tr/td/a').click()
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            dict_saida464 = {}
+            tabela = self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[1]/tbody//td')
+            dict_saida464[tabela[0].text.strip(': ')] = tabela[1].find_element_by_tag_name('input').get_attribute('value')
+            dict_saida464[tabela[2].text.strip(': ')] = tabela[3].find_element_by_tag_name('input').get_attribute('value')
+            
+            igmp_snooping = self._driver.find_element_by_xpath('/html/body/blockquote/form/table[2]/tbody/tr/td')
+            dict_saida464[igmp_snooping.text.strip(': ')] = igmp_snooping.find_element_by_tag_name('input').get_attribute('checked')
+
+            tabela = self._driver.find_elements_by_xpath('//*[@id="igmpSnpInfo"]/table[1]/tbody//td')
+            dict_saida464[tabela[0].text.strip(': ')] = tabela[0].find_element_by_tag_name('input').get_attribute('checked')
+            dict_saida464[tabela[1].text.strip(': ')] = tabela[1].find_element_by_tag_name('input').get_attribute('checked')
+            
+            tabela = self._driver.find_elements_by_xpath('//*[@id="igmpSnpInfo"]/table[2]/tbody/tr[1]//td')
+            dict_saida464[tabela[0].text.strip(': ')] = Select(tabela[1].find_element_by_tag_name('select')).first_selected_option.text
+            
+            lan_firewall = self._driver.find_element_by_xpath('//*[@id="firewallEnbl"]/table/tbody/tr/td')
+            dict_saida464[lan_firewall.text.strip(': ')] = lan_firewall.find_element_by_tag_name('input').get_attribute('checked')
+            
+            tabela = self._driver.find_elements_by_xpath('//*[@id="dhcpInfo"]/table/tbody//td')
+            dict_saida464[tabela[0].text.strip(': ')] = tabela[0].find_element_by_tag_name('input').get_attribute('checked')
+            dict_saida464[tabela[1].text.strip(': ')] = tabela[1].find_element_by_tag_name('input').get_attribute('checked')
+            dict_saida464[tabela[2].text.strip(': ')] = tabela[3].find_element_by_tag_name('input').get_attribute('value')
+            dict_saida464[tabela[4].text.strip(': ')] = tabela[5].find_element_by_tag_name('input').get_attribute('value')
+            dict_saida464[tabela[6].text.strip(': ')] = tabela[7].find_element_by_tag_name('input').get_attribute('value')
+
+            dhcp_cond = self._driver.find_element_by_xpath('//*[@id="dhcpcondservEnbl"]/table/tbody/tr/td')
+            dict_saida464[dhcp_cond.text] = dhcp_cond.find_element_by_tag_name('input').get_attribute('checked')
+
+            tabela = self._driver.find_elements_by_xpath('//*[@id="dhcpcondservInfo"]/table/tbody//td')
+            for n in range(0,13,2):
+                dict_saida464[tabela[n].text.strip(': ')] = tabela[n+1].find_element_by_tag_name('input').get_attribute('value')
+            for id_mode in tabela[15].find_elements_by_tag_name('input'):
+                if id_mode.get_attribute('checked'):
+                    dict_saida464[tabela[14].text.strip(': ')] = id_mode.get_attribute('value')
+            for id_mode in tabela[17].find_elements_by_tag_name('input'):
+                if id_mode.get_attribute('checked'):
+                    dict_saida464[tabela[16].text.strip(': ')] = id_mode.get_attribute('value')
+            dict_saida464[tabela[18].text.strip(': ')] = tabela[19].find_element_by_tag_name('input').get_attribute('value')
+
+            second_ip = self._driver.find_element_by_xpath('//*[@id="lan2All"]/table/tbody/tr[2]/td')
+            dict_saida464[second_ip.text] = second_ip.find_element_by_tag_name('input').get_attribute('checked')
+
+            tabela = self._driver.find_elements_by_xpath('//*[@id="lan2Info"]/table/tbody//td')
+            dict_saida464[tabela[0].text.strip(': ')+'_2'] = tabela[1].find_element_by_tag_name('input').get_attribute('value')
+            dict_saida464[tabela[2].text.strip(': ')+'_2'] = tabela[3].find_element_by_tag_name('input').get_attribute('value')
+
+            tabela = self._driver.find_elements_by_xpath('//*[@id="lanDns"]/table/tbody//td')
+            dict_saida464[tabela[0].text.strip(': ')] = tabela[0].find_element_by_tag_name('input').get_attribute('checked')
+            dict_saida464[tabela[1].text.strip(': ')] = tabela[1].find_element_by_tag_name('input').get_attribute('checked')
+
+            print(dict_saida464)
+            if dict_saida464['IP Address'] == '192.168.18.1':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": f"Gateway: {dict_saida464['IP Address']}", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Gateway: {dict_saida464['IP Address']}"})
         
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            self.update_global_result_memory(flask_username, 'checkLANDHCPSettings_x_464', dict_saida464)
+            return self._dict_result
+       
+
+    def poolDhcpLan_465(self, flask_username):
+        result = session.get_result_from_test(flask_username, 'checkLANDHCPSettings_x_464')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 464 primeiro'})
+        else:
+            start_addr = result['Start IP Address']
+            end_addr = result['End IP Address']
+            if start_addr == '192.168.18.2' and end_addr == '192.168.18.200':
+                self._dict_result.update({"obs": 'IP Address Range OK', "result":'passed', "Resultado_Probe":"OK"})
+            else:
+                self._dict_result.update({"obs": f'IP Address Range NOK. {start_addr} : {end_addr}'})
+        return self._dict_result
+
+
+    def leaseTime_466(self, flask_username):
+        result = session.get_result_from_test(flask_username, 'checkLANDHCPSettings_x_464')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 464 primeiro'})
+        else:
+            ans_466 = result['Leased Time (hour)']
+            if '4' == ans_466:
+                self._dict_result.update({"obs": 'Lease Time: 4 horas', "result":'passed', "Resultado_Probe":"OK"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno Lease Time: {ans_466}'})      
+        return self._dict_result
+
+    
+    def vendorIdIptvEnable_467(self, flask_username):
+        result = session.get_result_from_test(flask_username, 'checkLANDHCPSettings_x_464')
+        self._driver.quit()
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 464 primeiro'})
+        else:
+            vendorID_check = result['Enable DHCP Conditional Serving Pool']
+            vendor_id = result['VendorID']
+            cpe_config = config_collection.find_one()
+            
+            #1
+            if vendorID_check == 'true':
+                obs_result1 = f'VendorID esta Habilitado'
+                self._dict_result.update({"Resultado_Probe": "OK", "result":"passed"})
+            else:
+                self._dict_result.update({"Resultado_Probe": "NOK", "result":"failed"})
+                obs_result1 = f"Teste incorreto, retorno VendorID: {vendorID_check}"
+
+            #2
+            if True: #cpe_config['REDE'] == 'VIVO_1':
+                if vendor_id == 'MSFT_IPTV,TEF_IPTV':
+                    obs_result2 = f'Valor VendorID: {vendor_id}'
+                    self._dict_result.update({"Resultado_Probe": "OK", "result":"passed"})
+                else:
+                    self._dict_result.update({"Resultado_Probe": "NOK", "result":"failed"})
+                    obs_result2 = f"Teste incorreto, retorno Valor VendorID: {vendor_id}"
+            else:
+                self._dict_result.update({"Resultado_Probe": "NOK", "result":"failed"})
+                obs_result2 = f"REDE:{cpe_config['REDE']}"
+            
+            #3
+            # if cpe_config['REDE'] == 'VIVO_2':
+            #     if vendor_id == 'GVT-STB,RSTIH89-500_HD,DSTIH78_GVT,VM1110,DSTIH79_GVT,VM1110_HD_HYBRID,DSITH79_GVT_HD':
+            #         obs_result3 = f'Valor VendorID: {vendor_id}'
+            #         self._dict_result.update({"Resultado_Probe": "OK", "result":"passed"})
+            #     else:
+            #         self._dict_result.update({"Resultado_Probe": "NOK", "result":"failed"})
+            #         obs_result3 = f"Teste incorreto, retorno Valor VendorID: {vendor_id}"
+            # else:
+            #     self._dict_result.update({"Resultado_Probe": "NOK", "result":"failed"})
+            #     obs_result3 = f"REDE:{cpe_config['REDE']}"
+
+            self._dict_result.update({"obs": f"467_1: {obs_result1} | 467_2: {obs_result2}"})# | 467_3: {obs_result3}"})
+            
+        return self._dict_result
+
+
+    def poolDhcpIptv_468(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 464 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkLANDHCPSettings_x_464')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 467 primeiro'})
+        else:
+            ip_inicio = result['Pool Start']
+            ip_fim = result['Pool End']
+            if ip_inicio == '192.168.18.230' and ip_fim == '192.168.18.254':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'IP Address Range: OK', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno IP Address Range: {ip_inicio} | {ip_fim}'})         
+        return self._dict_result
+
+    
+    def igmpSnoopingLAN_469(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 464 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkLANDHCPSettings_x_464')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 464 primeiro'})
+        else:
+            igmp_check = result['Enable IGMP Snooping']
+            if igmp_check == 'true':
+                self._dict_result.update({"obs": 'IGMP Snooping: Habilitado', "result":'passed', "Resultado_Probe":"OK"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno IGMP Snooping: {igmp_check}'})
+       
+        return self._dict_result     
+
 
     def verificarWifi24SsidDefault_470(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
