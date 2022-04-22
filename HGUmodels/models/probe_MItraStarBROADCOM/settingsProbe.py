@@ -9,6 +9,8 @@ import paramiko
 from paramiko.ssh_exception import AuthenticationException
 import socket
 
+# import pyperclip
+
 
 from ..MItraStarBROADCOM import HGU_MItraStarBROADCOM
 from selenium.webdriver.common.action_chains import ActionChains 
@@ -231,7 +233,157 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 except Exception as exception:
                     self._dict_result.update({"obs": str(exception)})
             finally:
-                return self._dict_result 
+                return self._dict_result
+
+
+    def checkACSSettings_411(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="folder70"]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="folder78"]/table/tbody/tr/td/a/span').click()
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            dict_saida = {}
+
+            acs_names = [value.text for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[2]/tbody//td') if value.text != '']
+            acs_values = [value.get_attribute('value') for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[2]/tbody/tr/td//input')]
+
+            names_inform = [value.text for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[1]/tbody/tr//td')]
+            inform = [value.get_attribute('checked') for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[1]/tbody/tr/td//input')]
+            
+            names_soap = [value.text for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[4]/tbody/tr//td')]
+            soap = [value.get_attribute('checked') for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[4]/tbody/tr/td//input')]
+
+            con_names = [value.text.replace(":", "") for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/div/table/tbody/tr//td') if value.text != '']
+            con_values = [value.get_attribute('value') for value in self._driver.find_elements_by_xpath('//html/body/blockquote/form/div/table/tbody/tr/td//input')]
+            
+            for a, b in zip(acs_names, acs_values):
+                dict_saida[a.replace(":", "")] = b
+            
+            dict_saida.update({"Inform": names_inform[inform.index('true')+1], 
+                                "SOAP": names_soap[soap.index('true')+1], 
+                                con_names[0]: con_values[0],
+                                con_names[1]: con_values[1],
+                                con_names[2]: con_names[3]})
+
+            print(dict_saida)
+            
+            acs_url = dict_saida['ACS URL']
+            if  acs_url == 'http://acs.telesp.net.br:7005/cwmpWeb/WGCPEMgt':
+                self._dict_result.update({"obs": acs_url, "Resultado_Probe": "OK", 'result':'passed'})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno ACS URL: {acs_url}"})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            self.update_global_result_memory(flask_username, 'checkACSSettings_411', dict_saida)
+
+            return self._dict_result
+
+
+    def validarDefaultUserACS_412(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 411 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkACSSettings_411')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 411 primeiro"})
+        
+        else:
+            value = result['ACS User Name']
+            if value == 'acsclient':
+                self._dict_result.update({"obs": "Usuario: acsclient", "result":'passed', "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Usuario: {value}"})
+        return self._dict_result
+
+    # resolver o ** da senha
+    def validarDefaultPasswordACS_413(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 411 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkACSSettings_411')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 411 primeiro"})
+        else:
+            value = result['ACS Password']
+            if value == 'telefonica':
+                self._dict_result.update({"obs": "Senha: telefonica", "result":'passed', "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Senha: {value}"})
+        return self._dict_result
+
+
+    def GPV_OneObjct_414(self, serialnumber, GPV_Param, IPACS, acsUsername, acsPassword):
+        self._dict_result.update({'result':'failed',"obs": TEST_NOT_IMPLEMENTED_WARNING})
+        return self._dict_result
+
+
+
+    def periodicInformEnable_415(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 411 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkACSSettings_411')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 411 primeiro"})
+        else:
+            value = result['Inform']
+            if value == 'Enable':
+                self._dict_result.update({"obs": "Informe: Habilitado ", "result":'passed', "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Informe: {value}"})
+        return self._dict_result
+
+
+    def periodicInformInterval_416(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 411 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkACSSettings_411')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 411 primeiro"})
+        else:
+            value = result['Inform Interval']
+            if value == '68400':
+                self._dict_result.update({"obs": "Informe Interval: 68400", "result":'passed', "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Informe Interval: {value}"})
+        return self._dict_result
+
+
+    def connectionRequestPort_417(self, serialnumber, GPV_Param, IPACS, acsUsername, acsPassword):
+        self._dict_result.update({'result':'failed',"obs": TEST_NOT_IMPLEMENTED_WARNING})
+        return self._dict_result
+
+
+    def enableCwmp_418(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 411 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkACSSettings_411')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 411 primeiro"})
+        else:
+            value = result['SOAP']
+            if value == 'Enable':
+                self._dict_result.update({"obs": "SOAP: Habilitado", "result":'passed', "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno SOAP: {value}"})
+        return self._dict_result
+
+
+    def userConnectionRequest_419(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 411 seja executado em conjunto
+        #TODO: Verificar se o teste 419 é igual ao teste 412
+        result = session.get_result_from_test(flask_username, 'checkACSSettings_411')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 411 primeiro"})
+        else:
+            value = result['Connection Request User Name']
+            if value == 'userid':
+                self._dict_result.update({"obs": "Connection Request Username OK", "result":'passed'})
+            else:
+                self._dict_result.update({"obs": f"Connection Request Username incorreta, retorno: {value}", "result":'failed'})
+        return self._dict_result
+
 
 
     def checkWanInterface_420(self, flask_username):
@@ -637,7 +789,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         config_internet_senha = self._driver.find_element_by_xpath('/html/body/div/div[1]/div[1]/form/table/tbody/tr[3]/td[1]').text.strip(': ')
         print('############################## 1')
         print(config_internet_senha)
-        config_internet_senha_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/div[1]/form/table/tbody/tr[3]/td[2]/input').text
+        config_internet_senha_valor = self._driver.find_element_by_xpath('/html/body/div/div[1]/div[1]/form/table/tbody/tr[3]/td[2]/input').get_attribute('value')
         print('############################## 2')
         print(config_internet_senha_valor)
         time.sleep(1)
@@ -1239,6 +1391,23 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         return self._dict_result
 
 
+
+    def verificarSenhaPppDefaultFibra_426(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            senha = result['Configurações']['Internet'].get('Senha')
+            if senha == 'cliente':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'senha:cliente', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno senha: {senha}'})
+            
+        return self._dict_result
+
+
     def vivo_1_ADSL_vlanIdPPPoE_431(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
@@ -1489,7 +1658,6 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
     def vivo_1_igmpIptv_453(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
-        self._driver.quit()
         if len(result) == 0:
             self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
         else:

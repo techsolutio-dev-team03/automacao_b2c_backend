@@ -27,7 +27,7 @@ mongo_conn = MongoConnSigleton(db='config', collection='cpe_config')
 config_collection = mongo_conn.get_collection()
 
 
-class HGU_AskeyBROADCOM_functionalProbe(HGU_AskeyECNT):
+class HGU_AskeyBROADCOM_functionalProbe(HGU_AskeyBROADCOM):
 
     def connectFakeWizard_68(self, flask_username):
 
@@ -50,10 +50,14 @@ class HGU_AskeyBROADCOM_functionalProbe(HGU_AskeyECNT):
                 result = self._driver.find_element_by_xpath('/html/body/h4').text
                 print(result)
             time.sleep(1)
-            self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": None})
+            self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": "Nao foi possivel acessar a URL"})
         except NoSuchElementException as exception:
             print(exception)
-            self._driver.quit()
             self._dict_result.update({"obs": str(exception)})
         finally:
+            self._driver.quit()
             return self._dict_result
+    
+
+
+

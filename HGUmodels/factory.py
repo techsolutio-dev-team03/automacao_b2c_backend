@@ -11,6 +11,7 @@ from .models.probe_AskeyECNT.functionalProbe import HGU_AskeyECNT_functionalProb
 
 from .models.probe_AskeyBroadcom.settingsProbe import HGU_AskeyBROADCOM_settingsProbe
 from .models.probe_AskeyBroadcom.wizardProbe import HGU_AskeyBROADCOM_wizardProbe
+from .models.probe_AskeyBroadcom.functionalProbe import HGU_AskeyBROADCOM_functionalProbe
 
 
 class HGUModelFactory:
@@ -43,5 +44,8 @@ class HGUModelFactory:
                 return HGU_AskeyBROADCOM_settingsProbe(address_ip, model_name, username, password, driver, dict_result)
             if probe == 'wizardProbe':
                 return HGU_AskeyBROADCOM_wizardProbe(address_ip, model_name, username, password, driver, dict_result)
+            if probe == 'functionalProbe':
+                return HGU_AskeyBROADCOM_functionalProbe(address_ip, model_name, username, password, driver, dict_result)
+
         else:
             return None
