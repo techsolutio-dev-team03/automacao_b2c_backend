@@ -2291,7 +2291,7 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
         else:
             start_addr = result['Start IP Address']
             end_addr = result['End IP Address']
-            if start_addr == '192.168.15.1' and end_addr == '192.168.15.200':
+            if start_addr == '192.168.15.2' and end_addr == '192.168.15.200':
                 self._dict_result.update({"obs": 'IP Address Range OK', "result":'passed', "Resultado_Probe":"OK"})
             else:
                 self._dict_result.update({"obs": 'IP Address Range NOK'})
@@ -2376,7 +2376,7 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
 
     
     def igmpSnoopingLAN_469(self, flask_username):
-        #TODO: Fazer logica no frontend para garantir que o teste 424 seja executado em conjunto
+        #TODO: Fazer logica no frontend para garantir que o teste 464 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'checkLANDHCPSettings_x_464')
         if len(result) == 0:
             self._dict_result.update({"obs": 'Execute o teste 464 primeiro'})
