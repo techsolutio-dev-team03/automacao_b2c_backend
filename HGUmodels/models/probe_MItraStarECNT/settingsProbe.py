@@ -448,25 +448,30 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="network"]/span[1]')
             hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
             hover.perform()
+
             wanInterface = self._driver.find_element_by_xpath('//*[@id="network-broadband"]/a').click()
  
+            self._driver.switch_to.default_content()
             time.sleep(3)
 
             self._driver.switch_to.frame('mainFrame')
-            rows_string = [header.text for header in self._driver.find_elements_by_xpath('//*[@id="broadband_list"]/table/tbody/tr')]
+            time.sleep(4)
+
+
+            rows_string = [header.text for header in self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div/ul/li/div/table/tbody//tr')]
             time.sleep(3)
-            
             table = [row.split() for row in rows_string]
             header_list = table[0]
             header_list.remove('Release')
             header_list = header_list[2:-1]
             rows = [row[1:] for row in table[1:4]]
             dict_saida420 = {}
+
             for i, row in enumerate(rows):
+
                 d = {col:row[j] for (j,col) in enumerate(header_list)}
                 dict_saida420.update({f'index_{i}':d})
-
-            self._driver.quit()
+            
             print('dict : ',dict_saida420)
             for k, item in dict_saida420.items():
                 cpe_config = config_collection.find_one()
@@ -484,6 +489,8 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             print(exception)
             self._dict_result.update({"obs": exception})
         finally:
+            self._driver.quit()
+
             self.update_global_result_memory(flask_username, 'checkWanInterface_420', dict_saida420)
             return self._dict_result
 
@@ -648,6 +655,7 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
             time.sleep(1)
+            dict_saida424 = {}
 
             element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="network"]/span[1]')
             hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
@@ -655,8 +663,8 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             self._driver.find_element_by_xpath('/html/body/div/div[4]/div[2]/div/ul[1]/li[2]/a').click()
             time.sleep(1)
 
-            dict_saida424 = {}
             for i in range(2,5):
+
                 self._driver.switch_to.frame('mainFrame')
                 time.sleep(1)
                 name =  self._driver.find_element_by_xpath(f'/html/body/div[2]/div/form/div/div/ul/li/div/table/tbody/tr[{i}]/td[3]').text
@@ -669,7 +677,7 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
                 self._driver.find_element_by_xpath('/html/body/div[3]/div[1]/a/span').click()
                 time.sleep(1)
                 dict_saida424[name] = multicast
-                
+            
             print(dict_saida424)
             
             try:
@@ -1738,6 +1746,27 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         return self._dict_result
 
 
+    def checkMulticastSettings_434(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 424 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkMulticastSettings_424')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 424 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                try:
+                    internet = result['Internet'] 
+                    if internet == 'Nenhum':
+                        self._dict_result.update({"Resultado_Probe": "OK", "obs": "IGMP Internet: Desabilitado", "result":"passed"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno IGMP Internet: {internet}"})
+                except:
+                    self._dict_result.update({"obs": 'Interface Internet nao existe'})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+
     def vivo_1_usernamePppDefault_435(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'getFullConfig_425')
@@ -1880,6 +1909,27 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
                         break
             else:
                 self._dict_result.update({"obs": "Interface: Interface 1 nao existe" })
+        return self._dict_result
+
+
+    def checkMulticastSettings_444(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 424 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkMulticastSettings_424')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 424 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                try:
+                    internet = result['Internet'] 
+                    if internet == 'Nenhum':
+                        self._dict_result.update({"Resultado_Probe": "OK", "obs": "IGMP Internet: Desabilitado", "result":"passed"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno IGMP Internet: {internet}"})
+                except:
+                    self._dict_result.update({"obs": 'Interface Internet nao existe'})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
         return self._dict_result
 
 

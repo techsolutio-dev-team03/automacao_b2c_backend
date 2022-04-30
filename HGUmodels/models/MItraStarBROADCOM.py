@@ -1,6 +1,7 @@
 import time
 from ..interface import HGUModelInterface
 from selenium.webdriver.common.action_chains import ActionChains 
+import os
 
 
 class HGU_MItraStarBROADCOM(HGUModelInterface):
@@ -40,4 +41,20 @@ class HGU_MItraStarBROADCOM(HGUModelInterface):
         time.sleep(1)
         login_button.click()
         time.sleep(1)
+
+    # desliga interfaces, exceto a referente ao HGU em teste
+    def eth_interfaces(self, updown):
+        # os.system("sudo su")
+        # time.sleep(5)
+        
+        interfaces = [interface.split('\n') for interface in os.popen('ifconfig -a').read().split('\n\n') if interface.startswith("ens")]
+        for interface in interfaces:
+            inet = interface[1].strip(' ').split(' ')[1].split('.')
+            ip = '.'.join(inet[0:3])
+            if ip != '.'.join(self._address_ip.split('.')[0:3]):
+                desligar_interface = interface[0].split(':')[0]
+                print(desligar_interface)
+                # os.system(f'ifconfig {desligar_interface} {updown}')
+                # time.sleep(5)
+              
 

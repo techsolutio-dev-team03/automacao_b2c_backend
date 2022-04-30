@@ -2439,6 +2439,32 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
         return self._dict_result
 
+    
+
+    def checkMulticastSettings_434(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 424 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkMulticastSettings_424')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 424 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                for _, row in result.items():
+                    if row['Interface'] == 'ip2':
+                        if row['IGMP'] == 'Desabilitado':
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "Interface: ip2 | IGMP: Desabilitado", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": "Interface: ip2 | IGMP: Habilitado"})
+                            break
+                    else:
+                        self._dict_result.update({"obs": "Interface Ip2 nao existe"})
+
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+
+        return self._dict_result
+
 
     def vivo_1_usernamePppDefault_435(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
@@ -2606,6 +2632,32 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         return self._dict_result
 
 
+
+    def checkMulticastSettings_444(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 424 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkMulticastSettings_424')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 424 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                for _, row in result.items():
+                    if row['Interface'] == 'ip2':
+                        if row['IGMP'] == 'Desabilitado':
+                            self._dict_result.update({"Resultado_Probe": "OK", "obs": "Interface: ip2 | IGMP: Desabilitado", "result":"passed"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": "Interface: ip2 | IGMP: Habilitado"})
+                            break
+                    else:
+                        self._dict_result.update({"obs": "Interface Ip2 nao existe"})
+
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+
+        return self._dict_result
+
+
     def vivo_2_usernamePppDefault_445(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'getFullConfig_425')
@@ -2691,11 +2743,11 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         else:
             cpe_config = config_collection.find_one()
             if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':   
-                ans_439 = result['LAN Setting']['IPv6']['RADVD'].get('Prefix Delegation WAN')
-                if 'ip2' == ans_439:
+                ans_449 = result['LAN Setting']['IPv6']['RADVD'].get('Prefix Delegation WAN')
+                if 'ip2' == ans_449:
                     self._dict_result.update({"Resultado_Probe": "OK", "obs": "Prefix Delegation WAN: ip2", "result":"passed"})
                 else:
-                    self._dict_result.update({"obs": f"Teste incorreto, retorno Prefix Delegation WAN: {ans_439}"})
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Prefix Delegation WAN: {ans_449}"})
             else:
                 self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
         return self._dict_result

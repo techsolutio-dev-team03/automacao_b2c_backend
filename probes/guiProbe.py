@@ -209,6 +209,27 @@ class gui:
         # driver.quit()
 
 
+   #210
+    def accessSantander(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "gui", 
+                       "ProbeName": "accessSantander", 
+                       "Probe#": "210", 
+                       "Description": "Acessar página do Santander"}
+
+        hgu = HGUModelFactory.getHGU(probe='ipv6Probe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                    #  driver=driver, 
+                                     dict_result=dict_result)
+        return hgu.accessSantander_210(flask_username)
+
+
     #401
     def accessWizard(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
 
@@ -2803,6 +2824,27 @@ class gui:
                                      dict_result=dict_result)
         return hgu.vivo_1_ADSL_vlanIdPPPoE_433(flask_username)
 
+    #434
+    def checkMulticastSettings_2(self, ip, username, password, model_name, flask_username, **kwargs):
+        
+
+        dict_result = {"result":"failed",
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "gui", 
+                       "ProbeName": "checkMulticastSettings", 
+                       "Probe#": "XXXXXXXXX", 
+                       "Description": "Coleta informações de Multicast IGMP na página padrão ", 
+                       "obs": None}
+
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.checkMulticastSettings_434(flask_username)
+
    #435
     def vivo_1_usernamePppDefault(self, ip, username, password, model_name, flask_username, **kwargs):
         dict_result = {"result":"failed",
@@ -2959,6 +3001,25 @@ class gui:
                                      password=password, 
                                      dict_result=dict_result)
         return hgu.vivo_2_ADSL_vlanIdPPPoE_443(flask_username)
+    
+
+    #444
+    def checkMulticastSettings_3(self, ip, username, password, model_name, flask_username, **kwargs):
+        dict_result = {"result":"failed",
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "gui", 
+                       "ProbeName": "checkMulticastSettings", 
+                       "Probe#": "XXXXXXXXX", 
+                       "Description": "Coleta informações de Multicast IGMP na página padrão ", 
+                       "obs": None}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.checkMulticastSettings_444(flask_username)
 
     #445
     def vivo_2_usernamePppDefault(self, ip, username, password, model_name, flask_username, **kwargs):

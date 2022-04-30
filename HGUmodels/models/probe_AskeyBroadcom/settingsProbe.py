@@ -1527,8 +1527,31 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
                     self._dict_result.update({"obs": f'Teste incorreto, retorno interface NAT Status: {status}'})
             else:
                 self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
-        return self._dict_result        
-               
+        return self._dict_result   
+
+
+    def checkMulticastSettings_434(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 424 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkMulticastSettings_424')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 424 primeiro'})
+        else:
+            try:
+                cpe_config = config_collection.find_one()
+                if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+
+                    igmp_inet = result['ppp0.1']['Igmp Proxy']
+                    if igmp_inet == 'Disabled':
+                        self._dict_result.update({"Resultado_Probe": "OK", "obs": "Interface: ppp0.1 | IGMP: Desabilitado", "result":"passed"})
+                    else:
+                        self._dict_result.update({"obs": "Interface: ppp0.1 | IGMP: Habilitado"})
+                else:
+                    self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+
+            except Exception:
+                self._dict_result.update({"obs": "Interface ppp0.1 nao existe"})     
+            
+        return self._dict_result
  
     def vivo_1_usernamePppDefault_435(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
@@ -1681,7 +1704,31 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
                     self._dict_result.update({"obs": f'Teste incorreto, retorno interface NAT Status: {status}'})
             else:
                 self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
-        return self._dict_result     
+        return self._dict_result
+
+
+    def checkMulticastSettings_444(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 424 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkMulticastSettings_424')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 424 primeiro'})
+        else:
+            try:
+                cpe_config = config_collection.find_one()
+                if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+
+                    igmp_inet = result['ppp0.1']['Igmp Proxy']
+                    if igmp_inet == 'Disabled':
+                        self._dict_result.update({"Resultado_Probe": "OK", "obs": "Interface: ppp0.1 | IGMP: Desabilitado", "result":"passed"})
+                    else:
+                        self._dict_result.update({"obs": "Interface: ppp0.1 | IGMP: Habilitado"})
+                else:
+                    self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+
+            except Exception:
+                self._dict_result.update({"obs": "Interface ppp0.1 nao existe"})     
+            
+        return self._dict_result 
 
         
     def vivo_2_usernamePppDefault_445(self, flask_username):
