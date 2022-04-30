@@ -39,3 +39,7 @@ class HGU_AskeyBROADCOM(HGUModelInterface):
         except:
             pass
 
+
+    def __str__(self):
+        return "HGU_AskeyBROADCOM"
+

@@ -52,3 +52,7 @@ class HGU_MItraStarECNT(HGUModelInterface):
         login_button.click()
         time.sleep(1)
 
+
+    def __str__(self):
+        return "HGU_MItraStarECNT"
+

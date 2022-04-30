@@ -22,7 +22,6 @@ from .models.probe_AskeyBroadcom.functionalProbe import HGU_AskeyBROADCOM_functi
 class HGUModelFactory:
     @staticmethod
     def getHGU(probe, dict_result, model_name, username=None, password=None, address_ip=None, driver=None ):
-        print(model_name)
 
         if model_name == 'HGU1_MItraStar_ECNT':
             if probe == 'settingsProbe':
@@ -33,7 +32,7 @@ class HGUModelFactory:
                 return HGU_MItraStarECNT_functionalProbe(address_ip, model_name, username, password, driver, dict_result)
 
           
-        elif model_name == 'HGU4_MItraStar_BROADCOM':
+        elif model_name == 'HGU4_MitraStar_BROADCOM':
             if probe == 'settingsProbe':
                 return HGU_MItraStarBROADCOM_settingsProbe(address_ip, model_name, username, password, driver, dict_result)
             if probe == 'wizardProbe':

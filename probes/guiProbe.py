@@ -227,6 +227,9 @@ class gui:
                                      password=password, 
                                     #  driver=driver, 
                                      dict_result=dict_result)
+
+        print(hgu)
+
         return hgu.accessSantander_210(flask_username)
 
 

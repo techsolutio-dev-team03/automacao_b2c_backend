@@ -15,3 +15,7 @@ class HGU_AskeyECNT(HGUModelInterface):
         time.sleep(3)
 
 
+    def __str__(self):
+        return "HGU_AskeyECNT"
+
+

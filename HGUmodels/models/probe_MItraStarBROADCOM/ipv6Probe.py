@@ -27,7 +27,7 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
 
     def accessSantander_210(self, flask_username):
         site = 'http://www.santander.com.br'
-        self.eth_interfaces('down')
+        self.eth_interfaces_down()
         try:
             acesso = requests.get(site).status_code
             print(acesso)
@@ -38,7 +38,7 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
         except:
             self._dict_result.update({"obs": f'Nao foi possivel acessar o site {site}'})
         finally:
-            self.eth_interfaces('up')
+            self.eth_interfaces_up()
             return self._dict_result
         
             

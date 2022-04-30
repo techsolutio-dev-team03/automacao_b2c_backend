@@ -1,4 +1,6 @@
 from HGUmodels.main_session import MainSession
+import os
+import time
 
 session = MainSession()
 
@@ -18,44 +20,30 @@ class HGUModelInterface():
             
         session.update_state(flask_username, test_name, dict_out)
 
-    
-    def accessWizard_401(self): pass
+    # desliga interfaces, exceto a referente ao HGU em teste
+    def eth_interfaces_down(self):
+        
+        interfaces = [interface.split('\n') for interface in os.popen('ifconfig').read().split('\n\n') if interface.startswith("ens")]
+        for interface in interfaces:
+            ip_net =  '.'.join(self._address_ip.split('.')[:3])
+            if_name = interface[0].split(':')[0]
+            if any([ip_net in address for address in interface]):
+                continue
+            else:
+                print(f'echo 4ut0m4c40 | sudo -S ip link set {if_name} down')
+                os.system(f'echo 4ut0m4c40 | sudo -S ip link set {if_name} down')
+                time.sleep(1)
 
-    def accessPadrao_403(self): pass
 
-    def accessRemoteHttp_405(self): pass
+    def eth_interfaces_up(self):
+        
+        interfaces = [interface.split('\n') for interface in os.popen('ifconfig -a').read().split('\n\n') if interface.startswith("ens")]
+        for interface in interfaces:
+            if_name = interface[0].split(':')[0]
+            print(f'echo 4ut0m4c40 | sudo -S ip link set {if_name} up')
+            os.system(f'echo 4ut0m4c40 | sudo -S ip link set {if_name} up')
+            time.sleep(1)
 
-    def accessRemoteTelnet_406(self): pass
-
-    def accessRemoteSSH_407(self): pass
-
-    def accessRemoteTrustedIP_408(self): pass
-
-    def NTPServer_409(self): pass
-
-    def timeZone_410(self): pass
-    
-    def checkACSSettings_411(self): pass
-
-    def GPV_OneObjct_414(self): pass
-
-    def periodicInformEnable_415(self, flasky_username): pass
-
-    def periodicInformInterval_416(self, flasky_username): pass
-
-    def connectionRequestPort_417(self, serialnumber, GPV_Param, IPACS, acsUsername, acsPassword): pass
-
-    def enableCwmp_418(self, flasky_username): pass
-
-    def userConnectionRequest_419(self, flasky_username): pass
-
-    def checkWanInterface_420(self): pass
-
-    def prioridadePPPoE_421(self, flasky_username): pass
-
-    def tipoRedeInet_422(self, flasky_username):pass
-
-    def checkNatSettings_423(self, flasky_username): pass
 
 
 
