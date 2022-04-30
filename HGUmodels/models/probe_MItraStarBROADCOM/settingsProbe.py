@@ -79,7 +79,6 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
 
 
     def accessRemoteHttp_405(self, flask_username):
-        dict_saida405 = {}
         try:
             self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
             self.login_support()
@@ -96,15 +95,26 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             time.sleep(3)
             self._driver.switch_to.default_content()
             self._driver.switch_to.frame('basefrm')
-            http_wan = self._driver.find_element_by_xpath('//*[@id="control"]/div/div[2]/ul/div[1]/table/tbody/tr[2]/td[3]/input').get_attribute('checked')
-            dict_saida405['http_wan'] = http_wan
-            ssh_wan = self._driver.find_element_by_xpath('/html/body/form/div/div[2]/ul/div[1]/table/tbody/tr[4]/td[3]/input').get_attribute('checked')
-            dict_saida405['ssh_wan'] = ssh_wan
-            ip_address = self._driver.find_element_by_xpath('/html/body/form/div/div[2]/ul/table/tbody/tr[3]/td[3]/input').get_attribute('value')
-            dict_saida405['IP Address'] = ip_address
-            print(ip_address)
+            table_trust_domain = [value.text for value in self._driver.find_elements_by_xpath('/html/body/form/div/div[2]/ul/div[1]/table/tbody/tr//td') if value.text != '']
+            inputs_checkbox = [value.get_attribute('checked') for value in self._driver.find_elements_by_xpath('/html/body/form/div/div[2]/ul/div[1]/table/tbody/tr//input') if value.get_attribute('type') == 'checkbox']
+            inputs_ports = [value.get_attribute('value') for value in self._driver.find_elements_by_xpath('/html/body/form/div/div[2]/ul/div[1]/table/tbody/tr/td//input') if value.get_attribute('name')[-4:] == 'Port']
+            inputs_checkbox = ['Enable' if i == 'true' else 'Disable' for i in inputs_checkbox]
+            ip_address = self._driver.find_element_by_xpath('/html/body/form/div/div[2]/ul/table/tbody/tr[3]/td[3]/input').text
+            dict_saida = {
+                table_trust_domain[5]: 
+                    {table_trust_domain[1]: inputs_checkbox[0], table_trust_domain[2]: inputs_checkbox[1], table_trust_domain[3]: inputs_checkbox[2], table_trust_domain[4]: inputs_ports[0] },
+                table_trust_domain[9]: {
+                    table_trust_domain[1]: inputs_checkbox[3], table_trust_domain[2]: inputs_checkbox[4], table_trust_domain[3]: inputs_checkbox[5], table_trust_domain[4]: inputs_ports[1] },
+                table_trust_domain[13]: 
+                    {table_trust_domain[1]: inputs_checkbox[6], table_trust_domain[2]: inputs_checkbox[7], table_trust_domain[3]: inputs_checkbox[8], table_trust_domain[4]: inputs_ports[2] },
+                table_trust_domain[17]: 
+                    {table_trust_domain[1]: inputs_checkbox[9], table_trust_domain[2]: inputs_checkbox[10], table_trust_domain[3]: inputs_checkbox[11], table_trust_domain[4]: table_trust_domain[21] },
+                'IP Address': ip_address
+            }
+            print(dict_saida)
 
-            if http_wan == None:
+            http_wan = dict_saida['HTTP']['WAN']
+            if http_wan == 'Disable':
                 self._dict_result.update({"Resultado_Probe": "OK", 'result':'passed', "obs":" Access Remote HTTP: WAN Desabilitado"})
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, Access Remote HTTP: WAN Habilitado"})
@@ -115,7 +125,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             self._dict_result.update({'obs':str(exception)})
             
         finally:
-            self.update_global_result_memory(flask_username, 'accessRemoteHttp_405', dict_saida405)
+            self.update_global_result_memory(flask_username, 'accessRemoteHttp_405', dict_saida)
             return self._dict_result
 
 
@@ -124,7 +134,8 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         if len(result) == 0:
             self._dict_result.update({"obs": "Execute o teste 405 primeiro"})
         else:
-            if result['ssh_wan'] == None:
+            ssh_wan = result['SSH']['WAN']
+            if ssh_wan == 'Disable':
                 self._dict_result.update({"Resultado_Probe": "OK", 'result':'passed', "obs": "Access Remote SSH: WAN Desabilitado"})
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, Access Remote SSH: WAN Habilitado"})
@@ -515,7 +526,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
         else:
             cpe_config = config_collection.find_one()
-            if True: # cpe_config['ACCESS'] == 'FIBER' and cpe_config['TYPE'] == 'FIBER':
+            if cpe_config['ACCESS'] == 'FIBER' and cpe_config['TYPE'] == 'FIBER':
                 try:
                     nat = result['ppp0.1']['NAT']
                     if nat == 'Enabled':
@@ -537,7 +548,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
         else:
             cpe_config = config_collection.find_one()
-            if True: # cpe_config['ACCESS'] == 'FIBER' and cpe_config['TYPE'] == 'FIBER':
+            if cpe_config['ACCESS'] == 'FIBER' and cpe_config['TYPE'] == 'FIBER':
                 try:
                     igmp = result['ppp0.1']['Igmp Src Enbl']
                     if igmp == 'Disabled':
@@ -1428,8 +1439,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             wan_interface = Select(self._driver.find_element_by_xpath('//*[@id="IpProtocalMode"]')).first_selected_option.text
             
             dict_saida427 = {wan_network: wan_interface}
-            self.update_global_result_memory(flask_username, 'checkWanInterface_x_427', dict_saida427)
-
+            print(dict_saida427)
             if wan_interface == 'IPv4&IPv6(Dual Stack)':
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": "IPv6: Dual Stack", "result":"passed"})
             else:
@@ -1440,6 +1450,46 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
 
         finally:
             self._driver.quit()
+            self.update_global_result_memory(flask_username, 'checkWanInterface_x_427', dict_saida427)
+
+            return self._dict_result
+
+    
+    def validarDHCPv6Wan_428(self, flask_username):
+        self._dict_result.update({"obs": "Nao existe SLAAC", "Resultado_Probe": "OK", "result":"passed"})
+        return self._dict_result
+
+
+    def checkLANSettings_429(self, flask_username):
+        try:
+
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="folder15"]/table/tbody/tr/td/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="item18"]/table/tbody/tr/td/a').click()
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            prefix = self._driver.find_element_by_xpath('/html/body/blockquote/form/div[2]/table[2]/tbody/tr/td[2]/input').get_attribute('value')
+            print(prefix)
+            dict_saida = {'Prefix': prefix}
+            if prefix == 'fd00::/64':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": f"Prefix Delegation WAN: {prefix}", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno do Prefix Delegation WAN:{prefix}"})
+        
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+
+        finally:
+            self._driver.quit()
+            self.update_global_result_memory(flask_username, 'checkLANSettings_429', dict_saida)
+
             return self._dict_result
 
 
@@ -1510,6 +1560,27 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
         return self._dict_result
+    
+
+    def checkMulticastSettings_434(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                try:
+                    igmp = result['ppp0.1']['Igmp Src Enbl']
+                    if igmp == 'Disabled':
+                        self._dict_result.update({"obs": 'Interface PPPoE: Igmp Desabilitado', "result":'passed', "Resultado_Probe":"OK"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno Interface PPPoE: Igmp Habilitado"})
+                except:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Interface não disponível"})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
 
 
     def vivo_1_usernamePppDefault_435(self, flask_username):
@@ -1557,20 +1628,38 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             self._dict_result.update({"obs": 'Execute o teste 427 primeiro'})
         else:
             cpe_config = config_collection.find_one()
-            # if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
-            for idx, sub_dict in result.items():
-                if idx == ('IPv6'):
-                    if sub_dict.get('Adm.State') == 'Dual Stack':
-                        self._dict_result.update({"obs": 'IPv6: Adm.State: Dual Stack', "result":'passed', "Resultado_Probe":"OK"})
-                        break
-                    else:
-                        self._dict_result.update({"obs": f"Teste incorreto, retorno IPv6: Adm.State: {sub_dict.get('Adm.State')}"})
+            if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                wan_interface = result['Network Protocal Selection:']
+                if wan_interface == 'IPv4&IPv6(Dual Stack)':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "IPv6: Dual Stack", "result":"passed"})
                 else:
-                    self._dict_result.update({"obs": f"Teste incorreto, retorno IPv6: {idx}"})
-            # else:
-            #     self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})               
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno: {wan_interface}"})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})               
         return self._dict_result
 
+
+    def validarDHCPv6Wan_438(self, flask_username):
+
+        self._dict_result.update({"obs": "Nao existe SLAAC", "Resultado_Probe": "OK", "result":"passed"})
+        return self._dict_result
+
+    def checkLANSettings_439(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 429 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkLANSettings_429')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 429 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                ans_439 = result['Prefix']
+                if 'fd00::/64' == ans_439:
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "Prefix Delegation WAN: fd00::/64", "result":"passed"})
+                else:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Prefix Delegation WAN:{ans_439}"})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})   
+        return self._dict_result
 
 
     def vivo_2_ADSL_vlanIdPPPoE_441(self, flask_username):
@@ -1628,7 +1717,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
         else:
             cpe_config = config_collection.find_one()
-            if True: # cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+            if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
                 try:
                     nat = result['ppp0.1']['NAT']
                     if nat == 'Enabled':
@@ -1639,6 +1728,27 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                     self._dict_result.update({"obs": f"Teste incorreto, retorno Interface não disponível"})
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+    
+    def checkMulticastSettings_444(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                try:
+                    igmp = result['ppp0.1']['Igmp Src Enbl']
+                    if igmp == 'Disabled':
+                        self._dict_result.update({"obs": 'Interface PPPoE: Igmp Desabilitado', "result":'passed', "Resultado_Probe":"OK"})
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno Interface PPPoE: IGMP Habilitado"})
+                except:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Interface não disponível"})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} ACCESS:{cpe_config['ACCESS']} TYPE:{cpe_config['TYPE']}"})
         return self._dict_result
 
 
@@ -1660,6 +1770,50 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
         finally:
             return self._dict_result
+
+    
+    def validarDualStack_447(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 427 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_x_427')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 427 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':    
+                wan_interface = result['Network Protocal Selection:']
+                if wan_interface == 'IPv4&IPv6(Dual Stack)':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "IPv6: Dual Stack", "result":"passed"})
+                else:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno: {wan_interface}"})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+
+    def validarDHCPv6Wan_448(self, flask_username):
+        cpe_config = config_collection.find_one()
+        if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':   
+            self._dict_result.update({"obs": "Nao existe SLAAC", "Resultado_Probe": "OK", "result":"passed"})
+        else:
+            self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
+    
+
+    def prefixDelegationInet_449(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 429 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkLANSettings_429')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 429 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':   
+                ans_449 = result['Prefix']
+                if 'fd00::/64' == ans_449:
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "Prefix Delegation WAN: fd00::/64", "result":"passed"})
+                else:
+                    self._dict_result.update({"obs": f"Teste incorreto, retorno Prefix Delegation WAN:{ans_449}"})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+        return self._dict_result
 
 
     def vivo_1_vlanIdIptvVivo1_450(self, flask_username):
@@ -1738,7 +1892,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             self._dict_result.update({"obs": "Execute o teste 420 primeiro"})
         else:
             cpe_config = config_collection.find_one()
-            if True: # cpe_config['REDE'] == 'VIVO_1':
+            if cpe_config['REDE'] == 'VIVO_1':
                 try:
                     igmp = result['veip0.3']['Igmp Src Enbl']
                     if igmp == 'Enabled':
@@ -1749,6 +1903,67 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                     self._dict_result.update({"obs": f"Teste incorreto, retorno Interface não disponível"})
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno REDE:{cpe_config['REDE']}"})
+        return self._dict_result
+
+    def vlanIdVodVivo2_454(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 420 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2':
+                for _, values in result.items():
+                    iface_type = values['Description']
+                    vlan = values['VlanMuxId']
+                    if iface_type == 'Multicast':
+                        if vlan == '602':
+                            self._dict_result.update({"obs": 'Name: Multicast, VLAN: 602', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f'Teste incorreto, retorno Name: Multicast, VLAN: {vlan}'})
+                            break
+                    else:
+                        self._dict_result.update({"obs": f'Teste incorreto, retorno Name: {iface_type}'})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']}"})
+        return self._dict_result
+
+    
+    def vivo2_validarNatIPTV_455(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 e 423 seja executado em conjunto
+        try:
+            result1 = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+            result2 = session.get_result_from_test(flask_username, 'checkNatSettings_423')
+
+        except KeyError as exception:
+            self._dict_result.update({"obs": 'Execute o teste 420 e o teste 423 primeiro'})
+
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2':
+                for _, sub_dict in result1.items():
+                    iface_name = 'ipNotFound'
+                    iface_type = sub_dict.get('Priority')
+                    if iface_type == '3':
+                        if sub_dict.get('VLAN') == '602':
+                            iface_name = sub_dict.get('Name')
+                            break
+
+                for _, sub_dict in result2.items():
+                    iface_type = sub_dict.get('Interface')
+                    if iface_type == iface_name:
+                        if sub_dict.get('Adm.State') == 'Habilitado':
+                            self._dict_result.update({"obs": 'Adm.State:  Habilitado', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f'Teste incorreto, retorno Adm.State: {sub_dict.get("Adm.State")} '})
+                            break
+                    else:
+                        self._dict_result.update({"obs": f'Teste incorreto, retorno Name 1: {iface_type}, Name 2: {iface_name} '})
+
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']}"})
         return self._dict_result
 
 

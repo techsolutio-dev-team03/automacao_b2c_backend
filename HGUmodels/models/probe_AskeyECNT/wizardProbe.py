@@ -48,6 +48,7 @@ class HGU_AskeyECNT_wizardProbe(HGU_AskeyECNT):
                 else:
                     self._dict_result.update({"obs": f"Teste incorreto, retorno: {ans_500}"})
             return self._dict_result
+            
 
     def logoutWizard_374(self, flask_username):
         try:
