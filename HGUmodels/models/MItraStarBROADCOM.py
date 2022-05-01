@@ -1,6 +1,7 @@
 import time
 from ..interface import HGUModelInterface
 from selenium.webdriver.common.action_chains import ActionChains 
+from selenium.webdriver.support.select import Select
 
 
 
@@ -43,8 +44,41 @@ class HGU_MItraStarBROADCOM(HGUModelInterface):
         time.sleep(1)
 
 
+    def ipv6_only_setting(self):
+        self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+        self.login_support()
+        time.sleep(10)
+        self._driver.switch_to.frame('menufrm')
+        self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a/span').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('//*[@id="item14"]/table/tbody/tr/td/a').click()
+        time.sleep(2)
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('basefrm')
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/table/tbody/tr[4]/td[16]/input').click()
+        time.sleep(2)
+        # wan_network = self._driver.find_element_by_xpath('//*[@id="enblv6Info"]/table/tbody/tr/td[1]').text
+        Select(self._driver.find_element_by_xpath('//*[@id="IpProtocalMode"]')).select_by_visible_text('IPv6 Only')
+        time.sleep(2)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
+        time.sleep(2)
+        
+
+    def ipv4_ipv6_setting(self):
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/table/tbody/tr[4]/td[16]/input').click()
+        time.sleep(1)
+        Select(self._driver.find_element_by_xpath('//*[@id="IpProtocalMode"]')).select_by_visible_text('IPv4&IPv6(Dual Stack)')
+        time.sleep(2)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
+        time.sleep(2)
+
+
     def __str__(self):
-        return "HGU_MItraStarBROADCOM"
+        return f"HGU_MItraStarBROADCOM {self._address_ip}"
 
 
               

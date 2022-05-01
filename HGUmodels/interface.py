@@ -32,7 +32,7 @@ class HGUModelInterface():
             else:
                 print(f'echo 4ut0m4c40 | sudo -S ip link set {if_name} down')
                 os.system(f'echo 4ut0m4c40 | sudo -S ip link set {if_name} down')
-                time.sleep(1)
+                time.sleep(2)
 
 
     def eth_interfaces_up(self):
@@ -42,7 +42,7 @@ class HGUModelInterface():
             if_name = interface[0].split(':')[0]
             print(f'echo 4ut0m4c40 | sudo -S ip link set {if_name} up')
             os.system(f'echo 4ut0m4c40 | sudo -S ip link set {if_name} up')
-            time.sleep(1)
+            time.sleep(2)
 
 
 

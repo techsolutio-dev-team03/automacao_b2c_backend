@@ -10,12 +10,14 @@ from connector.controllers import appiumController
 from connector.controllers import acsController
 from connector.controllers import opencvController
 from connector.controllers import utilsController
+from connector.controllers import ipv6Controller
 
 class home(Resource):
     def get(self):
         return {"api" : {
-            "connectividade" : "http://localhost:5000/api/v1/network/getUrlGuiDefault",
-            "ssh": "http://localhost:5000/api/v1/ssh",
+            "connectividade" : "http://localhost:8000/api/v1/network/getUrlGuiDefault",
+            "ssh": "http://localhost:8000/api/v1/ssh",
+            "routes": app.url_map
         }}
 
 api.add_resource(home, "/")
@@ -39,3 +41,5 @@ api.add_resource(acsController.acs, "/api/v1/acs/<string:method>")
 api.add_resource(opencvController.opencv, "/api/v1/opencv/<string:method>")
 
 api.add_resource(utilsController.utils, "/api/v1/utils/<string:method>")
+
+api.add_resource(ipv6Controller.ipv6, "/api/v1/ipv6/<string:method>")
