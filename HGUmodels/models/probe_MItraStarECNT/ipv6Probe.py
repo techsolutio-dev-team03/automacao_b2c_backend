@@ -1,31 +1,14 @@
-# import re
-import time
-# from datetime import datetime
-from ..MItraStarBROADCOM import HGU_MItraStarBROADCOM
-# from json import JSONEncoder
-# import json
+from ..MItraStarECNT import HGU_MItraStarECNT
 import requests
-# import sys
-# import pandas as pd
-# from collections import namedtuple
 from ...config import TEST_NOT_IMPLEMENTED_WARNING
 from HGUmodels.utils import chunks
-
-
-# from daos.mongo_dao import MongoConnSigleton
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException, NoSuchFrameException
-
-# from paramiko.ssh_exception import SSHException
-# import socket
 from selenium.common.exceptions import UnexpectedAlertPresentException
-
 from HGUmodels.main_session import MainSession
-
-# from HGUmodels import wizard_config
 
 session = MainSession()
 
-class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
+class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
 
     def ipv6_only_url_test(self, flask_username, test_url):
 
@@ -46,7 +29,3 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
             self.ipv4_ipv6_setting()
             self._driver.quit()
             return self._dict_result
-        
-            
-        
-    

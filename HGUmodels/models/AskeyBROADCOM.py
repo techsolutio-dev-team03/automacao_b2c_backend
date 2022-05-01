@@ -1,5 +1,6 @@
 import time
 from ..interface import HGUModelInterface
+from selenium.webdriver.support.select import Select
 
 class HGU_AskeyBROADCOM(HGUModelInterface):
     
@@ -38,6 +39,43 @@ class HGU_AskeyBROADCOM(HGUModelInterface):
                 self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
         except:
             pass
+
+
+    def ipv6_only_setting(self):
+        self._driver.get('http://' + self._address_ip + '/padrao')
+        time.sleep(5)
+        self.login_support()
+        time.sleep(5)
+        self._driver.switch_to.frame('menufrm')
+        self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a').click()
+        time.sleep(2)
+        self._driver.find_element_by_xpath('//*[@id="item14"]/table/tbody/tr/td/a').click()
+        time.sleep(2)
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('basefrm')
+        time.sleep(1)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/table/tbody/tr[5]/td[15]/input').click()
+        time.sleep(2)
+        Select(self._driver.find_element_by_xpath('//*[@id="IpProtocolMode"]')).select_by_visible_text('IPv6 Only')
+        time.sleep(2)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
+        time.sleep(2)
+        
+
+    def ipv4_ipv6_setting(self):
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('basefrm')
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/table/tbody/tr[5]/td[15]/input').click()
+        time.sleep(1)
+        Select(self._driver.find_element_by_xpath('//*[@id="IpProtocolMode"]')).select_by_visible_text('IPv4&IPv6(Dual Stack)')
+        time.sleep(2)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
+        time.sleep(2)
+
 
 
     def __str__(self):
