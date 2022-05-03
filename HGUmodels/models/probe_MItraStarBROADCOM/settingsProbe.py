@@ -1931,39 +1931,126 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
 
     
     def vivo2_validarNatIPTV_455(self, flask_username):
-        #TODO: Fazer logica no frontend para garantir que o teste 420 e 423 seja executado em conjunto
+        #TODO: Fazer logica no frontend para garantir que o teste 420 rode primeiro
         try:
-            result1 = session.get_result_from_test(flask_username, 'checkWanInterface_420')
-            result2 = session.get_result_from_test(flask_username, 'checkNatSettings_423')
+            result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
 
         except KeyError as exception:
-            self._dict_result.update({"obs": 'Execute o teste 420 e o teste 423 primeiro'})
+            self._dict_result.update({"obs": 'Execute o teste 420 primeiro'})
 
         else:
             cpe_config = config_collection.find_one()
             if cpe_config['REDE'] == 'VIVO_2':
-                for _, sub_dict in result1.items():
+                for _, sub_dict in result.items():
                     iface_name = 'ipNotFound'
-                    iface_type = sub_dict.get('Priority')
+                    iface_type = sub_dict['Vlan8021p']
                     if iface_type == '3':
-                        if sub_dict.get('VLAN') == '602':
-                            iface_name = sub_dict.get('Name')
+                        if sub_dict['VlanMuxId'] == '602':
+                            iface_name = sub_dict['Description']
                             break
 
-                for _, sub_dict in result2.items():
-                    iface_type = sub_dict.get('Interface')
+                for _, sub_dict in result.items():
+                    iface_type = sub_dict['Description']
                     if iface_type == iface_name:
-                        if sub_dict.get('Adm.State') == 'Habilitado':
+                        nat = sub_dict['NAT']
+                        if nat == 'Enabled':
                             self._dict_result.update({"obs": 'Adm.State:  Habilitado', "result":'passed', "Resultado_Probe":"OK"})
                             break
                         else:
-                            self._dict_result.update({"obs": f'Teste incorreto, retorno Adm.State: {sub_dict.get("Adm.State")} '})
+                            self._dict_result.update({"obs": f'Teste incorreto, retorno Adm.State: {nat} '})
                             break
                     else:
-                        self._dict_result.update({"obs": f'Teste incorreto, retorno Name 1: {iface_type}, Name 2: {iface_name} '})
+                        self._dict_result.update({"obs": f'Teste incorreto, retorno Name 1: {iface_type}, Name 2: {iface_name}'})
 
             else:
                 self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']}"})
+        return self._dict_result
+
+    def vivo_2_igmpVoD_456(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 420 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2':
+                for _, sub_dict in result.items():
+                    iface_type = sub_dict['Description']
+                    if iface_type == 'Multicast':
+                        if sub_dict['Igmp Src Enbl'] == 'Enabled':
+                            self._dict_result.update({"obs": 'Interface: Multicast | IGMP: Habilitado', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f'Teste incorreto, retorno Interface: Multicast | IGMP: {sub_dict["Igmp Src Enbl"]}'})
+                            break
+                    else:
+                        self._dict_result.update({"obs": f'Teste incorreto, retorno Interface: {iface_type}'})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']}"})
+        return self._dict_result
+    
+
+    def vlanIdMulticastVivo2_457(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": f'Execute o teste 420 primeiro'})
+        else:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2':
+                for _, sub_dict in result.items():
+                    iface_type = sub_dict['Description']
+                    if iface_type == 'Multicast':
+                        if sub_dict['VlanMuxId'] == '4000':
+                            self._dict_result.update({"obs": 'Name: Multicast | VLAN: 4000', "result":'passed', "Resultado_Probe":"OK"})
+                            break
+                        else:
+                            self._dict_result.update({"obs": f'Teste incorreto, retorno Name: ip5 | VLAN: {sub_dict["VlanMuxId"]} '})
+                            break
+                    else:
+                        self._dict_result.update({"obs": f'Teste incorreto, retorno Name: {iface_type}'})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']}"})
+        return self._dict_result
+
+
+    def natMulticastVivo2_458(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 423 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 420 primeiro'})
+        else:
+            for _, sub_dict in result.items():
+                iface_type = sub_dict['Description']
+                if iface_type == 'Mediaroom':
+                    if sub_dict['NAT'] == 'Disabled':
+                        self._dict_result.update({"obs": 'Interface: Mediaroom | Adm.State: Desabilitado', "result":'passed', "Resultado_Probe":"OK"})
+                        break
+                    else:
+                        self._dict_result.update({"obs": f'Teste incorreto, retorno Interface: Mediaroom | Adm.State: {sub_dict["NAT"]} '})
+                        break
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno Interface: {iface_type}'})
+        return self._dict_result
+
+
+    def checkIGMPVivo2_459(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 420 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkWanInterface_420')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 420 primeiro'})
+        else:
+            for _, sub_dict in result.items():
+                iface_type = sub_dict['Description']
+                if iface_type == 'Mediaroom':
+                    if sub_dict['Igmp Src Enbl'] == 'Enabled':
+                        self._dict_result.update({"obs": 'Interface: Mediaroom | IGMP: Habilitado', "result":'passed', "Resultado_Probe":"OK"})
+                        break
+                    else:
+                        self._dict_result.update({"obs": f'Teste incorreto, retorno Interface: Mediaroom | IGMP: {sub_dict["Igmp Src Enbl"]} '})
+                        break
+            else:
+                self._dict_result.update({"obs":  f'Teste incorreto, retorno Interface: {iface_type}'})
         return self._dict_result
 
 
@@ -2308,6 +2395,41 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"obs": f'Teste incorreto, retornoModo de Operação: {modo_ope}'})
         return self._dict_result
 
+    
+    def frequencyPlan_473(self, flask_username):
+        self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+        self.login_support()
+        time.sleep(1)
+        self._driver.switch_to.frame('menufrm') 
+        self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[50]/table/tbody/tr/td/a').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[53]/table/tbody/tr/td/a').click()
+        time.sleep(1)
+
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('basefrm')
+        
+        bandwidth24G = self._driver.find_element_by_xpath('/html/body/blockquote/form/div[2]/table/tbody/tr[1]/td[2]/select').text.split()[0]
+        channel24G_list = [value.text for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[1]/tbody/tr[2]/td[2]/select//option')]
+
+        cpe_config = config_collection.find_one()
+        ref_list = cpe_config["REF_CHANNEL_2_4_20MHz"]     
+
+        if bandwidth24G == '20MHz':
+            if channel24G_list == ref_list:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
+
+        else:
+            if channel24G_list == ref_list:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
+
+        return self._dict_result     
+        
+
 
     def verificarWifi24AutoChannel_474(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
@@ -2353,6 +2475,55 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Modo de Segurança: WPA2', "result":"passed"})
             else:
                 self._dict_result.update({"obs": f'Teste incorreto, retornoModo de Segurança: {seguranca}'})          
+        return self._dict_result
+
+
+    def verificarWifi24PasswordDefault_477(self, flask_username):
+        self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+        self.login_support()
+        time.sleep(1)
+        self._driver.switch_to.frame('menufrm') 
+        self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[50]/table/tbody/tr/td/a').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('//*[@id="item51"]/table/tbody/tr/td/a').click()
+        time.sleep(1)
+        self._driver.switch_to.parent_frame()  
+        self._driver.switch_to.frame('basefrm')
+        time.sleep(1)
+
+        passphrase_value = self._driver.find_element_by_xpath('/html/body/blockquote[1]/form/div[9]/table/tbody/tr/td[2]/input').get_attribute('value')
+        password = re.findall("^\w{8}", passphrase_value)
+
+        if password:
+            self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Passprhase: OK', "result":"passed"})
+        else:
+            self._dict_result.update({"obs": 'Teste incorreto, retorno Passphrase: NOK'})          
+
+        self._driver.quit()
+        return self._dict_result
+
+
+    def cipherModeDefault_478(self, flask_username):
+        self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+        self.login_support()
+        time.sleep(1)
+        self._driver.switch_to.frame('menufrm') 
+        self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[50]/table/tbody/tr/td/a').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('//*[@id="item51"]/table/tbody/tr/td/a').click()
+        time.sleep(1)
+        self._driver.switch_to.parent_frame()  
+        self._driver.switch_to.frame('basefrm')
+        time.sleep(1)
+
+        encryption = self._driver.find_element_by_xpath('/html/body/blockquote[1]/form/div[12]/table/tbody/tr/td[2]/select').get_attribute('value')
+        print(encryption)
+     
+        if encryption in "AESaes":
+            self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Encryption: AES', "result":"passed"})
+        else:
+            self._dict_result.update({"obs": f'Teste incorreto, retorno Encryption: {encryption}'})          
+      
         return self._dict_result
 
 

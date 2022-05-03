@@ -4265,7 +4265,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
             else:
                 self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
-
         return self._dict_result     
         
 
@@ -4356,9 +4355,9 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         print(encryption,"=", encryption_value)
      
         if encryption_value == "AES":
-                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Encryption: AES', "result":"passed"})
+            self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Encryption: AES', "result":"passed"})
         else:
-                self._dict_result.update({"obs": f'Teste incorreto, retorno Encryption: {encryption_value}'})          
+            self._dict_result.update({"obs": f'Teste incorreto, retorno Encryption: {encryption_value}'})          
       
         return self._dict_result
 
