@@ -4324,16 +4324,15 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         self._driver.find_element_by_xpath('/html/body/div/div/div[2]/div[1]/table/tbody/tr[1]/td[1]/a').click()
 
         passphrase_value = self._driver.find_element_by_xpath('/html/body/div/div/div[2]/div[2]/form/fieldset[1]/div/div[4]/div[1]/input').get_attribute('value')
-        #print(passphrase,"=", passphrase_value)
-        self._driver.quit()
-        
         password = re.findall("^\w{8}", passphrase_value)
 
         if password:
             self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Passprhase: OK', "result":"passed"})
         else:
-            self._dict_result.update({"obs": 'Teste incorreto, retorno Passphrase: NOK'})          
-      
+            self._dict_result.update({"obs": 'Teste incorreto, retorno Passphrase: NOK'})         
+
+        self._driver.quit()
+
         return self._dict_result
 
 
@@ -4349,12 +4348,8 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         time.sleep(1)
         self._driver.find_element_by_xpath('/html/body/div/div/div[2]/div[1]/table/tbody/tr[1]/td[1]/a').click()
 
-        encryption = self._driver.find_element_by_xpath('/html/body/div/div/div[2]/div[2]/form/fieldset[1]/div/div[2]/label').text
-        encryption_value = self._driver.find_element_by_xpath('/html/body/div/div/div[2]/div[2]/form/fieldset[1]/div/div[2]/select').get_attribute('value')
-        if encryption_value == '4': encryption_value = "AES"
-        print(encryption,"=", encryption_value)
-     
-        if encryption_value == "AES":
+        encryption_value = [value.text for value in self._driver.find_elements_by_xpath('/html/body/div/div/div[2]/div[2]/form/fieldset[1]/div/div[2]/select//option') if value.get_attribute('selected')]
+        if encryption_value[0] == "AES":
             self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Encryption: AES', "result":"passed"})
         else:
             self._dict_result.update({"obs": f'Teste incorreto, retorno Encryption: {encryption_value}'})          
@@ -4427,16 +4422,8 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         time.sleep(1)
         self._driver.switch_to.parent_frame()  
         self._driver.switch_to.frame('mainFrm')
-        bandwidth5G = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/form/div[5]/fieldset/div[3]/label').text
-        bandwidth5G_value = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/form/div[5]/fieldset/div[3]/select').get_attribute('value')
-        if bandwidth5G_value == '1':
-            bandwidth5G_value = '20MHz'
-        if bandwidth5G_value == '2':
-            bandwidth5G_value = '20MHz/40MHz'
-        if bandwidth5G_value == '3':
-           bandwidth5G_value = '20MHz/40MHz/80MHz'
-        print(bandwidth5G, '=', bandwidth5G_value)
-
+        bandwidth5G = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/form/div[5]/fieldset/div[3]/select').text[0]
+        
         channel5G = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/form/div[5]/fieldset/div[4]/label[1]').text
         channel5G_values = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/form/div[5]/fieldset/div[4]/select')
         channel5G_list = [x.get_attribute('value') for x in channel5G_values.find_elements_by_tag_name("option")]
@@ -4451,24 +4438,23 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
         cpe_config = config_collection.find_one()
         
-
-        if bandwidth5G_value == '20MHz':
-            ref_list = cpe_config["REF_CHANNEL_5_20MHz"]              
+        ref_list = cpe_config["REF_CHANNEL_5_20MHz"] 
+        print(bandwidth5G)             
+        print(ref_list)
+        if bandwidth5G == '20MHz':
             if channel5G_list == ref_list:
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
             else:
                 self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
 
        
-        if bandwidth5G_value == '20MHz/40MHz':
-            ref_list = ref_list = cpe_config["REF_CHANNEL_5_40MHz"]      
+        if bandwidth5G == '20MHz/40MHz':
             if channel5G_list == ref_list:
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
             else:
                 self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
          
-        if bandwidth5G_value == '20MHz/40MHz/80MHz':
-            ref_list = ref_list = cpe_config["REF_CHANNEL_5_80MHz"]    
+        if bandwidth5G == '20MHz/40MHz/80MHz':
             if channel5G_list == ref_list:
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
             else:

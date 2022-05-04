@@ -2411,9 +2411,10 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         
         bandwidth24G = self._driver.find_element_by_xpath('/html/body/blockquote/form/div[2]/table/tbody/tr[1]/td[2]/select').text.split()[0]
         channel24G_list = [value.text for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[1]/tbody/tr[2]/td[2]/select//option')]
-
+        print(channel24G_list)
         cpe_config = config_collection.find_one()
         ref_list = cpe_config["REF_CHANNEL_2_4_20MHz"]     
+        print(ref_list)
 
         if bandwidth24G == '20MHz':
             if channel24G_list == ref_list:
@@ -2523,7 +2524,8 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Encryption: AES', "result":"passed"})
         else:
             self._dict_result.update({"obs": f'Teste incorreto, retorno Encryption: {encryption}'})          
-      
+        self._driver.quit()
+
         return self._dict_result
 
 
@@ -2587,6 +2589,60 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             else:
                 self._dict_result.update({"obs": f'Teste incorreto, retorno Modo de Operação: {modo_ope}'})           
         return self._dict_result
+
+
+    def frequencyPlan5GHz_483(self, flask_username):
+        self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+        self.login_support()
+        time.sleep(1)
+        self._driver.switch_to.frame('menufrm') 
+        self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[55]/table/tbody/tr/td/a/span').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[57]/table/tbody/tr/td/a').click()
+        time.sleep(1)
+
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('basefrm')
+
+        bandwidth5G = self._driver.find_element_by_xpath('/html/body/blockquote/form/table/tbody/tr[2]/td[2]/select').text.split()[0]
+        print('*************')
+        print(bandwidth5G)
+
+        channel5G = [value.text for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table/tbody/tr[4]/td[2]/select//option')]
+        print(channel5G)
+        # for x in range(1,len(channel5G)):
+        #     if int(channel5G[x]) >=52 and int(channel5G[x]) <=140:
+        #         channel5G[x] = channel5G[x]+'(DFS)'
+        # print(channel5G)
+
+        cpe_config = config_collection.find_one()
+        
+        ref_list = cpe_config["REF_CHANNEL_5_40MHz"]      
+        print('ref: ',ref_list)
+        if bandwidth5G == '20MHz':
+            if channel5G == ref_list:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
+
+       
+        if bandwidth5G == '40MHz':
+            if channel5G == ref_list:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
+         
+        if bandwidth5G == '80MHz':
+            if channel5G == ref_list:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
+
+        self._driver.quit()
+
+        return self._dict_result    
+         
+   
 
 
     def verificarWifi5AutoChannel_484(self, flask_username):

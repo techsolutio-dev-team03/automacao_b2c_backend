@@ -27,4 +27,4 @@ class Ipv6:
         print(hgu)
         test_url = 'http://www.santander.com.br'
 
-        return hgu.ipv6_only_url_test(flask_username, test_url)
+        return hgu.ipv_x_url_test(flask_username, test_url, 'IPv4 Only', dhcpv6 = True)
