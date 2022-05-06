@@ -18,6 +18,10 @@ class HGU_MItraStarBROADCOM(HGUModelInterface):
         login_button = self._driver.find_element_by_xpath('/html/body/div[2]/div/div/div[3]/form/div[3]/input[4]')
         login_button.click()
         time.sleep(5)
+        
+
+
+
 
     # def open_change_password_mitraStar(self):
     #     time.sleep(10)
@@ -64,33 +68,6 @@ class HGU_MItraStarBROADCOM(HGUModelInterface):
         time.sleep(2)
         
 
-    # def ipv4_ipv6_setting(self):
-    #     self._driver.switch_to.frame('menufrm')
-    #     self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a/span').click()
-    #     time.sleep(1)
-    #     self._driver.find_element_by_xpath('//*[@id="item14"]/table/tbody/tr/td/a').click()
-    #     time.sleep(2)
-    #     self._driver.switch_to.default_content()
-    #     self._driver.switch_to.frame('basefrm')
-    #     self._driver.find_element_by_xpath('/html/body/blockquote/form/center/table/tbody/tr[4]/td[16]/input').click()
-    #     time.sleep(2)
-    #     Select(self._driver.find_element_by_xpath('//*[@id="IpProtocalMode"]')).select_by_visible_text('IPv6 Only')
-    #     time.sleep(2)
-    #     self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
-    #     time.sleep(1)
-    #     self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
-    #     time.sleep(2)
-
-        # self._driver.find_element_by_xpath('/html/body/blockquote/form/center/table/tbody/tr[4]/td[16]/input').click()
-        # time.sleep(1)
-        # Select(self._driver.find_element_by_xpath('//*[@id="IpProtocalMode"]')).select_by_visible_text('IPv4&IPv6(Dual Stack)')
-        # time.sleep(2)
-        # self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
-        # time.sleep(1)
-        # self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
-        # time.sleep(2)
-
-
     def dhcp_v6(self, dhcpv6_state):
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('menufrm')
@@ -107,22 +84,10 @@ class HGU_MItraStarBROADCOM(HGUModelInterface):
             checkbox.click()
         if not checkbox.get_attribute('checked') and dhcpv6_state:
             checkbox.click()
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input').click()
+        time.sleep(5)
 
-    # def dhcp_v6_enable(self):
-    #     self._driver.switch_to.frame('menufrm')
-    #     self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a/span').click()
-    #     time.sleep(1)
-    #     self._driver.find_element_by_xpath('//*[@id="folder15"]/table/tbody/tr/td/a/span').click()
-    #     time.sleep(1)
-    #     self._driver.find_element_by_xpath('//*[@id="item18"]/table/tbody/tr/td/a').click()
-    #     time.sleep(1)
-    #     checkbox = self._driver.find_element_by_xpath('/html/body/blockquote/form/table[2]/tbody/tr/td[1]/input')
-    #     if not checkbox.get_attribute('checked'):
-    #         checkbox.click()    
-       
-        
-    
-
+  
     def __str__(self):
         return f"HGU_MItraStarBROADCOM {self._address_ip}"
 

@@ -4036,7 +4036,32 @@ class gui:
                                      password=password, 
                                      driver=driver, 
                                      dict_result=dict_result)
-        return hgu.checkNATALGSettings_495(flask_username) 
+        return hgu.checkNATALGSettings_495(flask_username)
+
+
+    #496
+    def checkSNMP(self, ip, username, password, model_name, flask_username, **kwargs):
+        
+        driver = WebDriver.get_driver()
+
+
+        dict_result = {"result": "failed" ,
+                        "Resultado_Probe": "NOK", 
+                        "ControllerName": "gui", 
+                        "ProbeName": "checkSNMP", 
+                        "Probe#": "XXXXXXXXXX", 
+                        "Description": "Additional Parameters", 
+                        "obs": None}
+
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+        return hgu.checkSNMP_496(flask_username) 
 
    #497
     def checkUPnP(self, ip, username, password, model_name, flask_username, **kwargs):

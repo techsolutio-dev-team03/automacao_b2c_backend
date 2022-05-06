@@ -27,6 +27,7 @@ session = MainSession()
 
 class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
 
+    #190, 191, 192
     def ipv_x_url_test(self, flask_username, test_url, ipv_x, dhcpv6):
         self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
         self.login_support()
@@ -38,7 +39,6 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
 
         try:
             acesso = requests.get(test_url, timeout = 15).status_code
-            print('\n'*5)
             print(acesso)
             if acesso == 200:
                 self._dict_result.update({"obs": f'Acesso a {test_url} ok', "result":'passed', "Resultado_Probe":"OK"})
@@ -53,6 +53,31 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
             self._driver.quit()
             return self._dict_result
         
-            
+
+     # 195, 196
+    def ipv_x_url_test_not(self, flask_username, test_url, ipv_x, dhcpv6):
+        self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+        self.login_support()
+        time.sleep(5)
+
+        self.ipv_x_setting(ipv_x)
+        self.dhcp_v6(dhcpv6_state = dhcpv6)
+        self.eth_interfaces_down()
+
+        try:
+            acesso = requests.get(test_url, timeout = 15).status_code
+            print(acesso)
+            if acesso == 200:
+                self._dict_result.update({"obs": f'Foi possivel acessar o site {test_url}'})
+            else:
+                self._dict_result.update({"obs": f'Nao foi possivel acessar o site {test_url}', "result":'passed', "Resultado_Probe":"OK"})
+        except:
+            self._dict_result.update({"obs": f'Nao foi possivel acessar o site {test_url}', "result":'passed', "Resultado_Probe":"OK"})
+        finally:
+            self.eth_interfaces_up()
+            self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
+            self.dhcp_v6(True)
+            self._driver.quit()
+            return self._dict_result           
         
     

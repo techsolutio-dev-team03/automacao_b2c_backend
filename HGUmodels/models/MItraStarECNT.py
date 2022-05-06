@@ -53,33 +53,45 @@ class HGU_MItraStarECNT(HGUModelInterface):
         time.sleep(1)
 
 
-    def ipv6_only_setting(self):
-        self._driver.get('http://' + self._address_ip + '/padrao')
-        self.login_support()
+    def ipv_x_setting(self, ipv_x):
+        self._driver.switch_to.default_content()
         element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="network"]/span[1]')
         hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
         hover.perform()
-        self._driver.find_element_by_xpath('//*[@id="network-broadband"]/a').click()
+        time.sleep(1)
+        self._driver.find_element_by_id('network-broadband').click()
         time.sleep(5)
         self._driver.switch_to.frame('mainFrame')
         self._driver.find_element_by_xpath('//*[@id="editBtn"]').click()
         time.sleep(2)
         self._driver.switch_to.default_content()
-        Select(self._driver.find_element_by_xpath('//*[@id="ipVerRadio_Text"]')).select_by_visible_text('IPv6 Only')
+        Select(self._driver.find_element_by_xpath('//*[@id="ipVerRadio_Text"]')).select_by_visible_text(ipv_x)
         time.sleep(1)
         self._driver.find_element_by_xpath('/html/body/div[3]/div[3]/button[2]').click()
-        time.sleep(5)
-          
+        time.sleep(10)
 
-    def ipv4_ipv6_setting(self):
-        self._driver.switch_to.frame('mainFrame')
-        self._driver.find_element_by_xpath('//*[@id="editBtn"]').click()
-        time.sleep(2)
+          
+    def dhcp_v6(self, dhcpv6_state):
         self._driver.switch_to.default_content()
-        Select(self._driver.find_element_by_xpath('//*[@id="ipVerRadio_Text"]')).select_by_visible_text('IPv6/IPv4 Dual Stack')
+        element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="network"]/span[1]')
+        hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
+        hover.perform()
         time.sleep(1)
-        self._driver.find_element_by_xpath('/html/body/div[3]/div[3]/button[2]').click()
-        time.sleep(5)
+        self._driver.find_element_by_id('network-homeNetworking').click()
+        time.sleep(3)
+        self._driver.switch_to.frame('mainFrame')
+        self._driver.find_element_by_xpath(' //*[@id="t4"]/span').click()
+        time.sleep(6)
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('mainFrame')
+        if dhcpv6_state:
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li[5]/div[2]/ul/li[2]/input[2]').click()
+        else:
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li[5]/div[2]/ul/li[2]/input[1]').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('//*[@id="Apply_ID"]').click()
+        time.sleep(10)
+
 
     def __str__(self):
         return "HGU_MItraStarECNT"

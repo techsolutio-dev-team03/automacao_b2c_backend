@@ -4422,8 +4422,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         time.sleep(1)
         self._driver.switch_to.parent_frame()  
         self._driver.switch_to.frame('mainFrm')
-        bandwidth5G = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/form/div[5]/fieldset/div[3]/select').text[0]
-        
+        bandwidth5G = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/form/div[5]/fieldset/div[3]/select').text.split()[0]
         channel5G = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/form/div[5]/fieldset/div[4]/label[1]').text
         channel5G_values = self._driver.find_element_by_xpath('/html/body/div/div/div[1]/form/div[5]/fieldset/div[4]/select')
         channel5G_list = [x.get_attribute('value') for x in channel5G_values.find_elements_by_tag_name("option")]
@@ -4433,21 +4432,17 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         
         indice = channel5G_list.index('0')
         channel5G_list[indice] = 'Auto'
-        print(channel5G, '=', channel5G_list)
         self._driver.quit()
 
         cpe_config = config_collection.find_one()
         
         ref_list = cpe_config["REF_CHANNEL_5_20MHz"] 
-        print(bandwidth5G)             
-        print(ref_list)
         if bandwidth5G == '20MHz':
             if channel5G_list == ref_list:
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
             else:
                 self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
 
-       
         if bandwidth5G == '20MHz/40MHz':
             if channel5G_list == ref_list:
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
@@ -5050,7 +5045,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         self._driver.quit()
         
         if sip == 'on': sip = 'Habilitado'
-        else: ' Desabilitado'
+        else: sip = ' Desabilitado'
         print('SIP = ', sip)
 
         cpe_config = config_collection.find_one()

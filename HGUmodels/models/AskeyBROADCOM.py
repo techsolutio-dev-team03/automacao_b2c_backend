@@ -41,11 +41,8 @@ class HGU_AskeyBROADCOM(HGUModelInterface):
             pass
 
 
-    def ipv6_only_setting(self):
-        self._driver.get('http://' + self._address_ip + '/padrao')
-        time.sleep(5)
-        self.login_support()
-        time.sleep(5)
+    def ipv_x_setting(self, ipv_x):
+        self._driver.switch_to.default_content()
         self._driver.switch_to.frame('menufrm')
         self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a').click()
         time.sleep(2)
@@ -56,25 +53,32 @@ class HGU_AskeyBROADCOM(HGUModelInterface):
         time.sleep(1)
         self._driver.find_element_by_xpath('/html/body/blockquote/form/center/table/tbody/tr[5]/td[15]/input').click()
         time.sleep(2)
-        Select(self._driver.find_element_by_xpath('//*[@id="IpProtocolMode"]')).select_by_visible_text('IPv6 Only')
+        Select(self._driver.find_element_by_xpath('//*[@id="IpProtocolMode"]')).select_by_visible_text(ipv_x)
         time.sleep(2)
         self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
         time.sleep(1)
         self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
-        time.sleep(2)
+        time.sleep(5)
         
 
-    def ipv4_ipv6_setting(self):
+    def dhcp_v6(self, dhcpv6_state):
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('menufrm')
+        self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a').click()
+        time.sleep(2)
+        self._driver.find_element_by_xpath('//*[@id="folder15"]/table/tbody/tr/td/a').click()
+        time.sleep(2)
+        self._driver.find_element_by_xpath('//*[@id="item17"]/table/tbody/tr/td/a').click()
+        time.sleep(2)
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('basefrm')
-        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/table/tbody/tr[5]/td[15]/input').click()
-        time.sleep(1)
-        Select(self._driver.find_element_by_xpath('//*[@id="IpProtocolMode"]')).select_by_visible_text('IPv4&IPv6(Dual Stack)')
-        time.sleep(2)
-        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
-        time.sleep(1)
-        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input[2]').click()
-        time.sleep(2)
+        checkbox = self._driver.find_element_by_xpath('/html/body/blockquote/form/table[2]/tbody/tr/td[1]/input')
+        if checkbox.get_attribute('checked') and not dhcpv6_state:
+            checkbox.click()
+        if not checkbox.get_attribute('checked') and dhcpv6_state:
+            checkbox.click()
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input').click()
+        time.sleep(5)
 
 
 

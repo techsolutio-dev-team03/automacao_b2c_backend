@@ -3,9 +3,10 @@ from cgi import print_form
 from os import name
 import re
 import time
+from typing import List
 # from jinja2 import pass_context
 #from typing import final
-import paramiko
+# import paramiko
 from paramiko.ssh_exception import AuthenticationException
 import socket
 
@@ -2605,15 +2606,8 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         self._driver.switch_to.frame('basefrm')
 
         bandwidth5G = self._driver.find_element_by_xpath('/html/body/blockquote/form/table/tbody/tr[2]/td[2]/select').text.split()[0]
-        print('*************')
-        print(bandwidth5G)
 
         channel5G = [value.text for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table/tbody/tr[4]/td[2]/select//option')]
-        print(channel5G)
-        # for x in range(1,len(channel5G)):
-        #     if int(channel5G[x]) >=52 and int(channel5G[x]) <=140:
-        #         channel5G[x] = channel5G[x]+'(DFS)'
-        # print(channel5G)
 
         cpe_config = config_collection.find_one()
         
@@ -2643,7 +2637,6 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         return self._dict_result    
          
    
-
 
     def verificarWifi5AutoChannel_484(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
@@ -2700,6 +2693,222 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Senha: OK', "result":"passed"})
             else:
                 self._dict_result.update({"obs": 'Teste incorreto, retorno Senha: NOK'})          
+        return self._dict_result
+
+
+
+    def cipherModeDefault5GHz_488(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm') 
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[55]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            time.sleep(1)
+            aes = self._driver.find_element_by_xpath('/html/body/blockquote/form/div[10]/table/tbody/tr/td[2]/select').text.split()[0]
+            print(aes)
+
+            if aes in "AESaes":
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Encryption: AES', "result":"passed"})
+            else:
+                    self._dict_result.update({"obs": f'Teste incorreto, retorno Encryption: {aes}'})
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        
+        self._driver.quit()
+        return self._dict_result
+
+    
+    def verificarWifi5WPS_489(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            wps = result['Configurações']['Rede Wifi 5Ghz']['Configurações Básicas'].get('WPS:')
+            if wps == 'Habilitado':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'WPS: Habilitado', "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno WPS: {wps}'})          
+        return self._dict_result
+
+
+    def checkVoIPSettings_490(self, flask_username):
+        
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm') 
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[60]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[62]/table/tbody/tr/td/a').click()
+
+            time.sleep(1)
+
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            time.sleep(1)
+            # Page 1
+            self._driver.find_element_by_xpath('/html/body/form[2]/table[2]/tbody/tr/td[3]/input').click()
+            time.sleep(3)
+            fax = ['Disable' for value in self._driver.find_elements_by_xpath('/html/body/form[2]/div[2]/table[9]/tbody/tr/td[2]/input') if value.get_attribute('name') == 'VoIP_FaxRelay' and value.get_attribute('checked') == None]
+            time.sleep(1)
+            dtmf = self._driver.find_element_by_xpath('/html/body/form[2]/div[2]/table[8]/tbody/tr/td[2]/select').text.split()[0]
+
+
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('menufrm') 
+            # Page 2
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[61]/table/tbody/tr/td/a').click()
+            time.sleep(1)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            time.sleep(1)
+
+            self._driver.find_element_by_xpath('/html/body/form/div/div/div/form/table[4]/tbody/tr/td[3]/input').click()
+            time.sleep(1)
+            list_codec1 = self._driver.find_element_by_xpath('/html/body/form/div/div/div/form/div[5]/table[2]/tbody/tr[1]/td[3]/select').get_attribute('value')
+            time.sleep(1)
+            list_codec2 = self._driver.find_element_by_xpath('/html/body/form/div/div/div/form/div[5]/table[2]/tbody/tr[2]/td[3]/select').get_attribute('value')
+
+            dict_saida = {'T.38': fax[0], 'DTMF Method': dtmf, 'codec_1': list_codec1, 'codec_2': list_codec2}
+            
+            cpe_config = config_collection.find_one()
+
+            if cpe_config['REDE'] == 'VIVO_1':
+                if dict_saida['T.38'] == 'Disable':
+                    obs_result1 =  f"Fax T38: Desabilitado"
+                    self._dict_result.update({"Resultado_Probe": "OK", "result":"passed"})
+                else:
+                    self._dict_result.update({"Resultado_Probe": "NOK", "result":"failed"}) 
+                    obs_result1 = f"Teste incorreto, retorno Fax T38: {dict_saida['T.38']}"
+            else: 
+                obs_result1 = f"REDE:{cpe_config['REDE']}"
+                self._dict_result.update({"Resultado_Probe": "NOK", "result":"failed"})
+            
+            if cpe_config['REDE'] == 'VIVO_2':
+                if dict_saida['T.38'] == 'Disable':
+                    obs_result2 =  f"Fax T38: Desabilitado"
+                    self._dict_result.update({"Resultado_Probe": "OK", "result":"passed"})
+                else:
+                    obs_result2 = f"Teste incorreto, retorno Fax T38: {dict_saida['T.38']}"
+                self._dict_result.update({"Resultado_Probe": "NOK", "result":"failed"})
+
+            else: 
+                obs_result2 = f"REDE:{cpe_config['REDE']}"
+                self._dict_result.update({"Resultado_Probe": "NOK", "result":"failed"})
+            
+            self._dict_result.update({"obs": f"490_1: {obs_result1} | 490_2: {obs_result2}"})
+        except Exception as e:
+            self._dict_result.update({"obs": str(e)})
+        finally:
+            self._driver.quit()
+
+            self.update_global_result_memory(flask_username, 'checkVoIPSettings_490', dict_saida)
+            return self._dict_result
+
+
+    def verificarDtmfMethod_491(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 490 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkVoIPSettings_490')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 490 primeiro'})
+        else:
+            basic_setting = result['DTMF Method']
+            if basic_setting == 'RFC2833':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "DTMF Method: RFC2833", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno DTMF Method: {basic_setting}"})
+        return self._dict_result
+    
+
+    def prioridadeCodec_0_493(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 490 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkVoIPSettings_490')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 490 primeiro'})
+        else:
+            codec = result['codec_1']
+            if codec == 'G.711ALaw':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "Order: 0 = G.711ALaw", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Order: 0 = {codec} "})
+        return self._dict_result
+
+    
+    def prioridadeCodec_1_494(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 490 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkVoIPSettings_490')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 490 primeiro'})
+        else:
+            codec = result['codec_2']
+
+            if codec == 'G.729':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "Order: 1 = G.729", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Order: 1 = {codec} "})
+        return self._dict_result
+
+
+    def checkNATALGSettings_495(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm') 
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[11]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[20]/table/tbody/tr/td/a/span').click()
+
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[24]/table/tbody/tr/td/a').click()
+            time.sleep(1)
+
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            time.sleep(1)
+
+            sip = self._driver.find_element_by_xpath('/html/body/blockquote/form/input').get_attribute('checked')
+            print(sip)
+            time.sleep(1)
+            
+            if sip == 'true': sip = 'Habilitado'
+            else: sip = ' Desabilitado'
+
+            cpe_config = config_collection.find_one()
+            rede = cpe_config['REDE']
+
+            if rede == 'VIVO_1':   
+                if sip == 'Desabilitado':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": f'SIP: Desabilitado (Rede = {rede})', "result":"passed"})
+                else:
+                    self._dict_result.update({"obs": f'Teste incorreto, retorno SIP: {sip} (Rede = {rede})'})
+                return self._dict_result
+
+            elif rede == 'VIVO_2':   
+                if sip == 'Habilitado':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": f'SIP == Habilitado (Rede = {rede})', "result":"passed"})
+                else:
+                    self._dict_result.update({"obs": f'Teste incorreto, retorno SIP: {sip} (Rede = {rede})'})
+                return self._dict_result 
+            
+            else:
+                self._dict_result.update({"obs": f'REDE: {rede})'})
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        
+        finally:
+            self._driver.quit()
+            return self._dict_result
+        
+
+    def checkSNMP_496(self, flask_username):
         return self._dict_result
 
 
