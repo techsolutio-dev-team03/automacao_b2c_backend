@@ -6,6 +6,9 @@ from HGUmodels.utils import chunks
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException, NoSuchFrameException
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from HGUmodels.main_session import MainSession
+import datetime
+import pyshark
+from skpy import Skype
 
 session = MainSession()
 
@@ -31,9 +34,11 @@ class HGU_AskeyECNT_ipv6Probe(HGU_AskeyECNT):
                     url_request_result.append(True)
                 else:
                     url_request_result.append(False)
+                    break
             except:
+                print(f"Res. acesso ao site {url}: erro" )
                 url_request_result.append(False)
-
+                break
             
         if all(url_request_result):
             self._dict_result.update({"obs": f'Foi possivel acessar todos os sites', "result":'passed', "Resultado_Probe":"OK"})
@@ -43,6 +48,7 @@ class HGU_AskeyECNT_ipv6Probe(HGU_AskeyECNT):
         self.eth_interfaces_up()
         self._driver.quit()
         return self._dict_result
+
 
     #190, 191, 192
     def ipv_x_url_test(self, flask_username, test_url, ipv_x, dhcpv6):
@@ -69,6 +75,28 @@ class HGU_AskeyECNT_ipv6Probe(HGU_AskeyECNT):
             self.dhcp_v6(True)
             self._driver.quit()
             return self._dict_result
+
+
+    # 193
+    def connectSkype_193(self, flask_username):
+        #TODO colocar as configura'coes de ipv_x e dhcp
+        self.eth_interfaces_down()
+        data = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
+        sk = Skype('dev.team05@techsolutio.com' , 'Techsolutio@123')
+        time.sleep(3)
+        ch = sk.contacts['echo123'].chat
+        msg_enviada = f"Teste Skype por {flask_username} em {data}"
+        print(msg_enviada)
+        ch.sendMsg(msg_enviada)
+
+        msg_recebida = ch.getMsgs()[0].content
+        print('\n', msg_recebida)
+        if msg_recebida == msg_enviada:
+            self._dict_result.update({"obs": f'Conexao com skype OK', "result":'passed', "Resultado_Probe":"OK"})
+        else:
+            self._dict_result.update({"obs": f'Conexao com skype NOK'}) 
+        self.eth_interfaces_up()
+        return self._dict_result
 
 
     # 195, 196

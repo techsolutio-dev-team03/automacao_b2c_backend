@@ -3265,6 +3265,51 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             return self._dict_result
 
 
+    def checkSNMP_496(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao')
+            self.login_support()
+            time.sleep(1)
+
+            #Hover na configuracao de rede
+            element_to_hover_over = self._driver.find_element_by_xpath('/html/body/div/div[4]/div[1]/div/div[2]/ul/li[6]/span[1]')
+            hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
+            hover.perform()
+
+            #Clicou na Lan
+            self._driver.find_element_by_xpath('/html/body/div/div[4]/div[2]/div/ul[5]/li[10]/a').click()
+             
+            
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('mainFrame')
+            time.sleep(1)
+
+            self._driver.find_element_by_xpath('/html/body/ul/li[3]/a/span').click()
+           
+            time.sleep(2)
+            
+            snmp_name = [value.text for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li/div/ul/table/tbody/tr[3]//td')]
+            print(snmp_name)
+            snmp = [value.get_attribute('checked') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li/div/ul/table/tbody/tr[3]/td//input')]
+            print(snmp)
+            snmp = snmp.split()
+            snmp = snmp_name[snmp.index('true')+1]
+            print(snmp)
+
+            if snmp == 'Disable':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "SNMP: Desabilitado", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": "Teste incorreto, retorno SNMP: Habilitado"})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            return self._dict_result
+
+
+
     def checkUPnP_497(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
@@ -3281,7 +3326,9 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
              
             
             time.sleep(2)
+            self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
+            time.sleep(1)
 
             self._driver.find_element_by_xpath('//*[@id="t3"]/span').click()
            

@@ -87,7 +87,24 @@ class HGU_MItraStarBROADCOM(HGUModelInterface):
         self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input').click()
         time.sleep(5)
 
-  
+
+    def dhcp_stateless(self):
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('menufrm')
+        self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a/span').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('//*[@id="folder15"]/table/tbody/tr/td/a/span').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('//*[@id="item18"]/table/tbody/tr/td/a').click()
+        time.sleep(1)
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('basefrm')
+        self._driver.find_element_by_xpath('//*[@id="statefulInfo"]/table[1]/tbody/tr[1]/td/input').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input').click()
+        time.sleep(3)
+        
+
     def __str__(self):
         return f"HGU_MItraStarBROADCOM {self._address_ip}"
 

@@ -15,7 +15,7 @@ from HGUmodels.config import TEST_NOT_IMPLEMENTED_WARNING
 from HGUmodels.utils import chunks
 from daos.mongo_dao import MongoConnSigleton
 
-from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException, NoSuchFrameException, UnexpectedAlertPresentException
+from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException, NoSuchFrameException, UnexpectedAlertPresentException, ElementClickInterceptedException
 
 from HGUmodels import wizard_config
 
@@ -184,6 +184,7 @@ class HGU_MItraStarBROADCOM_wizardProbe(HGU_MItraStarBROADCOM):
             self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/form/table/tfoot/tr/td/a[2]/span').click()
             
             time.sleep(15)
+            print('oi')
             try:
                 time.sleep(8)
                 if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
@@ -191,7 +192,8 @@ class HGU_MItraStarBROADCOM_wizardProbe(HGU_MItraStarBROADCOM):
                         self._dict_result.update({"obs": "Usuario aceito"})
                     else:
                         self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito", "result":"passed", "Resultado_Probe": "OK"})
-            except UnexpectedAlertPresentException as e:                
+            except (UnexpectedAlertPresentException, NoSuchElementException, ElementClickInterceptedException) as e:
+                self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[4]/td/a/span').click()
                 self._dict_result.update({"obs": f"Teste falhou. {e}", "result":"passed", "Resultado_Probe": "OK"})
             finally:
                 self._driver.quit()
