@@ -114,8 +114,7 @@ class Ipv6:
 
     #193
     def connectSkype(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
-        
-
+        driver = WebDriver.get_driver()
         dict_result = {'result':'failed', 
                        'obs':None, 
                        "Resultado_Probe": "NOK", 
@@ -129,12 +128,11 @@ class Ipv6:
                                      model_name=model_name, 
                                      username=username, 
                                      password=password, 
-                                  #   driver=driver, 
+                                     driver=driver, 
                                      dict_result=dict_result)
 
         print(hgu)
-   
-        return hgu.connectSkype_193(flask_username)
+        return hgu.connectSkype_193(flask_username, 'IPv4 Only', dhcpv6 = False)
 
 
    #195

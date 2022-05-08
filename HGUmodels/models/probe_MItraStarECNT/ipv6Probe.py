@@ -6,6 +6,8 @@ from HGUmodels.utils import chunks
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException, NoSuchFrameException
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from HGUmodels.main_session import MainSession
+import datetime
+from skpy import Skype
 
 session = MainSession()
 
@@ -72,6 +74,39 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
             self.dhcp_v6(True)
             self._driver.quit()
             return self._dict_result
+
+
+   # 193
+    def connectSkype_193(self, flask_username,  ipv_x, dhcpv6):
+        self._driver.get('http://' + self._address_ip + '/padrao')
+        self.login_support()
+        time.sleep(5)
+        self.ipv_x_setting(ipv_x)
+        self.dhcp_v6(dhcpv6_state = dhcpv6)
+        self.eth_interfaces_down()
+        data = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
+        try:
+            sk = Skype('dev.team05@techsolutio.com' , 'Techsolutio@123')
+            time.sleep(3)
+            print(sk.chats)
+            ch = sk.chats.create(admins=("Dev05 Techsolutio")) #sk.contacts['echo123'].chat
+            msg_enviada = f"Teste Skype por {flask_username} em {data} no {self._model_name}"
+            print(msg_enviada)
+            ch.sendMsg(msg_enviada)
+            time.sleep(5)
+            msg_recebida = ch.getMsgs()[0].content
+            print('\n', msg_recebida)
+            if msg_recebida == msg_enviada:
+                self._dict_result.update({"obs": f'Conexao com skype OK', "result":'passed', "Resultado_Probe":"OK"})
+            else:
+                self._dict_result.update({"obs": f'Conexao com skype NOK'}) 
+        except:
+            self._dict_result.update({"obs": f'Conexao com skype NOK'}) 
+        self.eth_interfaces_up()
+        self.ipv_x_setting('IPv6/IPv4 Dual Stack')
+        self.dhcp_v6(True)
+        self._driver.quit()
+        return self._dict_result
 
 
     # 195, 196
