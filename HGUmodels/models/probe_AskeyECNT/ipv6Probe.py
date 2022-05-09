@@ -137,33 +137,31 @@ class HGU_AskeyECNT_ipv6Probe(HGU_AskeyECNT):
             return self._dict_result
 
 
+    # 203
+    def ipv4ExecIperf_203(self, flask_username, iperf_server, ipv_x, dhcpv6):
+        self._driver.get('http://' + self._address_ip + '/padrao')
+        self.login_support()
+        time.sleep(5)
 
-   # 203
-    def ipv4_exec_iperf_203(self, flask_username, test_url, ipv_x, dhcpv6):
-        # self._driver.get('http://' + self._address_ip + '/padrao')
-        # self.login_support()
-        # time.sleep(5)
+        self.ipv_x_setting(ipv_x)
+        self.dhcp_v6(dhcpv6_state = dhcpv6)
+        self.eth_interfaces_down()
 
-        # self.ipv_x_setting(ipv_x)
-        # self.dhcp_v6(dhcpv6_state = dhcpv6)
-        # self.eth_interfaces_down()
-
-        # try:
+        try:
             client = iperf3.Client()
-            client.server_hostname = 'iperf.he.net'
+            client.server_hostname = iperf_server
             client.verbose = True
             resultado = client.run()
-
-            print(resultado)
-        #     if acesso == 200:
-        #         self._dict_result.update({"obs": f'Foi possivel acessar o site {test_url}'})
-        #     else:
-        #         self._dict_result.update({"obs": f'Nao foi possivel acessar o site {test_url}', "result":'passed', "Resultado_Probe":"OK"})
-        # except:
-        #     self._dict_result.update({"obs": f'Nao foi possivel acessar o site {test_url}', "result":'passed', "Resultado_Probe":"OK"})
-        # finally:
-        #     self.eth_interfaces_up()
-        #     self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
-        #     self.dhcp_v6(True)
-        #     self._driver.quit()
-        #     return self._dict_result
+            #print(resultado.json)
+            if resultado.error == None:
+                self._dict_result.update({"obs": f'Conexao: Cliente Iperf - Server {iperf_server} realizado com sucesso. Enviado {resultado.sent_Mbps} Mbps; Recebido {resultado.received_Mbps} Mbps', "result":'passed', "Resultado_Probe":"OK"})
+            else:
+                self._dict_result.update({"obs": f'Falha na Conexao: Cliente Iperf - Server {iperf_server}, erro: {resultado.error}'})
+        except:
+            self._dict_result.update({"obs": f'Falha no teste Iperf'})
+        finally:
+            self.eth_interfaces_up()
+            self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
+            self.dhcp_v6(True)
+            self._driver.quit()
+            return self._dict_result

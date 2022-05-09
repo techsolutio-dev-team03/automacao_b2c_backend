@@ -185,3 +185,29 @@ class Ipv6:
         test_url = 'http://v6.testmyipv6.com'
 
         return hgu.ipv_x_url_test_not(flask_username, test_url, 'IPv4 Only', dhcpv6 = False)
+
+
+    # 203
+    def ipv4ExecIperf(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+        driver = WebDriver.get_driver()
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "ipv6", 
+                       "ProbeName": "ipv4_exec_iperf", 
+                       "Probe#": "203", 
+                       "Description": "Teste iperf IPv4 de PC para servidor publico"}
+
+        hgu = HGUModelFactory.getHGU(probe='ipv6Probe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+
+        print(hgu)
+        iperf_server = 'iperf.he.net'
+
+        return hgu.ipv4ExecIperf_203(flask_username, iperf_server, 'IPv4 Only', dhcpv6 = False)
