@@ -6,7 +6,7 @@ import time
 from typing import List
 # from jinja2 import pass_context
 #from typing import final
-# import paramiko
+import paramiko
 from paramiko.ssh_exception import AuthenticationException
 import socket
 
@@ -2906,10 +2906,70 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         finally:
             self._driver.quit()
             return self._dict_result
-        
+
 
     def checkSNMP_496(self, flask_username):
-        return self._dict_result
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm') 
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[71]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[78]/table/tbody/tr/td/a/span').click()
+
+            time.sleep(1)
+
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            time.sleep(1)
+            
+            snmp_name = [value.text for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[1]/tbody/tr//td') if value.text != 'SNMP Agent']
+            snmp = [value.get_attribute('checked') for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[1]/tbody/tr/td//input') ]
+
+            snmp = snmp_name[snmp.index('true')]
+            print(snmp)
+
+            if snmp == 'Disable':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "SNMP: Desabilitado", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": "Teste incorreto, retorno SNMP: Habilitado"})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            return self._dict_result
+
+
+    def checkUPnP_497(self, flask_username):
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm') 
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[11]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td/div[39]/table/tbody/tr/td/a/span').click()
+            time.sleep(1)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            time.sleep(1)
+            
+            upnp = self._driver.find_element_by_xpath('/html/body/blockquote/form/b/table/tbody/tr/td[1]/input').get_attribute('checked')
+
+            print(upnp)
+
+            if upnp == 'true':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "UPnP: Habilitado", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": "Teste incorreto, retorno UPnP: Desabilitado"})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+        finally:
+            self._driver.quit()
+            return self._dict_result
 
 
     def linkLocalType_498(self, flask_username):
@@ -2941,3 +3001,18 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             except:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno WAN global identifier: {linkGlobal}"})
         return self._dict_result
+
+
+    def prefixDelegationfromInet_500(self, flask_username):
+        #TODO: Fazer logica no frontend para garantir que o teste 429 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkLANSettings_429')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 429 primeiro'})
+        else:
+            ans_500 = result['Prefix']
+            if 'fd00::/64' == ans_500:
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "Prefix Delegation WAN: fd00::/64", "result":"passed"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Prefix Delegation WAN:{ans_500}"})
+        return self._dict_result
+        

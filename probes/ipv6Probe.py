@@ -28,7 +28,7 @@ class Ipv6:
         url_list = ['https://ipv6.google.com/', 
                     'https://www.v6.facebook.com/', 
                     'http://v6.testmyipv6.com', 
-                    'http://ipv6.onet.pl', 
+                #    'http://ipv6.onet.pl', 
                     'http://www.cofone.eu/']
 
         return hgu.ipv6_wan_enabled(flask_username, url_list, 'IPv4&IPv6(Dual Stack)', dhcpv6 = True)
@@ -131,6 +131,29 @@ class Ipv6:
         test_url = 'http://www.vivo.com.br'
 
         return hgu.ipv_x_url_test(flask_username, test_url, 'IPv4 Only', dhcpv6 = False)
+
+
+    #193
+    def connectSkype(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+        driver = WebDriver.get_driver()
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "ipv6", 
+                       "ProbeName": "connectSkype", 
+                       "Probe#": "193", 
+                       "Description": "Utilizar o Skype"}
+
+        hgu = HGUModelFactory.getHGU(probe='ipv6Probe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+
+        print(hgu)
+        return hgu.connectSkype_193(flask_username, 'IPv4 Only', dhcpv6 = False)
 
 
    #195

@@ -81,6 +81,21 @@ class HGU_AskeyBROADCOM(HGUModelInterface):
         time.sleep(5)
 
 
+    def dhcp_stateless(self):
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('menufrm')
+        self._driver.find_element_by_xpath('//*[@id="folder10"]/table/tbody/tr/td/a').click()
+        time.sleep(2)
+        self._driver.find_element_by_xpath('//*[@id="folder15"]/table/tbody/tr/td/a').click()
+        time.sleep(2)
+        self._driver.find_element_by_xpath('//*[@id="item17"]/table/tbody/tr/td/a').click()
+        time.sleep(2)
+        self._driver.switch_to.default_content()
+        self._driver.switch_to.frame('basefrm')
+        self._driver.find_element_by_xpath('//*[@id="statefulInfo"]/table/tbody/tr[1]/td/input').click()
+        time.sleep(1)
+        self._driver.find_element_by_xpath('/html/body/blockquote/form/center/input').click()
+        time.sleep(3)
 
     def __str__(self):
         return "HGU_AskeyBROADCOM"

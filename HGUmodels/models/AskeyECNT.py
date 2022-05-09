@@ -27,7 +27,10 @@ class HGU_AskeyECNT(HGUModelInterface):
         time.sleep(2)
         if ipv_x == 'IPv4 Only': self._driver.find_element_by_xpath('//*[@id="WanIPIntfSettingForm"]/fieldset[4]/div[1]/input[3]').click()
         if ipv_x == 'IPv6 Only': self._driver.find_element_by_xpath('//*[@id="WanIPIntfSettingForm"]/fieldset[4]/div[1]/input[2]').click()
-        if ipv_x == 'IPv4&IPv6(Dual Stack)': self._driver.find_element_by_xpath('//*[@id="WanIPIntfSettingForm"]/fieldset[4]/div[1]/input[1]').click()
+        if ipv_x == 'IPv4&IPv6(Dual Stack)': 
+            self._driver.find_element_by_xpath('//*[@id="WanIPIntfSettingForm"]/fieldset[4]/div[1]/input[1]').click()
+            # Seleciona modo SLAAC:
+            self._driver.find_element_by_xpath('//*[@id="WanIPIntfSettingForm"]/fieldset[4]/div[3]/input[1]').click()
         time.sleep(1)
         self._driver.find_element_by_xpath('//*[@id="WanIPIntfSettingForm"]/div[2]/input[2]').click()
         time.sleep(3)
