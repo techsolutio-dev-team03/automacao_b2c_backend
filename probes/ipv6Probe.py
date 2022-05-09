@@ -33,6 +33,27 @@ class Ipv6:
 
         return hgu.ipv6_wan_enabled(flask_username, url_list, 'IPv4&IPv6(Dual Stack)', dhcpv6 = True)
 
+    #178
+    def icmpv6_router_advt_flag_m_o(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "ipv6", 
+                       "ProbeName": "Router advertisement packet", 
+                       "Probe#": "178", 
+                       "Description": "Verificar nos pacotes Router Advertisement Flag m = 0 e Flag o = 1"}
+
+        hgu = HGUModelFactory.getHGU(probe='wireSharkProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+
+
+        return hgu.icmpv6_router_advt_flag_m_o(flask_username)
+
 
     #190
     def accessCaixa(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK

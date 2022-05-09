@@ -19,6 +19,7 @@ from .models.probe_AskeyBroadcom.settingsProbe import HGU_AskeyBROADCOM_settings
 from .models.probe_AskeyBroadcom.wizardProbe import HGU_AskeyBROADCOM_wizardProbe
 from .models.probe_AskeyBroadcom.functionalProbe import HGU_AskeyBROADCOM_functionalProbe
 from .models.probe_AskeyBroadcom.ipv6Probe import HGU_AskeyBROADCOM_ipv6Probe
+from .models.probe_AskeyECNT.wireSharkProbe import HGU_AskeyECNT_wireSharkProbe
 
 class HGUModelFactory:
     @staticmethod
@@ -47,12 +48,14 @@ class HGUModelFactory:
         elif model_name == 'HGU2_Askey_ECNT':
             if probe == 'settingsProbe':
                 return HGU_AskeyECNT_settingsProbe(address_ip, model_name, username, password, driver, dict_result)
-            if probe == 'wizardProbe':
+            elif probe == 'wizardProbe':
                 return HGU_AskeyECNT_wizardProbe(address_ip, model_name, username, password, driver, dict_result)
-            if probe == 'functionalProbe':
+            elif probe == 'functionalProbe':
                 return HGU_AskeyECNT_functionalProbe(address_ip, model_name, username, password, driver, dict_result)
-            if probe == 'ipv6Probe':
+            elif probe == 'ipv6Probe':
                 return HGU_AskeyECNT_ipv6Probe(address_ip, model_name, username, password, driver, dict_result)
+            elif probe == 'wireSharkProbe':
+                return HGU_AskeyECNT_wireSharkProbe(address_ip, model_name, username, password, driver, dict_result)
 
         elif model_name == 'HGU3_Askey_BROADCOM':
             if probe == 'settingsProbe':
