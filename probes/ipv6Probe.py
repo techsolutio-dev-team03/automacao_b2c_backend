@@ -33,6 +33,7 @@ class Ipv6:
 
         return hgu.ipv6_wan_enabled(flask_username, url_list, 'IPv4&IPv6(Dual Stack)', dhcpv6 = True)
 
+
     #178
     def icmpv6_router_advt_flag_m_o(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
 
@@ -232,3 +233,29 @@ class Ipv6:
         iperf_server = 'iperf.he.net'
 
         return hgu.ipv4ExecIperf_203(flask_username, iperf_server, 'IPv4 Only', dhcpv6 = False)
+
+
+   # 212
+    def ipv4DownloadCentOS(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+        driver = WebDriver.get_driver()
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "ipv6", 
+                       "ProbeName": "ipv4DownloadCentOS", 
+                       "Probe#": "ipv4DownloadCentOS", 
+                       "Description": "Download do CentOS em IPv4"}
+
+        hgu = HGUModelFactory.getHGU(probe='ipv6Probe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+
+        print(hgu)
+        iperf_server = 'iperf.he.net'
+
+        return hgu.ipv4DownloadCentOS_212(flask_username, iperf_server, 'IPv4 Only', dhcpv6 = False)

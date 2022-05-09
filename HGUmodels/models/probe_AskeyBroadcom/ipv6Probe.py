@@ -1,3 +1,4 @@
+from re import S
 from ..AskeyBROADCOM import HGU_AskeyBROADCOM
 import requests
 import time
@@ -9,6 +10,7 @@ from HGUmodels.main_session import MainSession
 import datetime
 from skpy import Skype
 import iperf3
+import os
 
 session = MainSession()
 
@@ -159,6 +161,39 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
         except:
             self._dict_result.update({"obs": f'Falha no teste Iperf'})
         finally:
+            self.eth_interfaces_up()
+            self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
+            self.dhcp_v6(True)
+            self._driver.quit()
+            return self._dict_result
+
+
+    # 212
+    def ipv4DownloadCentOS_212(self, flask_username, iperf_server, ipv_x, dhcpv6):
+        self._driver.get('http://' + self._address_ip + '/padrao')
+        self.login_support()
+        time.sleep(5)
+
+        self.ipv_x_setting(ipv_x)
+        self.dhcp_v6(dhcpv6_state = dhcpv6)
+        self.eth_interfaces_down()
+
+        try:
+            os.system('wget --tries=2 -O ~/Downloads/CentOS http://mirror.ufscar.br/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso')
+            os.system('wget --tries=2 -O ~/Downloads/CentOS-sha http://mirror.ufscar.br/centos/7.9.2009/isos/x86_64/sha256sum.txt')
+            with open(os.path.expanduser("~")+'/Downloads/CentOS-sha') as file:
+                sha256sum_list = file.readlines()
+            sha256sum = [sha.split(' ')[0] for sha in sha256sum_list if 'Minimal' in sha]
+            sha256sum_download = os.popen('sha256sum '+os.path.expanduser("~")+'/Downloads/CentOS').read().split(' ')[0]
+            if sha256sum_download == sha256sum[0]:
+                self._dict_result.update({"obs": 'Download do CentoOS realizado com sucesso', "result":'passed', "Resultado_Probe":"OK"})
+            else:
+                self._dict_result.update({"obs": 'Falha no download do CentoOS'})
+        except:
+            self._dict_result.update({"obs": f'Falha no teste de Download'})
+        finally:
+            os.system('rm '+os.path.expanduser("~")+'/Downloads/CentOS')
+            os.system('rm '+os.path.expanduser("~")+'/Downloads/CentOS-sha')
             self.eth_interfaces_up()
             self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
             self.dhcp_v6(True)
