@@ -34,6 +34,28 @@ class Ipv6:
         return hgu.ipv6_wan_enabled(flask_username, url_list, 'IPv4&IPv6(Dual Stack)', dhcpv6 = True)
 
 
+    #178
+    def icmpv6_router_advt_flag_m_o(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "ipv6", 
+                       "ProbeName": "Router advertisement packet", 
+                       "Probe#": "178", 
+                       "Description": "Verificar nos pacotes Router Advertisement Flag m = 0 e Flag o = 1"}
+
+        hgu = HGUModelFactory.getHGU(probe='wireSharkProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+
+
+        return hgu.icmpv6_router_advt_flag_m_o(flask_username)
+
+
     #190
     def accessCaixa(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
         driver = WebDriver.get_driver()
@@ -185,3 +207,55 @@ class Ipv6:
         test_url = 'http://v6.testmyipv6.com'
 
         return hgu.ipv_x_url_test_not(flask_username, test_url, 'IPv4 Only', dhcpv6 = False)
+
+
+    # 203
+    def ipv4ExecIperf(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+        driver = WebDriver.get_driver()
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "ipv6", 
+                       "ProbeName": "ipv4_exec_iperf", 
+                       "Probe#": "203", 
+                       "Description": "Teste iperf IPv4 de PC para servidor publico"}
+
+        hgu = HGUModelFactory.getHGU(probe='ipv6Probe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+
+        print(hgu)
+        iperf_server = 'iperf.he.net'
+
+        return hgu.ipv4ExecIperf_203(flask_username, iperf_server, 'IPv4 Only', dhcpv6 = False)
+
+
+   # 212
+    def ipv4DownloadCentOS(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+        driver = WebDriver.get_driver()
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "ipv6", 
+                       "ProbeName": "ipv4DownloadCentOS", 
+                       "Probe#": "ipv4DownloadCentOS", 
+                       "Description": "Download do CentOS em IPv4"}
+
+        hgu = HGUModelFactory.getHGU(probe='ipv6Probe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     driver=driver, 
+                                     dict_result=dict_result)
+
+        print(hgu)
+        iperf_server = 'iperf.he.net'
+
+        return hgu.ipv4DownloadCentOS_212(flask_username, iperf_server, 'IPv4 Only', dhcpv6 = False)
