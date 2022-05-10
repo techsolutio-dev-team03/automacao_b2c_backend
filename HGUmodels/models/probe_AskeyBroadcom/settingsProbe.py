@@ -2965,6 +2965,35 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
         return self._dict_result
 
 
+    def checkSNMP_496(self, flask_username):
+        
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao')
+            self.login_support()
+            time.sleep(3)
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td[2]/div[68]/table/tbody/tr/td/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td[2]/div[76]/table/tbody/tr/td/a').click()
+
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+
+            snmp = [value.get_attribute('checked') for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[1]/tbody/tr/td[2]/input')]
+            
+
+            print(snmp)
+            if snmp[0] == 'true':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'SNMP: Desabilitado', "result":"passed"})
+
+            else:
+                self._dict_result.update({"obs": f'Teste incorreto, retorno SNMP: Habilitado'})
+
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+
+        self._driver.quit()
+        return self._dict_result
 
 
     def checkUPnP_497(self, flask_username):

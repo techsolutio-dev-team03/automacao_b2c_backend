@@ -3290,12 +3290,10 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             time.sleep(2)
             
             snmp_name = [value.text for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li/div/ul/table/tbody/tr[3]//td')]
-            print(snmp_name)
             snmp = [value.get_attribute('checked') for value in self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li/div/ul/table/tbody/tr[3]/td//input')]
-            print(snmp)
-            snmp = snmp.split()
-            snmp = snmp_name[snmp.index('true')+1]
-            print(snmp)
+        
+            snmp_name = snmp_name[1].split()
+            snmp = snmp_name[snmp.index('true')]
 
             if snmp == 'Disable':
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": "SNMP: Desabilitado", "result":"passed"})
