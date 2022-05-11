@@ -11,7 +11,7 @@ import socket
 from ..MItraStarECNT import HGU_MItraStarECNT
 from selenium.webdriver.common.action_chains import ActionChains 
 from selenium.webdriver.support.select import Select
-from selenium.common.exceptions import NoSuchFrameException, NoSuchElementException, InvalidSelectorException
+from selenium.common.exceptions import NoSuchFrameException, NoSuchElementException, InvalidSelectorException, ElementClickInterceptedException
 
 from HGUmodels.config import TEST_NOT_IMPLEMENTED_WARNING
 from HGUmodels.utils import chunks
@@ -152,32 +152,34 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
             self._driver.find_element_by_xpath('//*[@id="RN_UserName"]').send_keys('vivo@cliente')
             self._driver.find_element_by_xpath('//*[@id="RN_Password"]').clear()
             self._driver.find_element_by_xpath('//*[@id="RN_Password"]').send_keys('vivo')
+            print('antes1')
+
             self._driver.find_element_by_xpath('//*[@id="PPPOE_Account_Save"]').click()
             time.sleep(25)
+            self._driver.wait_variable.until(E.element_to_be_clickable((By.XPATH,"//input[@name ='update_cart']"))).click()
 
+            print('antes')
             try:
                 iframe = self._driver.find_element_by_xpath('/html/body/div[3]/div/div[1]/div/iframe')
                 self._driver.switch_to.frame(iframe)
-                print(self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[1]/td/font/span').text)
+                print('aqui',self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[1]/td/font/span').text)
                 self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[3]/td/a/span').click()
                 self._dict_result.update({"obs": "Usuario inválido", "result":"passed", "Resultado_Probe": "OK"})
                 time.sleep(5)
-            except:
-                self._dict_result.update({"obs": "Teste falhou"})
+            # except InvalidSelectorException as e:
+            #     self._dict_result.update({"obs": e})
+            #     time.sleep(1)
+            
+            except ElementClickInterceptedException as e:
+                print('2', e)
+                self._dict_result.update({"obs": e})
                 time.sleep(1)
-                # Deixando o valor padrao de volta
-                self._driver.switch_to.default_content()
-                self._driver.switch_to.frame('basefrm')
-                self._driver.find_element_by_xpath('//*[@id="RN_UserName"]').clear()
-                self._driver.find_element_by_xpath('//*[@id="RN_UserName"]').send_keys('cliente@cliente')
-                self._driver.find_element_by_xpath('//*[@id="RN_Password"]').clear()
-                self._driver.find_element_by_xpath('//*[@id="RN_Password"]').send_keys('cliente')
-                self._driver.find_element_by_xpath('//*[@id="PPPOE_Account_Save"]').click()
+                
 
-            self._driver.quit()
         except Exception as e:
             self._dict_result.update({"obs": e})
         finally:
+            self._driver.quit()
             return self._dict_result  
 
 

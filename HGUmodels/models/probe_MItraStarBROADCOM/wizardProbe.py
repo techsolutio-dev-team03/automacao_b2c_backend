@@ -192,7 +192,9 @@ class HGU_MItraStarBROADCOM_wizardProbe(HGU_MItraStarBROADCOM):
                         self._dict_result.update({"obs": "Usuario aceito"})
                     else:
                         self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito", "result":"passed", "Resultado_Probe": "OK"})
-            except (UnexpectedAlertPresentException, NoSuchElementException, ElementClickInterceptedException) as e:
+            except (UnexpectedAlertPresentException, NoSuchElementException) as e:
+            # except (UnexpectedAlertPresentException, NoSuchElementException, ElementClickInterceptedException) as e:
+            
                 self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[4]/td/a/span').click()
                 self._dict_result.update({"obs": f"Teste falhou. {e}", "result":"passed", "Resultado_Probe": "OK"})
             finally:

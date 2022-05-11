@@ -5068,6 +5068,11 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         else:
             self._dict_result.update({"obs": f'REDE: {rede})'})
             return self._dict_result
+
+    
+    def checkSNMP_496(self, flask_username):
+        self._driver.quit()
+        return self._dict_result.update({"obs": TEST_NOT_IMPLEMENTED_WARNING})
         
 
     def checkUPnP_497(self, flask_username):
