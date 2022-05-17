@@ -24,8 +24,8 @@ class HGUModelInterface():
     def eth_interfaces_down(self):
         
         interfaces = [interface.split('\n') for interface in os.popen('ifconfig').read().split('\n\n') if interface.startswith("ens")]
+        ip_net =  '.'.join(self._address_ip.split('.')[:3])
         for interface in interfaces:
-            ip_net =  '.'.join(self._address_ip.split('.')[:3])
             if_name = interface[0].split(':')[0]
             if any([ip_net in address for address in interface]):
                 continue
