@@ -45,5 +45,18 @@ class HGUModelInterface():
             time.sleep(2)
 
 
+    def get_interface(self, ip_address):
+        network = '.'.join(ip_address.split('.')[:3])
+        ip_maq = os.popen(f'ifconfig | grep {network}').read().strip(' ').split(' ')[1]
+        interfaces = [interface.split('\n') for interface in os.popen('ifconfig').read().split('\n\n') if interface.startswith("ens")]
+        for interface in interfaces:
+            if any([ip_maq in address for address in interface]):
+                if_name = interface[0].split(':')[0]
+        return if_name
+
+
+
+
+
 
 

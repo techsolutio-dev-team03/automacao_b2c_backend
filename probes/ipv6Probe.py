@@ -7,34 +7,34 @@ from appium import webdriver
 
 class Ipv6:
 
-    #172
-    def ipv6_wan_enabled(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
-        driver = WebDriver.get_driver()
+    # #172
+    # def ipv6_wan_enabled(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+    #     driver = WebDriver.get_driver()
 
-        dict_result = {'result':'failed', 
-                       'obs':None, 
-                       "Resultado_Probe": "NOK", 
-                       "ControllerName": "ipv6", 
-                       "ProbeName": "ipv6 wan enabled", 
-                       "Probe#": "172", 
-                       "Description": "Acessar páginas com WAN Dual Stack e DHCPv6 Stateless"}
+    #     dict_result = {'result':'failed', 
+    #                    'obs':None, 
+    #                    "Resultado_Probe": "NOK", 
+    #                    "ControllerName": "ipv6", 
+    #                    "ProbeName": "ipv6 wan enabled", 
+    #                    "Probe#": "172", 
+    #                    "Description": "Acessar páginas com WAN Dual Stack e DHCPv6 Stateless"}
 
-        hgu = HGUModelFactory.getHGU(probe='ipv6Probe',
-                                     address_ip=ip, 
-                                     model_name=model_name, 
-                                     username=username, 
-                                     password=password, 
-                                     driver=driver, 
-                                     dict_result=dict_result)
+    #     hgu = HGUModelFactory.getHGU(probe='ipv6Probe',
+    #                                  address_ip=ip, 
+    #                                  model_name=model_name, 
+    #                                  username=username, 
+    #                                  password=password, 
+    #                                  driver=driver, 
+    #                                  dict_result=dict_result)
 
-        print(hgu)
-        url_list = ['https://ipv6.google.com/', 
-                    'https://www.v6.facebook.com/', 
-                    'http://v6.testmyipv6.com', 
-                #    'http://ipv6.onet.pl', 
-                    'http://www.cofone.eu/']
+    #     print(hgu)
+    #     url_list = ['https://ipv6.google.com/', 
+    #                 'https://www.v6.facebook.com/', 
+    #                 'http://v6.testmyipv6.com', 
+    #             #    'http://ipv6.onet.pl', 
+    #                 'http://www.cofone.eu/']
 
-        return hgu.ipv6_wan_enabled(flask_username, url_list, 'IPv4&IPv6(Dual Stack)', dhcpv6 = True)
+    #     return hgu.ipv6_wan_enabled(flask_username, url_list, 'IPv4&IPv6(Dual Stack)', dhcpv6 = True)
 
 
     #178
@@ -58,6 +58,27 @@ class Ipv6:
 
         return hgu.icmpv6_router_advt_flag_m_o(flask_username)
 
+
+ #184
+    def dhcpv6_dhclient_no_avail(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "ipv6", 
+                       "ProbeName": "Capturar as mensagens DHCPv6", 
+                       "Probe#": "184", 
+                       "Description": "Captura as mensagens de DHCPv6: o HGU deve responder status code NoAddrAvail (2)"}
+
+        hgu = HGUModelFactory.getHGU(probe='wireSharkProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+
+
+        return hgu.dhcpv6_dhclient_no_avail(flask_username)
 
     #190 - Fora do escopo
     # def accessCaixa(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK

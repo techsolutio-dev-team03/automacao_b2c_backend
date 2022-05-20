@@ -1,13 +1,13 @@
 import os
 import subprocess
-from ..AskeyECNT import HGU_AskeyECNT
+from ..MItraStarBROADCOM import HGU_MItraStarBROADCOM
 import pyshark
 import multiprocessing
 import asyncio
 import time
 
 
-class HGU_AskeyECNT_wireSharkProbe(HGU_AskeyECNT):
+class HGU_MItraStarBROADCOM_wireSharkProbe(HGU_MItraStarBROADCOM):
 
 
 # 178

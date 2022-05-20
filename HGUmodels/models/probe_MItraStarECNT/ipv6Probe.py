@@ -20,39 +20,39 @@ session = MainSession()
 class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
 
     # 172
-    def ipv6_wan_enabled(self, flask_username, url_list, ipv_x, dhcpv6):
-        self._driver.get('http://' + self._address_ip + '/padrao')
-        self.login_support()
-        time.sleep(5)
+    # def ipv6_wan_enabled(self, flask_username, url_list, ipv_x, dhcpv6):
+    #     self._driver.get('http://' + self._address_ip + '/padrao')
+    #     self.login_support()
+    #     time.sleep(5)
 
-        self.ipv_x_setting(ipv_x)
-        self.dhcp_v6(dhcpv6_state = dhcpv6)
-        self.dhcp_stateless()
-        self.eth_interfaces_down()
+    #     self.ipv_x_setting(ipv_x)
+    #     self.dhcp_v6(dhcpv6_state = dhcpv6)
+    #     self.dhcp_stateless()
+    #     self.eth_interfaces_down()
         
-        url_request_result = []
-        for url in url_list:
-            try:
-                acesso = requests.get(url, timeout = 15).status_code
-                print(f"Res. acesso ao site {url}: {acesso}" )
-                if acesso == 200:
-                    url_request_result.append(True)
-                else:
-                    url_request_result.append(False)
-                    break
-            except:
-                print(f"Res. acesso ao site {url}: erro" )
-                url_request_result.append(False)
-                break
+    #     url_request_result = []
+    #     for url in url_list:
+    #         try:
+    #             acesso = requests.get(url, timeout = 15).status_code
+    #             print(f"Res. acesso ao site {url}: {acesso}" )
+    #             if acesso == 200:
+    #                 url_request_result.append(True)
+    #             else:
+    #                 url_request_result.append(False)
+    #                 break
+    #         except:
+    #             print(f"Res. acesso ao site {url}: erro" )
+    #             url_request_result.append(False)
+    #             break
             
-        if all(url_request_result):
-            self._dict_result.update({"obs": f'Foi possivel acessar todos os sites', "result":'passed', "Resultado_Probe":"OK"})
-        else:
-            self._dict_result.update({"obs": f'Nao foi possivel acessar todos os sites'})
+    #     if all(url_request_result):
+    #         self._dict_result.update({"obs": f'Foi possivel acessar todos os sites', "result":'passed', "Resultado_Probe":"OK"})
+    #     else:
+    #         self._dict_result.update({"obs": f'Nao foi possivel acessar todos os sites'})
 
-        self.eth_interfaces_up()
-        self._driver.quit()
-        return self._dict_result
+    #     self.eth_interfaces_up()
+    #     self._driver.quit()
+    #     return self._dict_result
 
 
     # #190, 191, 192 - Fora de escopo
