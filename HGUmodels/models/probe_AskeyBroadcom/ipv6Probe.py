@@ -142,7 +142,7 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
 
 
     # 212
-    def ipv4DownloadCentOS_212(self, flask_username, iperf_server, ipv_x, dhcpv6):
+    def ipv4DownloadCentOS_212(self, flask_username, ipv_x, dhcpv6):
         self._driver.get('http://' + self._address_ip + '/padrao')
         self.login_support()
         time.sleep(5)
