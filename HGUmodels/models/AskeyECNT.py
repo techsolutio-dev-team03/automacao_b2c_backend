@@ -16,6 +16,19 @@ class HGU_AskeyECNT(HGUModelInterface):
         time.sleep(3)
 
 
+    def login_admin(self):
+        time.sleep(2)
+        user_input = self._driver.find_element_by_id('txtUser')
+        user_input.send_keys('admin')
+        time.sleep(1)
+        pass_input = self._driver.find_element_by_id('txtPass')
+        pass_input.send_keys(self._password)
+        time.sleep(1)
+        login_button = self._driver.find_element_by_id('btnLogin')
+        login_button.click()
+        time.sleep(1)
+
+
     def ipv_x_setting(self, ipv_x):
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('menuFrm')

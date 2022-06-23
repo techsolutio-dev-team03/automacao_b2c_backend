@@ -156,7 +156,7 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
 
 
     # 212
-    def ipv4DownloadCentOS_212(self, flask_username, iperf_server, ipv_x, dhcpv6):
+    def ipv4DownloadCentOS_212(self, flask_username, ipv_x, dhcpv6):
         self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
         self.login_support()
         self.ipv_x_setting(ipv_x)
