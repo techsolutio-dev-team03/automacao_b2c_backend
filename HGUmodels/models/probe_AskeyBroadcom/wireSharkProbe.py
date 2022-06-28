@@ -1,4 +1,6 @@
 import os
+import signal
+from socket import timeout
 import subprocess
 from ..AskeyBROADCOM import HGU_AskeyBROADCOM
 import pyshark
@@ -87,17 +89,20 @@ class  HGU_AskeyBROADCOM_wireSharkProbe(HGU_AskeyBROADCOM):
     def dhcpv6_dhclient_no_avail(self, flask_username):
         global interface_name 
         interface_name = self.get_interface(self._address_ip)
-        subprocess.Popen(f'echo 4ut0m4c40 | sudo -S dhclient -v -N {interface_name}', shell=True)
+
+       
+        os.popen(f'echo 4ut0m4c40 | sudo -S dhclient -v -N {interface_name}')#, shell=True, preexec_fn=os.setsid)
+        time.sleep(3)
+
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
         p = multiprocessing.Process(target=self.capture_dhcpv6, args=(return_dict,))
         p.start()
-        p.join()
-                
-        advt_packet = [v for v in return_dict.values()][0]
-        # print(str(advt_packet))
+        p.join(timeout=30)
 
         try:
+            advt_packet = [v for v in return_dict.values()][0]
+            # print(str(advt_packet))
             pkt_fields = advt_packet.dhcpv6._all_fields
             print(str(pkt_fields))
             status_code = pkt_fields['dhcpv6.status_code'] 
@@ -116,4 +121,92 @@ class  HGU_AskeyBROADCOM_wireSharkProbe(HGU_AskeyBROADCOM):
                 pid = list(filter(None, pid.split(' ')))
                 os.system(f'echo 4ut0m4c40 | sudo -S kill -9 {pid[1]}')
             return self._dict_result
+            
+#####
+
+# 185
+    def capture_icmpv6(self, return_dict):
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        capture = pyshark.LiveCapture(eventloop=loop, interface=interface_name, display_filter="icmpv6")
+        asyncio.get_child_watcher().attach_loop(capture.eventloop)
+        
+        advt_packet = None
+        
+        for packet in capture.sniff_continuously(packet_count=5000):
+            str_packet = str(packet)
+            # print(str_packet)
+            if 'Type: Router Advertisement (134)' in str_packet:
+                advt_packet = packet
+                break
+            else:
+                print("Erro no teste", packet)  
+        return_dict['value'] = advt_packet
+
+
+    def router_solicitation(self, flask_username):
+        global interface_name 
+        interface_name = self.get_interface(self._address_ip)
+        print(interface_name)
+
+        endereco_ipv6 = []
+        for n in range(0,3):
+            router_adv = 0
+            print('reiniciando interface')
+            os.system(f'echo 4ut0m4c40 | sudo -S ifconfig {interface_name} down')
+            time.sleep(2)
+            os.system(f'echo 4ut0m4c40 | sudo -S ifconfig {interface_name} up')
+            time.sleep(10)
+            print('interface reiniciada')
+
+            inet6_raw = os.popen(f'ip addr show {interface_name}').read()
+            time.sleep(2)
+            for inet6 in inet6_raw.split('\n'):
+                if inet6.strip(' ').startswith('inet6'):
+                    ipv6 = inet6.strip(' ').split(' ')[1].split('/')[0]
+                    print('Endereço IPv6 = ', ipv6)
+                    endereco_ipv6.append(ipv6)
+                    break
+
+            ping = os.popen(f'ping6 2001:4860:4860::8888 -c 10 -I {interface_name}')
+            try:
+                # print(ping.read().strip(' \n'))
+                for pacotes in ping.read().strip(' \n').split('\n'):
+                    if pacotes.startswith('10 p'):
+                        pacotes_recebidos = pacotes.split(',')[1].strip(' ').split(' ')[0]
+                        print(pacotes, pacotes_recebidos)
+                        break
+                if int(pacotes_recebidos) < 8: 
+                    self._dict_result.update({"obs": f'Router Advertisement CheckSum Status NOK: ping < 80%'})
+                    break
+            except:
+                self._dict_result.update({"obs": f'Router Advertisement CheckSum Status NOK: erro no ping 2001:4860:4860::8888 de {ipv6}'})
+                break
+
+            manager = multiprocessing.Manager()
+            return_dict = manager.dict()
+            p = multiprocessing.Process(target=self.capture_icmpv6, args=(return_dict,))
+            p.start()
+            p.join()
+
+            advt_packet = [v for v in return_dict.values()][0]
+            # print(str(advt_packet))
+            
+            try:
+                pkt_fields = advt_packet.icmpv6._all_fields
+                # print(pkt_fields)
+                router_adv = pkt_fields['icmpv6.checksum.status'] 
+                
+                if (router_adv == '1'): 
+                    self._dict_result.update({"obs": f'Router Advertisement CheckSum Status OK: {pkt_fields}; Endereços recebidos: {endereco_ipv6}', 
+                    "result":'passed', 
+                    "Resultado_Probe":"OK"})
+                else:
+                    self._dict_result.update({"obs": f'Router Advertisement CheckSum Status NOK: {pkt_fields}; Endereços recebidos: {endereco_ipv6}'})
+                    break
+            except Exception as e:
+                self._dict_result.update({"obs": str(e)})
+        
+        return self._dict_result
 #####

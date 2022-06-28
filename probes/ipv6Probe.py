@@ -80,6 +80,28 @@ class Ipv6:
 
         return hgu.dhcpv6_dhclient_no_avail(flask_username)
 
+
+ #185
+    def router_solicitation(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "ipv6", 
+                       "ProbeName": "Mensagens de Router Solicitation na Lan", 
+                       "Probe#": "185", 
+                       "Description": "Mensagens de Router Solicitation na Lan"}
+
+        hgu = HGUModelFactory.getHGU(probe='wireSharkProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+
+
+        return hgu.router_solicitation(flask_username)
+
     #190 - Fora do escopo
     # def accessCaixa(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
     #     driver = WebDriver.get_driver()
