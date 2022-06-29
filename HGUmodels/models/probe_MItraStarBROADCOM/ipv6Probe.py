@@ -1,4 +1,5 @@
 # import re
+import signal
 from socket import timeout
 import time
 # from datetime import datetime
@@ -219,13 +220,22 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
 
     # 230
     def iPerf2PCsClientServer_230(self, flask_username,  ipv_x, dhcpv6):
-        # self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
-        # self.login_support()
-        # time.sleep(3)
+        
+        # Verifica nome da rede wifi e senha
+        # self._driver.get('http://' + self._address_ip + '/')
+        # self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+        # time.sleep(1)
+        # self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[3]/a').click()
+        # time.sleep(1)
+        # self.login_admin()
+        # wifi_network = self._driver.find_element_by_id("txtSsid").get_attribute('value')
+        # senha = self._driver.find_element_by_id("txtPassword").get_attribute('value')
+        # self._driver.quit()
+
         # self.ipv_x_setting(ipv_x)
         # self.dhcp_v6(dhcpv6_state = dhcpv6)
         # self.eth_interfaces_down()
-        
+
         # Encontra o ip da maquina local:
         network = '.'.join(self._address_ip.split('.')[:3])
         ip_maq = os.popen(f'ifconfig | grep {network}').read().strip(' ').split(' ')[1]
@@ -237,60 +247,109 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
             ips = [ip.split(' ')[-1].strip(' \n()') for ip in ips if network in ip]
             ip_remoto_list = []
             for ip in ips:
-                if ip != ip_maq and ip != network+'.1' and ip != network+'.100' and ip != network+'.230':
+                if ip != ip_maq and int(ip.split('.')[3]) > 1 and int(ip.split('.')[3]) < 100:
                     ip_remoto_list.append(ip)
             print(ip_remoto_list)
         except Exception as e:
             print(e)
 
+
         # Conecta com a maquina remota via ssh e configura como server do IPerf
-        for ip_remoto in ip_remoto_list:
+        for ip_remoto in ip_remoto_list[::]:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(hostname=ip_remoto, username='automacao', password='4ut0m4c40', timeout=2)
                 teste = ssh.invoke_shell()
+                
+                # Reset da interface evita problemas de erros na conexão
+                # teste.send('echo 4ut0m4c40 | sudo -S usb-reset 0bda:c811\n')
+                # teste.recv(65000).decode('utf-8')
+                # print('reiniciando interface usb')
+                # time.sleep(40)
+                
+                # Conexão no wifi da máquina Aux
+                # teste.send(f'echo 4ut0m4c40 | sudo -S nmcli dev wifi conn "{wifi_network}" password "{senha}"  \n')
+                # time.sleep(1)
+                # teste.recv(65000).decode('utf-8')
+                # print('conectando na interface wifi')
+                # time.sleep(30)
+                # con_wifi_status = teste.recv(65000).decode('utf-8')
+                # # print("\n"*20, con_wifi_status)
+                # interface_wifi = con_wifi_status.split(" ")[1].strip('“"” ')
+                # # print("\n"*20, interface_wifi)
+                # teste.send(f'ifconfig {interface_wifi} \n')
+                # time.sleep(1)
+                # ip_wifi = teste.recv(65000).decode('utf-8')
+                # ip_wifi = ip_wifi.split("\n")[2].strip(' ').split(' ')[1]
+                # print("\n", ip_wifi)
+
                 teste.send('iperf3 -s \n')
                 time.sleep(2)
                 output = teste.recv(65000).decode('utf-8')
-                print(ip_remoto)
+                # print(ip_wifi)
                 print(output)
                 break
             except Exception as e:
                 print(e)
                 continue
         else:
-            print(e)
             self._dict_result.update({"obs": f'Falha na Conexao ssh com {ip_remoto}: verifique as configuracoes de usuario, senha e firewall'})
             return self._dict_result  
 
         # Executa o teste IPerf como cliente
         try:
-            client = iperf3.Client()
-            client.server_hostname = ip_remoto
-            client.protocol = 'tcp'
-            resultado = client.run()
-            print(resultado.error)
-            if resultado.error == None:
-                self._dict_result.update({"obs": f'IPerf: Cliente local -> Server remoto realizado com sucesso. Transmissao {resultado.sent_Mbps:.2f} Mbps; Recepcao {resultado.received_Mbps:.2f} Mbps', "result":'passed', "Resultado_Probe":"OK"})
+            # client = iperf3.Client()
+            # client.server_hostname = ip_wifi
+            # client.protocol = 'tcp'
+            # resultado = client.run()
+           
+            resultado = os.popen(f'iperf3 -c {ip_remoto}')
+            time.sleep(12)
+            # print(resultado.error)
+            # output = teste.recv(65000).decode('utf-8')
+    #             print("\n", output)
+            saida = resultado.read()
+            print(saida)
+            resultado = saida.split('\n')[-2].strip(' ')
+            if 'iperf Done.' in resultado:
+                sender = ' '.join(saida.split('\n')[-5].split(' ')[12:14])
+                receiver = ' '.join(saida.split('\n')[-4].split(' ')[12:14])
+                self._dict_result.update({"obs": f'IPerf: Server local -> Client remoto realizado com sucesso. Transmissao {sender}; Recepcao {receiver}', "result":'passed', "Resultado_Probe":"OK"})
             else:
-                self._dict_result.update({"obs": f'Falha na Conexao: Cliente Iperf - Server , erro: {resultado.error}'})
+                self._dict_result.update({"obs": f'Falha na Conexao: Server -> Cliente'}) 
+            # if resultado.error == None:
+            #     self._dict_result.update({"obs": f'IPerf: Cliente local -> Server remoto realizado com sucesso. Transmissao {resultado.sent_Mbps:.2f} Mbps; Recepcao {resultado.received_Mbps:.2f} Mbps', "result":'passed', "Resultado_Probe":"OK"})
+            # else:
+            #     self._dict_result.update({"obs": f'Falha na Conexao: Cliente Iperf - Server , erro: {resultado.error}'})
         except:
             self._dict_result.update({"obs": f'Falha no teste Iperf'})
         finally:
             # self.eth_interfaces_up()
             # self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
             # self.dhcp_v6(True)
+            # print(teste.recv(65000).decode('utf-8'))
+            teste.send(chr(3))
+            # teste.send(f'echo 4ut0m4c40 | sudo -S nmcli conn delete {wifi_network} \n')
+            time.sleep(2)
+            # resultado.close()
+
             ssh.close()
-            self._driver.quit()
-            return self._dict_result          
+            
+            return self._dict_result      
 
 
-    # 231
+    # # 231
     def iPerf2PCsServerClient_231(self, flask_username,  ipv_x, dhcpv6):
-        # self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
-        # self.login_support()
-        # time.sleep(3)
+        # self._driver.get('http://' + self._address_ip + '/')
+        # self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+        # time.sleep(1)
+        # self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[3]/a').click()
+        # time.sleep(1)
+        # self.login_admin()
+        # wifi_network = self._driver.find_element_by_id("txtSsid").get_attribute('value')
+        # senha = self._driver.find_element_by_id("txtPassword").get_attribute('value')
+        # self._driver.quit()
         # self.ipv_x_setting(ipv_x)
         # self.dhcp_v6(dhcpv6_state = dhcpv6)
         # self.eth_interfaces_down()
@@ -306,7 +365,7 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
             ips = [ip.split(' ')[-1].strip(' \n()') for ip in ips if network in ip]
             ip_remoto_list = []
             for ip in ips:
-                if ip != ip_maq and ip != network+'.1' and ip != network+'.100' and ip != network+'.230':
+                if ip != ip_maq and int(ip.split('.')[3]) > 1 and int(ip.split('.')[3]) < 100:
                     ip_remoto_list.append(ip)
             print(ip_remoto_list)
         except Exception as e:
@@ -316,16 +375,38 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
         iperf_server = subprocess.Popen('iperf3 -s', shell=True)
         
         # Inicia o Iperf como cliente na maquina remota e executa o teste
-        for ip_remoto in ip_remoto_list:
+        for ip_remoto in ip_remoto_list[::]:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(hostname=ip_remoto, username='automacao', password='4ut0m4c40', timeout=2)
                 teste = ssh.invoke_shell()
-                teste.send(f'iperf3 -c {ip_maq} \n')
+
+                # Reset da interface evita problemas de erros na conexão
+                # teste.send('echo 4ut0m4c40 | sudo -S usb-reset 0bda:c811\n')
+                # teste.recv(65000).decode('utf-8')
+                # print('reiniciando interface usb')
+                # time.sleep(40)
+                
+                # teste.send(f'echo 4ut0m4c40 | sudo -S nmcli dev wifi conn "{wifi_network}" password "{senha}"  \n')
+                # time.sleep(1)
+                # teste.recv(65000).decode('utf-8')
+                # print('conectando na interface wifi')
+                # time.sleep(30)
+                # con_wifi_status = teste.recv(65000).decode('utf-8')
+                # # print("\n"*20, con_wifi_status)
+                # interface_wifi = con_wifi_status.split(" ")[1].strip('“"” ')
+                # # print("\n"*20, interface_wifi)
+                # teste.send(f'ifconfig {interface_wifi} \n')
+                # time.sleep(1)
+                # ip_wifi = teste.recv(65000).decode('utf-8')
+                # ip_wifi = ip_wifi.split("\n")[2].strip(' ').split(' ')[1]
+                # print("\n", ip_wifi)
+                
+                teste.send(f'iperf3 -c {ip_maq} -B {ip_remoto} \n')
                 time.sleep(12)
                 output = teste.recv(65000).decode('utf-8')
-                print(output)
+                print("\n", output)
                 resultado = output.split('\n')[-2].strip(' ')
                 if 'iperf Done.' in resultado:
                     sender = ' '.join(output.split('\n')[-5].split(' ')[12:14])
@@ -338,102 +419,188 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
                 print(e)
                 continue
         else:
-            print(e)
             self._dict_result.update({"obs": f'Falha na Conexao ssh com {ip_remoto}: verifique as configuracoes de usuario, senha e firewall'})
             return self._dict_result 
 
         # self.eth_interfaces_up()
         # self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
         # self.dhcp_v6(True)   
+        teste.send(chr(3))
+        # teste.send(f'echo 4ut0m4c40 | sudo -S nmcli conn delete {wifi_network} \n')
+        time.sleep(2)
         ssh.close()
         self._driver.quit()
         iperf_server.terminate()
         return self._dict_result 
 
 
-    # 255
+    # # 255
     def iPerf2PCsClientServerIpv6_255(self, flask_username,  ipv_x, dhcpv6):
-        self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
-        self.login_support()
-        time.sleep(3)
-        self.ipv_x_setting(ipv_x)
-        # self.dhcp_v6(dhcpv6_state = dhcpv6)
-        # self.eth_interfaces_down()
+    #     self._driver.get('http://' + self._address_ip + '/')
+    #     self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+    #     time.sleep(1)
+    #     self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[3]/a').click()
+    #     time.sleep(1)
+    #     self.login_admin()
+    #     wifi_network = self._driver.find_element_by_id("txtSsid").get_attribute('value')
+    #     senha = self._driver.find_element_by_id("txtPassword").get_attribute('value')
+        self._driver.quit()
+    #     # self.ipv_x_setting(ipv_x)
+    #     # self.dhcp_v6(dhcpv6_state = dhcpv6)
         
-        # Encontra o ip da maquina local:
+        
+    #     # Encontra o ip da maquina local:
         network = '.'.join(self._address_ip.split('.')[:3])
         ip_maq = os.popen(f'ifconfig | grep {network}').read().strip(' ').split(' ')[1]
         print(ip_maq)
         
-        # Encontra o ip da maquina remota
+    #     # Encontra o ip da maquina remota
         try:
             ips = os.popen(f'nmap -sP {self._address_ip}/24').readlines()
             ips = [ip.split(' ')[-1].strip(' \n()') for ip in ips if network in ip]
             ip_remoto_list = []
             for ip in ips:
-                if ip != ip_maq and ip != network+'.1' and ip != network+'.100' and ip != network+'.230':
+                if ip != ip_maq and int(ip.split('.')[3]) > 1 and int(ip.split('.')[3]) < 100:
                     ip_remoto_list.append(ip)
             print(ip_remoto_list)
         except Exception as e:
             print(e)
 
-        # Conecta com a maquina remota via ssh e configura como server do IPerf
-        for ip_remoto in ip_remoto_list:
+
+    #     # Conecta com a maquina remota via ssh e configura como server do IPerf
+        for ip_remoto in ip_remoto_list[::]:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(hostname=ip_remoto, username='automacao', password='4ut0m4c40', timeout=2)
                 teste = ssh.invoke_shell()
+                teste.recv(65000).decode('utf-8')
+    #             # Reset da interface evita problemas de erros na conexão
+    #             teste.send('echo 4ut0m4c40 | sudo -S usb-reset 0bda:c811\n')
+    #             teste.recv(65000).decode('utf-8')
+    #             print('reiniciando interface usb')
+    #             time.sleep(40)
+                
+    #             teste.send(f'echo 4ut0m4c40 | sudo -S nmcli dev wifi conn "{wifi_network}" password "{senha}"  \n')
+    #             time.sleep(1)
+    #             teste.recv(65000).decode('utf-8')
+    #             print('conectando na interface wifi')
+    #             time.sleep(30)
+    #             con_wifi_status = teste.recv(65000).decode('utf-8')
+    #             # print("\n"*20, con_wifi_status)
+    #             interface_wifi = con_wifi_status.split(" ")[1].strip('“"” ')
+    #             # print("\n"*20, interface_wifi)
+    #             teste.send(f'ifconfig {interface_wifi} \n')
+    #             time.sleep(1)
+    #             ip_wifi = teste.recv(65000).decode('utf-8')
+    #             ip_wifi = ip_wifi.split("\n")[2].strip(' ').split(' ')[1]
+    #             print("\n", ip_wifi)
+
+                # Encontra o ipv6 da maquina remota:
+                teste.send('ifconfig \n')
+                time.sleep(2)
+                output = teste.recv(65000).decode('utf-8')
+                # print('\n'*10, output.lstrip('ifconfig \r\nautomacao@automacao-Aux:~$ ifconfig \r\n'))
+                # print('\n'*10, output.split('\r\n'))
+                interfaces = [interface.split('\n') for interface in output.lstrip('ifconfig \r\nautomacao@automacao-Aux:~$ ifconfig \r\n').split('\r\n\r\n') if interface.startswith("ens")]
+                print('\n'*10, interfaces)
+                for interface in interfaces:
+                    if any([ip_remoto in address for address in interface]):
+                        if_name = interface[0].split(':')[0]
+                        print(if_name)
+                teste.send(f'ip addr show {if_name} \n')
+  
+                time.sleep(2)
+                inet6_raw = teste.recv(65000).decode('utf-8')
+                print('\n'*10, inet6_raw)
+                for inet6 in inet6_raw.split('\n'):
+                    if inet6.strip(' ').startswith('inet6'):
+                        ip6_remoto = inet6.strip(' ').split(' ')[1].split('/')[0]
+                        print('\n'*10, ip6_remoto)
+                        break
+
                 teste.send('iperf3 -s \n')
                 time.sleep(2)
                 output = teste.recv(65000).decode('utf-8')
-                print(ip_remoto)
-                print(output)
+                # print(ip_remoto)
+                # print(output)
                 break
             except Exception as e:
                 print(e)
                 continue
         else:
-            print(e)
             self._dict_result.update({"obs": f'Falha na Conexao ssh com {ip_remoto}: verifique as configuracoes de usuario, senha e firewall'})
             return self._dict_result  
 
+
         # Executa o teste IPerf como cliente
         try:
-            client = iperf3.Client()
-            client.server_hostname = ip_remoto
-            client.protocol = 'tcp'
-            resultado = client.run()
-            print(resultado.error)
-            if resultado.error == None:
-                self._dict_result.update({"obs": f'IPerf: Cliente local -> Server remoto realizado com sucesso. Transmissao {resultado.sent_Mbps:.2f} Mbps; Recepcao {resultado.received_Mbps:.2f} Mbps', "result":'passed', "Resultado_Probe":"OK"})
+            # client = iperf3.Client()
+            # client.server_hostname = ip_wifi
+            # client.protocol = 'tcp'
+            # resultado = client.run()
+
+
+   
+            print(f"ping {ip6_remoto}")
+            ping = subprocess.Popen(f'ping6 {ip6_remoto}', shell=True, preexec_fn=os.setsid)
+            time.sleep(3)
+            os.killpg(os.getpgid(ping.pid), signal.SIGTERM)
+            time.sleep(1)
+            print("iniciando cliente")
+            # time.sleep(1000)
+            resultado = os.popen(f'iperf3 --connect-timeout 5000 -c {ip6_remoto}')
+            time.sleep(12)
+            # print(resultado.error)
+            # output = teste.recv(65000).decode('utf-8')
+    #             print("\n", output)
+            saida = resultado.read()
+            print(saida)
+            resultado = saida.split('\n')[-2].strip(' ')
+            if 'iperf Done.' in resultado:
+                sender = ' '.join(saida.split('\n')[-5].split(' ')[12:14])
+                receiver = ' '.join(saida.split('\n')[-4].split(' ')[12:14])
+                self._dict_result.update({"obs": f'IPerf: Server local -> Client remoto realizado com sucesso. Transmissao {sender}; Recepcao {receiver}', "result":'passed', "Resultado_Probe":"OK"})
             else:
-                self._dict_result.update({"obs": f'Falha na Conexao: Cliente Iperf - Server , erro: {resultado.error}'})
+                self._dict_result.update({"obs": f'Falha na Conexao: Server -> Cliente'}) 
+            # if resultado.error == None:
+            #     self._dict_result.update({"obs": f'IPerf: Cliente local -> Server remoto realizado com sucesso. Transmissao {resultado.sent_Mbps:.2f} Mbps; Recepcao {resultado.received_Mbps:.2f} Mbps', "result":'passed', "Resultado_Probe":"OK"})
+            # else:
+            #     self._dict_result.update({"obs": f'Falha na Conexao: Cliente Iperf - Server , erro: {resultado.error}'})
         except:
             self._dict_result.update({"obs": f'Falha no teste Iperf'})
         finally:
             # self.eth_interfaces_up()
-            self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
+            # self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
             # self.dhcp_v6(True)
+            # print(teste.recv(65000).decode('utf-8'))
+            teste.send(chr(3))
+            # teste.send(f'echo 4ut0m4c40 | sudo -S nmcli conn delete {wifi_network} \n')
+            time.sleep(2)
+            # resultado.close()
             ssh.close()
-            self._driver.quit()
-            return self._dict_result      
+            
+            return self._dict_result   
 
 
-   # 256
+    # # 256
     def iPerf2PCsServerClientIpv6_256(self, flask_username,  ipv_x, dhcpv6):
-        # self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
-        # self.login_support()
-        # time.sleep(3)
-        # self.ipv_x_setting(ipv_x)
-        # self.dhcp_v6(dhcpv6_state = dhcpv6)
-        # self.eth_interfaces_down()
+    #     self._driver.get('http://' + self._address_ip + '/')
+    #     self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+    #     time.sleep(1)
+    #     self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[3]/a').click()
+    #     time.sleep(1)
+    #     self.login_admin()
+    #     wifi_network = self._driver.find_element_by_id("txtSsid").get_attribute('value')
+    #     senha = self._driver.find_element_by_id("txtPassword").get_attribute('value')
+    #     self._driver.quit()
         
-        # Encontra o ipv6 da maquina local:
+    #     # Encontra o ipv6 da maquina local:
         network = '.'.join(self._address_ip.split('.')[:3])
         ip_maq = os.popen(f'ifconfig | grep {network}').read().strip(' ').split(' ')[1]
         print(ip_maq)
         interfaces = [interface.split('\n') for interface in os.popen('ifconfig').read().split('\n\n') if interface.startswith("ens")]
+        # print('\n'*10, interfaces)
         for interface in interfaces:
             if any([ip_maq in address for address in interface]):
                 if_name = interface[0].split(':')[0]
@@ -445,33 +612,56 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
                 print(ip6_maq)
                 break
            
-        # Encontra o ip da maquina remota
+    #     # Encontra o ip da maquina remota
         try:
             ips = os.popen(f'nmap -sP {self._address_ip}/24').readlines()
             ips = [ip.split(' ')[-1].strip(' \n()') for ip in ips if network in ip]
             ip_remoto_list = []
             for ip in ips:
-                if ip != ip_maq and ip != network+'.1' and ip != network+'.100' and ip != network+'.230':
+                if ip != ip_maq and int(ip.split('.')[3]) > 1 and int(ip.split('.')[3]) < 100:
                     ip_remoto_list.append(ip)
             print(ip_remoto_list)
         except Exception as e:
             print(e)
 
-        # Inicia o Iperf como server na maquina local
+    #     # Inicia o Iperf como server na maquina local
         iperf_server = subprocess.Popen('iperf3 -s', shell=True)
         
-        # Inicia o Iperf como cliente na maquina remota e executa o teste
-        for ip_remoto in ip_remoto_list:
+    #     # Inicia o Iperf como cliente na maquina remota e executa o teste
+        for ip_remoto in ip_remoto_list[::]:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(hostname=ip_remoto, username='automacao', password='4ut0m4c40', timeout=2)
                 teste = ssh.invoke_shell()
+
+    #             # Reset da interface evita problemas de erros na conexão
+    #             teste.send('echo 4ut0m4c40 | sudo -S usb-reset 0bda:c811\n')
+    #             teste.recv(65000).decode('utf-8')
+    #             print('reiniciando interface usb')
+    #             time.sleep(40)
+                
+    #             teste.send(f'echo 4ut0m4c40 | sudo -S nmcli dev wifi conn "{wifi_network}" password "{senha}"  \n')
+    #             time.sleep(1)
+    #             teste.recv(65000).decode('utf-8')
+    #             print('conectando na interface wifi')
+    #             time.sleep(30)
+    #             con_wifi_status = teste.recv(65000).decode('utf-8')
+    #             # print("\n"*20, con_wifi_status)
+    #             interface_wifi = con_wifi_status.split(" ")[1].strip('“"” ')
+    #             # print("\n"*20, interface_wifi)
+    #             teste.send(f'ifconfig {interface_wifi} \n')
+    #             time.sleep(1)
+    #             ip_wifi = teste.recv(65000).decode('utf-8')
+    #             print(ip_wifi)
+    #             ip_wifi = ip_wifi.split("\n")[3].strip(' ').split(' ')[1]
+    #             print("\n", ip_wifi)
+                
                 teste.send(f'ping -6 {ip6_maq} \n')
                 time.sleep(3)
                 teste.send(chr(3))
                 time.sleep(1)
-                teste.send(f'iperf3 -6 -c {ip6_maq} \n')
+                teste.send(f'iperf3 -6 --connect-timeout 5000 -c {ip6_maq} \n') #-B {ip_remoto} \n')
                 time.sleep(12)
                 output = teste.recv(65000).decode('utf-8')
                 print(output)
@@ -487,14 +677,16 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
                 print(e)
                 continue
         else:
-            print(e)
             self._dict_result.update({"obs": f'Falha na Conexao ssh com {ip_remoto}: verifique as configuracoes de usuario, senha e firewall'})
             return self._dict_result 
 
         # self.eth_interfaces_up()
         # self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
-        # self.dhcp_v6(True)   
+        # self.dhcp_v6(True)  
+        teste.send(chr(3))
+        # teste.send(f'echo 4ut0m4c40 | sudo -S nmcli conn delete {wifi_network} \n')
+        time.sleep(2)
         ssh.close()
         self._driver.quit()
-        iperf_server.terminate()
+        iperf_server.terminate() 
         return self._dict_result 
