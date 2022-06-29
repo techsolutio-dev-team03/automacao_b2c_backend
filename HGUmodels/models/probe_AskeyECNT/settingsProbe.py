@@ -69,12 +69,24 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             self.update_global_result_memory(flask_username, 'accessWizard_401', dict_saida)
             return self._dict_result
 
-    '''
-    Teste 402 e igual ao 401
-    ''' 
 
-    def accessPadrao_403(self):
+    def testPasswordAdmin_402(self, flask_username):
+        result = session.get_result_from_test(flask_username, 'accessWizard_401')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 401 primeiro'})
+        else:
+            res = result['Resultado_Probe']
+            if res == 'OK':
+                self._dict_result.update({"Resultado_Probe": "OK", 'result':'passed', 'obs': 'Password OK'})
+            else:
+                self._dict_result.update({'obs': 'Password incorreta'})
+
+        return self._dict_result 
+
+
+    def accessPadrao_403(self, flask_username):
         try:
+            dict_saida = {}
             self._driver.get('http://' + self._address_ip + '/padrao')
             user_input = self._driver.find_element_by_id('txtUser')
             user_input.send_keys(self._username)
@@ -86,15 +98,28 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             self._driver.switch_to.frame('mainFrm')
             self._driver.find_element_by_xpath('//*[@id="tbGPONinfo"]')
             self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": 'Login efetuado com sucesso'})
+            dict_saida = {'Resultado_Probe':self._dict_result['Resultado_Probe']}
         except (InvalidSelectorException, NoSuchElementException, NoSuchFrameException) as exception:
             self._dict_result.update({"obs": 'Nao foi possivel realizar o login com sucesso'})
         finally:
             self._driver.quit()
+            self.update_global_result_memory(flask_username, 'accessPadrao_403', dict_saida)
             return self._dict_result
 
-    '''
-    Teste 404 e igual ao 403
-    ''' 
+
+    def testPasswordSupport_404(self, flask_username):
+        result = session.get_result_from_test(flask_username, 'accessPadrao_403')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 403 primeiro'})
+        else:
+            res = result['Resultado_Probe']
+            if res == 'OK':
+                self._dict_result.update({"Resultado_Probe": "OK", 'result':'passed', 'obs': 'Password OK'})
+            else:
+                self._dict_result.update({'obs': 'Password incorreta'})
+
+        return self._dict_result
+
 
     def accessRemoteHttp_405(self, flask_username):
 
@@ -456,11 +481,10 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
                         self._dict_result.update({'result':'failed',"obs":"GPV == None"})
                         return self._dict_result
                 else:
-                    self._dict_result.update({'result':'failed',"obs":"nbiRH.msgTagExecution_02 != EXECUTED"})
-                    return self._dict_result   
+                    self._dict_result.update({"obs":"nbiRH.msgTagExecution_02 != EXECUTED"})
         except Exception as exception:
-            self._dict_result.update({'result':'failed',"obs":str(exception)})
-            return self._dict_result
+            self._dict_result.update({"obs":str(exception)})
+        return self._dict_result
 
 
     def periodicInformEnable_415(self, flask_username):
@@ -503,10 +527,10 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
                 if port_cr_value == '7547':
                     self._dict_result.update({"obs": None, "result":'passed', "Resultado_Probe": "OK"})
                     return self._dict_result
-            self._dict_result.update({"obs": "port_cr_value != '7547'", "result":'failed'})
+            self._dict_result.update({"obs": "port_cr_value != '7547'"})
             return self._dict_result
         elif gpv_probe == 'NOK':
-            self._dict_result.update({"obs": "Teste 414 GPV_OneObjct Falhou!", "result":'failed'})
+            self._dict_result.update({"obs": "Teste 414 GPV_OneObjct Falhou!"})
             return self._dict_result
 
 
@@ -540,8 +564,8 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     def checkWanInterface_420(self, flask_username):
-
         try:
+
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
             self._driver.switch_to.frame('menuFrm')
@@ -549,34 +573,33 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             time.sleep(1)
             self._driver.switch_to.parent_frame()  ## é necessario voltar um nivel na hierarquia para encontrar o elemento
             self._driver.switch_to.frame('mainFrm')
-
             header_list = [header.text for header in self._driver.find_elements_by_xpath('//*[@id="WanIPIntfList"]/table/thead/tr/th')]
             number_cols = len(header_list)
 
             table_flat = self._driver.find_elements_by_xpath('//*[@id="WanIPIntfList"]/table/tbody/tr/td')
 
             table = chunks(table_flat, number_cols)
-
             dict_saida420 = {}
             for i, row in enumerate(table):
                 # d = {col:row[j].text for (j,col) in enumerate(header_list[3:-1], start=3)}
                 d = {col:row[j].text for (j,col) in enumerate(header_list)}
                 dict_saida420.update({f'index_{i}':d})
                 
-            self._driver.quit()
-
+            
             for k, item in dict_saida420.items():
                 cpe_config = config_collection.find_one()
-                if item['Type'] == 'PPPoE' and item['VLAN'] == '10' and cpe_config['REDE'] == 'VIVO_1': 
-                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "Type: PPPoE | VLAN: 10", "result":"passed"})
-                    break
-            else:
-                self._dict_result.update({"obs": f"Teste incorreto, retorno: Type:{item['Type']}, VLAN:{item['VLAN']}, REDE:{cpe_config['REDE']}"})
+                if cpe_config['REDE'] == 'VIVO_1':
+                    if item['Type'] == 'PPPoE' and item['VLAN'] == '10': 
+                        self._dict_result.update({"Resultado_Probe": "OK", "obs": "Type: PPPoE | VLAN: 10", "result":"passed"})
+                        break
+                    else:
+                        self._dict_result.update({"obs": f"Teste incorreto, retorno: Type:{item['Type']}, VLAN:{item['VLAN']}"})
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']}"})
 
         except Exception as exception:
             self._dict_result.update({"obs": exception})
         finally:
-            self._dict_result.update({'dict_saida': dict_saida420})
+            self._driver.quit()
             self.update_global_result_memory(flask_username, 'checkWanInterface_420', dict_saida420)
             return self._dict_result
 
@@ -3096,11 +3119,11 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             result2 = session.get_result_from_test(flask_username, 'checkNatSettings_423')
 
         except KeyError as exception:
-            self._dict_result.update({"obs": 'Execute o teste 420 primeiro'})
-            self._dict_result.update({"obs": 'Execute o teste 423 primeiro'})
+            self._dict_result.update({"obs": 'Execute o teste 420 e 423 primeiro'})
 
         else:
             cpe_config = config_collection.find_one()
+            obs_result1 = 'ipNotFound'
             if cpe_config['REDE'] == 'VIVO_1':
                 for _, sub_dict in result1.items():
                     iface_name = 'ipNotFound'

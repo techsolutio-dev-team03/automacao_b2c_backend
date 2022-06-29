@@ -231,7 +231,26 @@ class gui:
                                      dict_result=dict_result)
         return hgu.accessWizard_401(flask_username)
 
-    
+    #402
+    def testPasswordAdmin(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "gui", 
+                       "ProbeName": "testPasswordAdmin", 
+                       "Probe#": "78", 
+                       "Description": "Acessar página padrão "}
+
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.testPasswordAdmin_402(flask_username)
+
+
     #373
     def accessWizard_2(self, ip, username, password, flask_username, model_name, **kwargs): 
         dict_result = {'result':'failed', 
@@ -1532,7 +1551,7 @@ class gui:
 
 
     #403
-    def accessPadrao(self, ip, username, password, model_name, **kwargs): ### TUDO OK
+    def accessPadrao(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
         
         driver = WebDriver.get_driver()
 
@@ -1551,7 +1570,27 @@ class gui:
                                      password=password, 
                                      driver=driver, 
                                      dict_result=dict_result)
-        return hgu.accessPadrao_403()
+        return hgu.accessPadrao_403(flask_username)
+
+    #404
+    def testPasswordSupport(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+        
+
+        dict_result = {'result':'failed', 
+                       'obs': None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "gui", 
+                       "ProbeName": "testPasswordSupport", 
+                       "Probe#": "79", 
+                       "Description": "Acessar página padrão "}
+                       
+        hgu = HGUModelFactory.getHGU(probe='settingsProbe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+        return hgu.testPasswordSupport_404(flask_username)
 
 
     def getFullConfigPadrao(self,ip, username, password):
