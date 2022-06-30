@@ -5095,7 +5095,8 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
     
     def checkSNMP_496(self, flask_username):
         self._driver.quit()
-        return self._dict_result.update({"obs": TEST_NOT_IMPLEMENTED_WARNING})
+        self._dict_result.update({"obs": TEST_NOT_IMPLEMENTED_WARNING})
+        return self._dict_result
         
 
     def checkUPnP_497(self, flask_username):
