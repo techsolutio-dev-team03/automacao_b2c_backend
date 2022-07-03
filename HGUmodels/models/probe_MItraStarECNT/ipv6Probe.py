@@ -252,7 +252,7 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
         # self.login_admin()
         # wifi_network = self._driver.find_element_by_id("txtSsid").get_attribute('value')
         # senha = self._driver.find_element_by_id("txtPassword").get_attribute('value')
-        # self._driver.quit()
+        self._driver.quit()
 
         # self.ipv_x_setting(ipv_x)
         # self.dhcp_v6(dhcpv6_state = dhcpv6)
@@ -371,7 +371,7 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
         # self.login_admin()
         # wifi_network = self._driver.find_element_by_id("txtSsid").get_attribute('value')
         # senha = self._driver.find_element_by_id("txtPassword").get_attribute('value')
-        # self._driver.quit()
+        self._driver.quit()
         # self.ipv_x_setting(ipv_x)
         # self.dhcp_v6(dhcpv6_state = dhcpv6)
         # self.eth_interfaces_down()
@@ -451,7 +451,7 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
         # teste.send(f'echo 4ut0m4c40 | sudo -S nmcli conn delete {wifi_network} \n')
         time.sleep(2)
         ssh.close()
-        self._driver.quit()
+     
         iperf_server.terminate()
         return self._dict_result 
 
@@ -614,7 +614,7 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
     #     self.login_admin()
     #     wifi_network = self._driver.find_element_by_id("txtSsid").get_attribute('value')
     #     senha = self._driver.find_element_by_id("txtPassword").get_attribute('value')
-    #     self._driver.quit()
+        self._driver.quit()
         
     #     # Encontra o ipv6 da maquina local:
         network = '.'.join(self._address_ip.split('.')[:3])
@@ -707,6 +707,6 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
         # teste.send(f'echo 4ut0m4c40 | sudo -S nmcli conn delete {wifi_network} \n')
         time.sleep(2)
         ssh.close()
-        self._driver.quit()
+   
         iperf_server.terminate() 
         return self._dict_result 
