@@ -18,10 +18,8 @@ class HGU_MItraStarBROADCOM(HGUModelInterface):
         login_button = self._driver.find_element_by_xpath('/html/body/div[2]/div/div/div[3]/form/div[3]/input[4]')
         login_button.click()
         time.sleep(5)
+        if self._driver.find_element_by_xpath('//*[@id="user"]'): self.login_support()
         
-
-
-
 
     # def open_change_password_mitraStar(self):
     #     time.sleep(10)

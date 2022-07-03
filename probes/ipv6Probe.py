@@ -99,8 +99,29 @@ class Ipv6:
                                      password=password, 
                                      dict_result=dict_result)
 
-
         return hgu.router_solicitation(flask_username)
+
+
+    #186
+    def connect_ipv4_ipv6(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
+
+        dict_result = {'result':'failed', 
+                       'obs':None, 
+                       "Resultado_Probe": "NOK", 
+                       "ControllerName": "ipv6", 
+                       "ProbeName": "Conectividade IPv4 e IPv6", 
+                       "Probe#": "186", 
+                       "Description": "Verifica conectividade após conectar e desconectar o cabo de rede 20 vezes"}
+
+        hgu = HGUModelFactory.getHGU(probe='ipv6Probe',
+                                     address_ip=ip, 
+                                     model_name=model_name, 
+                                     username=username, 
+                                     password=password, 
+                                     dict_result=dict_result)
+
+
+        return hgu.connect_ipv4_ipv6_186(flask_username)
 
     #190 - Fora do escopo
     # def accessCaixa(self, ip, username, password, flask_username, model_name, **kwargs): ### TUDO OK
