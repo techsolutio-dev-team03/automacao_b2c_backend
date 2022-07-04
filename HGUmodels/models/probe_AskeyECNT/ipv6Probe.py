@@ -142,6 +142,40 @@ class HGU_AskeyECNT_ipv6Probe(HGU_AskeyECNT):
     #         return self._dict_result
 
 
+    #186
+    def connect_ipv4_ipv6_186(self, flask_username):#, ipv_x, dhcpv6):
+        interface_name = self.get_interface(self._address_ip)
+        print(interface_name)
+
+        for n in range(0,3):
+            print('reiniciando interface')
+            os.system(f'echo 4ut0m4c40 | sudo -S ifconfig {interface_name} down')
+            time.sleep(2)
+            os.system(f'echo 4ut0m4c40 | sudo -S ifconfig {interface_name} up')
+            time.sleep(10)
+            print('interface reiniciada')
+
+            response_ipv6_ip = os.popen(f'ping6 2800:3f0:4001:833::200e -c 10 -I {interface_name}').read()
+            print(response_ipv6_ip)
+            response_ipv6_url = os.popen(f'ping6 ipv6.google.com -c 10 -I {interface_name}').read()
+            print(response_ipv6_url)
+            teste_ipv6 = 'OK' if '10 recebidos' in response_ipv6_ip and '10 recebidos' in response_ipv6_url else 'NOK'
+
+            response_ipv4_ip = os.popen(f'ping 142.250.218.78 -c 10 -I {interface_name}').read()
+            print(response_ipv4_ip)
+            response_ipv4_url = os.popen(f'ping ipv4.google.com -c 10 -I {interface_name}').read()
+            print(response_ipv4_url)
+            teste_ipv4 = 'OK' if '10 recebidos' in response_ipv4_ip and '10 recebidos' in response_ipv4_url else 'NOK'
+                
+            if teste_ipv4 == 'NOK' or teste_ipv6 == 'NOK': break
+        
+        if teste_ipv4 == 'OK' and teste_ipv6 == 'OK':
+            self._dict_result.update({"obs": 'Conectividade IPv4 e IPv6 OK', "result":'passed', "Resultado_Probe":"OK"})
+        else:
+            self._dict_result.update({"obs": f'Falha no teste de conectividade IPv4 = {teste_ipv4} e IPv6 = {teste_ipv6}'})
+        return self._dict_result
+
+
     # 212
     def ipv4DownloadCentOS_212(self, flask_username, ipv_x, dhcpv6):
         self._driver.get('http://' + self._address_ip + '/padrao')

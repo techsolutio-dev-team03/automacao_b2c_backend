@@ -317,7 +317,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     def checkACSSettings_411(self, flask_username):
-                
+        json_saida411 = {}       
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
 
@@ -327,8 +327,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             self._driver.switch_to.frame('menuFrm')
             self._driver.find_element_by_xpath('/html/body/div[5]/div/fieldset/div[1]/a[1]').click()
             self._driver.find_element_by_xpath('/html/body/div[5]/div/fieldset/div[1]/a[1]').text
-            
-
             time.sleep(5)
             self._driver.switch_to.parent_frame()
             self._driver.switch_to.frame('mainFrm')
@@ -336,21 +334,13 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
             tr69_cwmp_valor = self._driver.find_element_by_xpath('/html/body/div/fieldset/form/div[1]/input[1]').get_attribute('checked')
             tr69_cwmp_valor = 'Habilitado' if tr69_cwmp_valor == 'true' else 'Desabilitado'
-
             tr69_acsURL_valor = self._driver.find_element_by_xpath('/html/body/div/fieldset/form/div[2]/input').get_attribute('value')
-
             tr69_acsUsername_valor = self._driver.find_element_by_xpath('/html/body/div/fieldset/form/div[3]/input').get_attribute('value')
-
             tr69_acsPassword_valor = self._driver.find_element_by_xpath('/html/body/div/fieldset/form/div[4]/input').get_attribute('value')
-
             tr69_acsPII_valor = self._driver.find_element_by_xpath('/html/body/div/fieldset/form/div[5]/input').get_attribute('value')
-
             tr69_acsPII_interval_valor = self._driver.find_element_by_xpath('/html/body/div/fieldset/form/div[6]/input').get_attribute('value')
-
             tr69_connection_request_URL_valor = self._driver.find_element_by_xpath('/html/body/div/fieldset/form/fieldset/div[1]/label[2]').get_attribute('value')
-
             tr69_connection_request_Username_valor = self._driver.find_element_by_xpath('/html/body/div/fieldset/form/fieldset/div[2]/input').get_attribute('value')
-
             tr69_connection_request_Password_valor = self._driver.find_element_by_xpath('/html/body/div/fieldset/form/fieldset/div[3]/input').get_attribute('value')
             json_saida411 = {
                 "tr69_setting":
@@ -370,7 +360,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
                     }
             }
 
-            self._driver.quit()
+            
             acs_url = json_saida411['tr69_setting']['tr69_acsURL']
             if acs_url == 'http://acs.telesp.net.br:7005/cwmpWeb/WGCPEMgt':
                 self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": "ACS URL esta correta"})
@@ -381,7 +371,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             self._dict_result.update({"obs":str(exception)})
         finally:
             self._driver.quit()
-            
             self.update_global_result_memory(flask_username, 'checkACSSettings_411', json_saida411)
             return self._dict_result
 
