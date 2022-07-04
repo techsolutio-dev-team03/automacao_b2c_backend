@@ -1,18 +1,25 @@
 #from asyncio import exceptions
 from cgi import print_form
+import datetime
+import json
 from os import name
 import re
 import time
+import pandas as pd
+
 # import unidecode
 # from jinja2 import pass_context
 #from typing import final
 import paramiko
 from paramiko.ssh_exception import AuthenticationException
 import socket
+
+import requests
+from json import JSONEncoder
 from ..MItraStarECNT import HGU_MItraStarECNT
 from selenium.webdriver.common.action_chains import ActionChains 
 from selenium.webdriver.support.select import Select
-from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException, NoSuchFrameException
+from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException, NoSuchFrameException, ElementNotInteractableException
 from HGUmodels.config import TEST_NOT_IMPLEMENTED_WARNING
 from HGUmodels.utils import chunks
 from daos.mongo_dao import MongoConnSigleton
@@ -72,8 +79,22 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             self.update_global_result_memory(flask_username, 'accessWizard_401', dict_saida)
             return self._dict_result
 
+    def testPasswordAdmin_402(self, flask_username):
+        result = session.get_result_from_test(flask_username, 'accessWizard_401')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 401 primeiro'})
+        else:
+            res = result['Resultado_Probe']
+            if res == 'OK':
+                self._dict_result.update({"Resultado_Probe": "OK", 'result':'passed', 'obs': 'Password OK'})
+            else:
+                self._dict_result.update({'obs': 'Password incorreta'})
 
-    def accessPadrao_403(self):
+        return self._dict_result 
+
+
+
+    def accessPadrao_403(self, flask_username):
 
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
@@ -82,15 +103,34 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
 
             if element:
                 self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": 'Login efetuado com sucesso'})
+                dict_saida = {"Resultado_Probe": "OK"}
+
             else:
                 self._dict_result.update({"obs": "Nao foi possivel realizar o login com sucesso"})
+                dict_saida = {"Resultado_Probe": "NOK"}
 
-            self._driver.quit()
-            return self._dict_result
         except Exception as exception:
-            self._driver.quit()
             self._dict_result.update({'obs':str(exception)})
-            return self._dict_result
+            dict_saida = {"Resultado_Probe": "NOK"}
+
+        self._driver.quit()
+        self.update_global_result_memory(flask_username, 'accessPadrao_403', dict_saida)
+        return self._dict_result
+
+
+    def testPasswordSupport_404(self, flask_username):
+        result = session.get_result_from_test(flask_username, 'accessPadrao_403')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 403 primeiro'})
+        else:
+            res = result['Resultado_Probe']
+            if res == 'OK':
+                self._dict_result.update({"Resultado_Probe": "OK", 'result':'passed', 'obs': 'Password OK'})
+            else:
+                self._dict_result.update({'obs': 'Password incorreta'})
+
+        return self._dict_result
+
 
 
     def accessRemoteHttp_405(self, flask_username):
@@ -371,9 +411,87 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         return self._dict_result
 
 
+    # def GPV_OneObjct_414(self, serialnumber, GPV_Param, IPACS, acsUsername, acsPassword):
+    #     self._dict_result.update({'result':'failed',"obs": TEST_NOT_IMPLEMENTED_WARNING})
+    #     return self._dict_result
+
+
     def GPV_OneObjct_414(self, serialnumber, GPV_Param, IPACS, acsUsername, acsPassword):
-        self._dict_result.update({'result':'failed',"obs": TEST_NOT_IMPLEMENTED_WARNING})
+        #TODO: This function needs refactoring, zeep library not working, test crashing
+        class MyEncoder(JSONEncoder):
+            def default(self, o):
+                return o.__dict__
+        acsPort = 7015
+        objeto = GPV_Param['name']
+
+       
+        try:
+            url = f'http://{IPACS}:{acsPort}/hdm'
+            connTest = requests.post(url, timeout=4)
+
+            if connTest.status_code != 200:
+                self._dict_result.update({'result':'failed',"obs":f'ERROR002-ERRO DE CONECTIVIDADE COM ACS-HDM: {IPACS}:{acsPort}'})
+                return self._dict_result
+            else:
+                ###INICIANDO WEBSERIVCES###
+                #
+                #try:
+                import Setup.ACS.webSDO
+                import Setup.ACS.webRemoteHDM
+                from Setup.ACS import webRemoteHDM
+                from Setup.ACS import webServiceImpl
+                from Setup.ACS import webSDO
+                nbiSDO = webSDO.SDO(IPACS, str(acsPort), acsUsername, acsPassword)
+                nbiRH = webRemoteHDM.NRH(IPACS, str(acsPort), acsUsername, acsPassword)
+                #except Exception as exception:
+                #    print(exception)
+                #    self._dict_result.update({'result':'failed',"obs":'ERROR_003-ERRO AO VALIDAR ARQUIVO WSDL NO SERVIDOR ACS-HDM #(LINE:84)'})
+                #    return self._dict_result
+                #
+                ###BUSCANDO DADOS DO DISPOSITIVO###
+                #
+                tsa = time.time()
+                sta = datetime.fromtimestamp(tsa).strftime('%Y_%m_%d_%HH:%MM:%SS')
+                nbiRH.findDeviceBySerial(serialnumber, acsUsername, acsPassword)
+                if nbiRH.msgTagExecution_02 == 'EXECUTED':
+                    OUI = str(nbiRH.device["OUI"])
+                    productClass = str(nbiRH.device["productClass"])
+                    protocol = str(nbiRH.device["protocol"])
+                    subscriberId = str(nbiRH.device["subscriberId"])
+                    lastContactTime = str(nbiRH.device["lastContactTime"])
+                    softwareVersion = str(nbiRH.device["softwareVersion"])
+                    externalIpAddress = str(nbiRH.device["iPAddressWAN"])
+                    activated = str(nbiRH.device["activated"])
+                    lastActivationTime = pd.Timestamp(str(nbiRH.device["lastActivationTime"])).tz_convert("UTC")
+                    lastActivationTime = lastActivationTime.strftime("%d-%m-%Y %H:%M:%S")
+                    GPV = nbiSDO.getParameterValue(OUI, productClass, protocol, serialnumber, objeto)
+                    if GPV != None:
+                        GPV = json.dumps(GPV, cls=MyEncoder)
+                        GPV_1 = json.loads(GPV)
+                        json_saida = []
+                        for key, value in enumerate(GPV_1):
+                            for chave, valor in value.items():
+                                aux = {
+                                    "name":valor['name'],
+                                    "type":valor['type'],
+                                    "value":valor['value']
+                                }
+                                json_saida.append(aux)
+                        self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', 'obs':json_saida})
+                        return self._dict_result
+                    else:
+                        self._dict_result.update({'result':'failed',"obs":"GPV == None"})
+                        return self._dict_result
+                else:
+                    self._dict_result.update({"obs":"nbiRH.msgTagExecution_02 != EXECUTED"})
+        except Exception as exception:
+            self._dict_result.update({"obs":str(exception)})
         return self._dict_result
+
+
+
+
+
 
     
     def periodicInformEnable_415(self, flask_username):
@@ -404,9 +522,28 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         return self._dict_result
 
 
+    # def connectionRequestPort_417(self, serialnumber, GPV_Param, IPACS, acsUsername, acsPassword):
+    #     self._dict_result.update({'result':'failed',"obs": TEST_NOT_IMPLEMENTED_WARNING})
+    #     return self._dict_result
+
+
     def connectionRequestPort_417(self, serialnumber, GPV_Param, IPACS, acsUsername, acsPassword):
-        self._dict_result.update({'result':'failed',"obs": TEST_NOT_IMPLEMENTED_WARNING})
-        return self._dict_result
+        d = self.GPV_OneObjct_414(serialnumber, GPV_Param, IPACS, acsUsername, acsPassword)
+        
+        gpv_probe = self._dict_result['Resultado_Probe']
+    
+        if gpv_probe == 'OK':
+            gpv_result = self._dict_result['Resultado']
+            for key in gpv_result:
+                port_cr_value = key.get('value').strip('/').split(':')[2]
+                if port_cr_value == '7547':
+                    self._dict_result.update({"obs": None, "result":'passed', "Resultado_Probe": "OK"})
+                    return self._dict_result
+            self._dict_result.update({"obs": "port_cr_value != '7547'"})
+            return self._dict_result
+        elif gpv_probe == 'NOK':
+            self._dict_result.update({"obs": "Teste 414 GPV_OneObjct Falhou!"})
+            return self._dict_result
 
 
     def enableCwmp_418(self, flask_username):
@@ -461,6 +598,7 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             rows_string = [header.text for header in self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div/ul/li/div/table/tbody//tr')]
             time.sleep(3)
             table = [row.split() for row in rows_string]
+            time.sleep(3)
             header_list = table[0]
             header_list.remove('Release')
             header_list = header_list[2:-1]
@@ -471,6 +609,7 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
 
                 d = {col:row[j] for (j,col) in enumerate(header_list)}
                 dict_saida420.update({f'index_{i}':d})
+            time.sleep(3)
             
             print('dict : ',dict_saida420)
             for k, item in dict_saida420.items():
@@ -654,29 +793,81 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
-            time.sleep(1)
+            time.sleep(3)
             dict_saida424 = {}
-
+            time.sleep(3)
             element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="network"]/span[1]')
             hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
+            time.sleep(3)
+
             hover.perform()
+            time.sleep(3)
+
             self._driver.find_element_by_xpath('/html/body/div/div[4]/div[2]/div/ul[1]/li[2]/a').click()
-            time.sleep(1)
+            time.sleep(6)
 
-            for i in range(2,5):
+            self._driver.switch_to.frame('mainFrame')
+            time.sleep(3)
 
-                self._driver.switch_to.frame('mainFrame')
-                time.sleep(1)
-                name =  self._driver.find_element_by_xpath(f'/html/body/div[2]/div/form/div/div/ul/li/div/table/tbody/tr[{i}]/td[3]').text
-                self._driver.find_element_by_xpath(f'/html/body/div[2]/div/form/div/div/ul/li/div/table/tbody/tr[{i}]/td[9]/div/ul/li[1]').click()
-                time.sleep(1)
-                self._driver.switch_to.default_content()
-                self._driver.find_element_by_xpath('/html/body/div[3]/div[2]/form/div[1]/div/ul/li[5]/div/ul/li/input').click()
-                time.sleep(1)
-                multicast = Select(self._driver.find_element_by_xpath('/html/body/div[3]/div[2]/form/div[1]/div/ul/div[4]/li[2]/div[2]/ul[3]/li[2]/select')).first_selected_option.text
-                self._driver.find_element_by_xpath('/html/body/div[3]/div[1]/a/span').click()
-                time.sleep(1)
-                dict_saida424[name] = multicast
+            #1 
+            name =  self._driver.find_element_by_xpath(f'//*[@id="broadband_list"]/table/tbody/tr[2]/td[3]').text
+            self._driver.find_element_by_xpath(f'//*[@id="editBtn"]').click()
+            time.sleep(3)
+            self._driver.switch_to.default_content()
+            self._driver.find_element_by_xpath('/html/body/div[3]/div[2]/form/div[1]/div/ul/li[5]/div/ul/li/input').click()
+            time.sleep(3)
+
+            multicast = Select(self._driver.find_element_by_xpath('/html/body/div[3]/div[2]/form/div[1]/div/ul/div[4]/li[2]/div[2]/ul[3]/li[2]/select')).first_selected_option.text
+
+            time.sleep(3)
+            dict_saida424[name] = multicast
+            print(dict_saida424)
+            time.sleep(2)
+
+            self._driver.find_element_by_xpath('/html/body/div[3]/div[1]/a/span').click()
+
+            time.sleep(5)
+            
+
+            #2 
+            self._driver.switch_to.frame('mainFrame')
+            name =  self._driver.find_element_by_xpath('/html/body/div[2]/div/form/div/div/ul/li/div/table/tbody/tr[3]/td[3]').text
+            time.sleep(2)
+            
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/form/div/div/ul/li/div/table/tbody/tr[3]/td[9]/div/ul/li[1]/a').click()
+            time.sleep(3)
+            self._driver.switch_to.default_content()
+            self._driver.find_element_by_xpath('/html/body/div[3]/div[2]/form/div[1]/div/ul/li[5]/div/ul/li/input').click()
+            time.sleep(3)
+
+            multicast = Select(self._driver.find_element_by_xpath('/html/body/div[3]/div[2]/form/div[1]/div/ul/div[4]/li[2]/div[2]/ul[3]/li[2]/select')).first_selected_option.text
+            
+            time.sleep(3)
+            dict_saida424[name] = multicast
+            print(dict_saida424)
+            time.sleep(2)
+
+            self._driver.find_element_by_xpath('/html/body/div[3]/div[1]/a/span').click()
+
+            time.sleep(2)
+            
+            #3
+            self._driver.switch_to.frame('mainFrame')
+
+            name =  self._driver.find_element_by_xpath(f'/html/body/div[2]/div/form/div/div/ul/li/div/table/tbody/tr[4]/td[3]').text
+            time.sleep(2)
+
+            self._driver.find_element_by_xpath(f'/html/body/div[2]/div/form/div/div/ul/li/div/table/tbody/tr[4]/td[9]/div/ul/li[1]/a').click()
+            time.sleep(3)
+            self._driver.switch_to.default_content()
+            self._driver.find_element_by_xpath('/html/body/div[3]/div[2]/form/div[1]/div/ul/li[5]/div/ul/li/input').click()
+            time.sleep(3)
+
+            multicast = Select(self._driver.find_element_by_xpath('/html/body/div[3]/div[2]/form/div[1]/div/ul/div[4]/li[2]/div[2]/ul[3]/li[2]/select')).first_selected_option.text
+            
+            time.sleep(3)
+            dict_saida424[name] = multicast
+
             
             print(dict_saida424)
             
@@ -688,7 +879,7 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             except:
                 self._dict_result.update({"obs": 'Interface Internet nao existe'})
         
-        except Exception as e:
+        except (Exception, NoSuchElementException, ElementNotInteractableException) as e:
             self._dict_result.update({"obs": e})
 
         finally:
@@ -2568,11 +2759,15 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
 
 
     def checkLANDHCPSettings_x_464(self, flask_username):
+        dict_saida464 = {}
+
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
-            time.sleep(1)
+            time.sleep(3)
             element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="network"]/span[1]')
+            time.sleep(1)
+
             hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
             hover.perform()
             self._driver.find_element_by_xpath('//*[@id="network-homeNetworking"]/a').click()
@@ -2580,12 +2775,14 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             self._driver.switch_to.frame('mainFrame')
             time.sleep(1)
             self._driver.find_element_by_xpath('//*[@id="t5"]/span').click()
-            time.sleep(1)
+            time.sleep(2)
+            print('1')
 
             # Pegando os inputs
             columns_1 = self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li[2]/div/table/tbody/tr[2]//td')
+            time.sleep(2)
             columns_2 = self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li[2]/div/table/tbody/tr[3]//td')
-
+            print('2')
             name_columns = ['#', 'Estado', 'Gateway', 'Máscara de sub-rede', 'Piscina de iniciot', 'Pool End', 
                             'DNS Servidor 1', 'DNS Servidor 2', 'VendorID', 'VendorID Modo', 'VendorID Excluir', 
                             'Option240 Estado', 'Option240 Value', 'Modificar']
@@ -2598,9 +2795,9 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
 
             for col2 in columns_2:
                 c2.append(col2.text)
+            print('3')
 
             list_values = [{k: v for k, v in zip(name_columns, c1)}, {k: v for k, v in zip(name_columns, c2)}]
-            dict_saida464 = {}
             i = 0
             for value in list_values:
                 dict_saida464[i]= value
@@ -2612,12 +2809,11 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
                 else:
                     self._dict_result.update({"obs": f"Teste incorreto, retorno Gateway: {gateway} | Subnet: {subnet}" })
             print('dict final',dict_saida464)
-            self._driver.quit()
 
         except Exception as ex:
             self._dict_result({"obs": ex})
-
         finally:
+            self._driver.quit()
             self.update_global_result_memory(flask_username, 'checkLANDHCPSettings_x_464', dict_saida464)
             return self._dict_result
 
@@ -2776,14 +2972,16 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         time.sleep(2)
         ActionChains(self._driver).move_to_element(configuracao_rede).perform()
         self._driver.find_element_by_xpath('/html/body/div/div[4]/div[2]/div/ul[1]/li[3]/a').click()
-        time.sleep(2)
+        time.sleep(3)
         self._driver.switch_to.frame('mainFrame')
-        self._driver.find_element_by_xpath('/html/body/ul/li[6]/a/span').click()
-        time.sleep(2)
+        time.sleep(3)
+        self._driver.find_element_by_xpath('//*[@id="t5"]/span').click()
+        time.sleep(3)
+
         bandwidth = Select(self._driver.find_element_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li[1]/div/ul[7]/li[2]/select')).first_selected_option.text
         print(bandwidth)
         self._driver.find_element_by_xpath('/html/body/ul/li[1]/a/span').click()
-        time.sleep(2)
+        time.sleep(3)
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('mainFrame')
         time.sleep(2)
@@ -2810,7 +3008,7 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": 'check List Channels: OK', "result":"passed"})
             else:
                 self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
-
+        self._driver.quit()
         return self._dict_result   
 
 
@@ -2861,14 +3059,15 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
     def verificarWifi24PasswordDefault_477(self, flask_username):   
         self._driver.get('http://' + self._address_ip + '/padrao')
         self.login_support()
-        time.sleep(1)
+        time.sleep(3)
         element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="network"]/span[1]')
         hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
         hover.perform()
+        print('1')
         self._driver.find_element_by_xpath('//*[@id="network-wireless"]').click()
-        time.sleep(1)
+        time.sleep(3)
         self._driver.switch_to.frame('mainFrame')
-        time.sleep(1)
+        time.sleep(3)
         
         self._driver.find_element_by_xpath('//*[@id="btn_wpa2pskmore"]').click()
         # self._driver.find_element_by_xpath('//*[@id="btn_wpa2pskmore"]').click()
@@ -2964,17 +3163,20 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
 
         self._driver.get('http://' + self._address_ip + '/padrao')
         self.login_support()
-        time.sleep(1)
+        time.sleep(3)
         element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="network"]/span[1]')
         hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
         hover.perform()
+        time.sleep(3)
+
         self._driver.find_element_by_xpath('//*[@id="network-wireless5G"]').click()
-        time.sleep(1)
-        self._driver.switch_to.frame('mainFrame')
         time.sleep(2)
+        self._driver.switch_to.frame('mainFrame')
+        time.sleep(3)
 
         wps = self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/div/li[4]/div[2]/ul/li[2]/select//option')
         for v in wps:
+
             if v.get_attribute('selected'):
                 wps_value = v.text
 
@@ -2983,19 +3185,20 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         for c in cript:
             cript_value = c.text
 
-        time.sleep(1)
+        time.sleep(3)
 
         self._driver.find_element_by_xpath('/html/body/ul/li[4]/a/span').click()
         time.sleep(2)
         bandwidth5G_value = self._driver.find_element_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li[1]/div/ul[3]/li[2]').text
+        time.sleep(3)
 
         canal_values = self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li[1]/div/ul[4]/li[2]/select//option')
+        time.sleep(3)
 
         channel5G_list = []
         for v in canal_values:
             channel5G_list.append(v.get_attribute('value'))
 
-        self._driver.quit()
 
         for x in range(0,len(channel5G_list)):
             if int(channel5G_list[x]) >=52 and int(channel5G_list[x]) <=140:
@@ -3030,6 +3233,7 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
                 self._dict_result.update({"obs": 'Teste incorreto, retorno check List Channels: NOK'})
         self.update_global_result_memory(flask_username, 'frequencyPlan5GHz_483', dict_saida483)
         
+        self._driver.quit()        
         return self._dict_result
 
 
@@ -3220,19 +3424,19 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
-            time.sleep(1)
+            time.sleep(3)
             
             element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="network"]/span[2]')
             hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
             hover.perform()
             self._driver.find_element_by_xpath('//*[@id="network-nat"]/a').click()
              
-            time.sleep(2)
+            time.sleep(3)
             self._driver.switch_to.frame('mainFrame')
 
             self._driver.find_element_by_xpath('//*[@id="t4"]/span').click()
            
-            time.sleep(2)
+            time.sleep(3)
             
             radio_input  = self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li[1]/div[2]/ul/li[2]//input')
             
@@ -3256,10 +3460,10 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno: LAN Setting ALG SIP {dict_form['ALG_SIP']}"})
 
-            self._driver.quit()
         except Exception as exception:
             self._dict_result.update({"obs": exception})
         finally:
+            self._driver.quit()
 
             self.update_global_result_memory(flask_username, 'checkNATALGSettings_495', dict_form)
             return self._dict_result
@@ -3269,21 +3473,22 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
-            time.sleep(1)
+            time.sleep(3)
 
             #Hover na configuracao de rede
             element_to_hover_over = self._driver.find_element_by_xpath('/html/body/div/div[4]/div[1]/div/div[2]/ul/li[6]/span[1]')
             hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
             hover.perform()
+            time.sleep(3)
 
             #Clicou na Lan
             self._driver.find_element_by_xpath('/html/body/div/div[4]/div[2]/div/ul[5]/li[10]/a').click()
              
             
-            time.sleep(2)
+            time.sleep(3)
             self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
-            time.sleep(1)
+            time.sleep(3)
 
             self._driver.find_element_by_xpath('/html/body/ul/li[3]/a/span').click()
            
@@ -3312,12 +3517,13 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
-            time.sleep(1)
+            time.sleep(3)
 
             #Hover na configuracao de rede
             element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="network"]/span[2]')
             hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
             hover.perform()
+            time.sleep(3)
 
             #Clicou na Lan
             self._driver.find_element_by_xpath('//*[@id="network-homeNetworking"]/a').click()
@@ -3326,11 +3532,11 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             time.sleep(2)
             self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
-            time.sleep(1)
+            time.sleep(3)
 
             self._driver.find_element_by_xpath('//*[@id="t3"]/span').click()
            
-            time.sleep(2)
+            time.sleep(3)
             
             #Capiturando Inputs da tela
             radio_input  = self._driver.find_elements_by_xpath('/html/body/div[2]/div/form/div/div[2]/ul/li[1]/div[2]/ul/li[2]//input')
