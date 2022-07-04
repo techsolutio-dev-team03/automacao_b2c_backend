@@ -126,17 +126,23 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         try:
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
+            time.sleep(3)
             
             self._driver.switch_to.frame('menuFrm')
-            trustDomain = self._driver.find_element_by_xpath('/html/body/div[5]/div/fieldset/div[1]/a[3]').click()
-            trustDomain = self._driver.find_element_by_xpath('/html/body/div[5]/div/fieldset/div[1]/a[3]').text
-            time.sleep(1)
+            time.sleep(2)
+
+            trustDomain = self._driver.find_element_by_xpath('/html/body/div[5]/div/fieldset/div[1]/a[2]').click()
+
+            
+            time.sleep(4)
             self._driver.switch_to.parent_frame()
             self._driver.switch_to.frame('mainFrm')
-
+            time.sleep(3)
+            print('1')
             trustDomain_ip_valor = self._driver.find_element_by_xpath('//*[@id="wan_src_ip"]').get_attribute('value')
             trustDomain_httpServices_port_valor = self._driver.find_element_by_xpath('//*[@id="TrustDomainForm"]/div[2]/input[4]').get_attribute('value')
             trustDomain_SSHServices_port_valor = self._driver.find_element_by_xpath('//*[@id="TrustDomainForm"]/div[3]/input[4]').get_attribute('value')
+            print('2')
             
             Domain = namedtuple('Domin', 'xpath inputs')
             dict_domain = {
@@ -144,13 +150,15 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
                 'SSHServices' : Domain(xpath='//*[@id="TrustDomainForm"]/div[3]/input', inputs=[]), 
                 'ICMPServices': Domain(xpath='//*[@id="TrustDomainForm"]/div[4]/input', inputs=[])
             }
+            print('3')
 
             for domain in dict_domain.values():
                 for input in self._driver.find_elements_by_xpath(domain.xpath):
                     teste = input.get_attribute('checked')
                     domain.inputs.append('Habilitado' if teste == 'true' else 'Desabilitado')
+            print(domain)
             json_saida405 = {
-                trustDomain:
+                'Trust Domain':
                     {
                         'trustDomain_ip': trustDomain_ip_valor,
                         'httpServices':
@@ -175,6 +183,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
                             }
                     }
             }
+            print(json_saida405)
             if json_saida405['Trust Domain']['httpServices'].get('WAN') == 'Desabilitado':
                 self._dict_result.update({"Resultado_Probe": "OK", 'result':'passed', 'obs': 'WAN esta Desabilitado'})
             else:
