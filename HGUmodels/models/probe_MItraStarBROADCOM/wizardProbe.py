@@ -161,48 +161,50 @@ class HGU_MItraStarBROADCOM_wizardProbe(HGU_MItraStarBROADCOM):
 
     # NAO FOI IMPLEMENTADO
     def changePPPoESettingsWrong_377(self, flask_username):
-        try:
-            self._driver.get('http://' + self._address_ip + '/')
-            time.sleep(1)
-            self._driver.switch_to.frame("menufrm")
-            self._driver.find_element_by_xpath('/html/body/div/div/div/ul/li[2]/a').click()
-            time.sleep(1)
-            self._driver.find_element_by_xpath('/html/body/div/div/div/ul/li[2]/ul/li[1]/a').click()
-            time.sleep(2)
-            self._driver.switch_to.default_content()
-            self._driver.switch_to.frame('basefrm')
-            time.sleep(2)
-            self.admin_authentication_mitraStat()
-            time.sleep(1)
-            self._driver.switch_to.default_content()
-            self._driver.switch_to.frame("basefrm")
-            time.sleep(1)
-            self._driver.find_element_by_xpath('//*[@id="username"]').clear()
-            self._driver.find_element_by_xpath('//*[@id="password"]').clear()
-            self._driver.find_element_by_xpath('//*[@id="username"]').send_keys('vivo@cliente')
-            self._driver.find_element_by_xpath('//*[@id="password"]').send_keys('vivo')
-            self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/form/table/tfoot/tr/td/a[2]/span').click()
+        self._dict_result.update({"obs": "teste ainda não implementado"})
+        return self._dict_result  
+        # try:
+        #     self._driver.get('http://' + self._address_ip + '/')
+        #     time.sleep(1)
+        #     self._driver.switch_to.frame("menufrm")
+        #     self._driver.find_element_by_xpath('/html/body/div/div/div/ul/li[2]/a').click()
+        #     time.sleep(1)
+        #     self._driver.find_element_by_xpath('/html/body/div/div/div/ul/li[2]/ul/li[1]/a').click()
+        #     time.sleep(2)
+        #     self._driver.switch_to.default_content()
+        #     self._driver.switch_to.frame('basefrm')
+        #     time.sleep(2)
+        #     self.admin_authentication_mitraStat()
+        #     time.sleep(1)
+        #     self._driver.switch_to.default_content()
+        #     self._driver.switch_to.frame("basefrm")
+        #     time.sleep(1)
+        #     self._driver.find_element_by_xpath('//*[@id="username"]').clear()
+        #     self._driver.find_element_by_xpath('//*[@id="password"]').clear()
+        #     self._driver.find_element_by_xpath('//*[@id="username"]').send_keys('vivo@cliente')
+        #     self._driver.find_element_by_xpath('//*[@id="password"]').send_keys('vivo')
+        #     self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/form/table/tfoot/tr/td/a[2]/span').click()
             
-            time.sleep(15)
-            print('oi')
-            try:
-                time.sleep(8)
-                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
-                    if self._driver.find_element_by_xpath('//*[@id="txtUsername"]').get_attribute('value') == 'vivo@cliente':
-                        self._dict_result.update({"obs": "Usuario aceito"})
-                    else:
-                        self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito", "result":"passed", "Resultado_Probe": "OK"})
-            except (UnexpectedAlertPresentException, NoSuchElementException) as e:
-            # except (UnexpectedAlertPresentException, NoSuchElementException, ElementClickInterceptedException) as e:
+        #     time.sleep(15)
+           
+        #     try:
+        #         time.sleep(8)
+        #         if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
+        #             if self._driver.find_element_by_xpath('//*[@id="txtUsername"]').get_attribute('value') == 'vivo@cliente':
+        #                 self._dict_result.update({"obs": "Usuario aceito"})
+        #             else:
+        #                 self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito", "result":"passed", "Resultado_Probe": "OK"})
+        #     except (UnexpectedAlertPresentException, NoSuchElementException) as e:
+        #     # except (UnexpectedAlertPresentException, NoSuchElementException, ElementClickInterceptedException) as e:
             
-                self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[4]/td/a/span').click()
-                self._dict_result.update({"obs": f"Teste falhou. {e}", "result":"passed", "Resultado_Probe": "OK"})
-            finally:
-                self._driver.quit()
-        except Exception as e:
-            self._dict_result.update({"obs": e})
-        finally:
-            return self._dict_result  
+        #         self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[4]/td/a/span').click()
+        #         self._dict_result.update({"obs": f"Teste falhou. {e}", "result":"passed", "Resultado_Probe": "OK"})
+        #     finally:
+        #         self._driver.quit()
+        # except Exception as e:
+        #     self._dict_result.update({"obs": e})
+        # finally:
+        #     return self._dict_result  
 
 
     def connectWizardhttps_379(self,flask_username):
@@ -352,6 +354,7 @@ class HGU_MItraStarBROADCOM_wizardProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno Rede: Disponível | Telefone: {registerVoIP}"})
 
         return self._dict_result
+        
 
     def statusWizardIptv_389(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
@@ -366,4 +369,33 @@ class HGU_MItraStarBROADCOM_wizardProbe(HGU_MItraStarBROADCOM):
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno TV: {status}"})
             
+        return self._dict_result
+
+
+    def statusWizardVoip_390(self, flask_username):
+        self._dict_result.update({"obs": "Teste ainda não implementado"})
+        return self._dict_result
+
+
+    def testeSiteWizard_399(self, flask_username):
+        self._dict_result.update({"obs": "Teste ainda não implementado"})
+        return self._dict_result
+
+
+    def checkBridgeMode_21(self, flask_username):
+        self._dict_result.update({"obs": "Teste ainda não implementado"})
+        return self._dict_result
+    
+    def checkRedeGpon_36(self, flask_username):
+        self._dict_result.update({"obs": "Teste ainda não implementado"})
+        return self._dict_result
+
+    
+    def accessPadrao_79(self, flask_username):
+        self._dict_result.update({"obs": "Teste ainda não implementado"})
+        return self._dict_result
+
+
+    def checkPPPoEStatus_146(self, flask_username):
+        self._dict_result.update({"obs": "Teste ainda não implementado"})
         return self._dict_result

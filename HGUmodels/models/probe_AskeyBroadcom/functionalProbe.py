@@ -58,6 +58,8 @@ class HGU_AskeyBROADCOM_functionalProbe(HGU_AskeyBROADCOM):
             self._driver.quit()
             return self._dict_result
     
-
+    def changeAdminPassword_69(self, flask_username, new_password):
+        self._dict_result.update({"obs": "teste ainda não implementado"})
+        return self._dict_result
 
 

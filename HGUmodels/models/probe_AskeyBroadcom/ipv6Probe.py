@@ -178,15 +178,15 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
 
     # 212
     def ipv4DownloadCentOS_212(self, flask_username, ipv_x, dhcpv6):
-        self._driver.get('http://' + self._address_ip + '/padrao')
-        self.login_support()
-        time.sleep(5)
-
-        self.ipv_x_setting(ipv_x)
-        self.dhcp_v6(dhcpv6_state = dhcpv6)
-        self.eth_interfaces_down()
 
         try:
+            self._driver.get('http://' + self._address_ip + '/padrao')
+            self.login_support()
+            time.sleep(5)
+
+            self.ipv_x_setting(ipv_x)
+            self.dhcp_v6(dhcpv6_state = dhcpv6)
+            self.eth_interfaces_down()
             os.system('wget --tries=2 -O ~/Downloads/CentOS http://mirror.ufscar.br/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso')
             os.system('wget --tries=2 -O ~/Downloads/CentOS-sha http://mirror.ufscar.br/centos/7.9.2009/isos/x86_64/sha256sum.txt')
             with open(os.path.expanduser("~")+'/Downloads/CentOS-sha') as file:
@@ -211,14 +211,14 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
 
     # 218
     def connectSkype_218(self, flask_username,  ipv_x, dhcpv6):
-        self._driver.get('http://' + self._address_ip + '/padrao')
-        self.login_support()
-        time.sleep(5)
-        self.ipv_x_setting(ipv_x)
-        self.dhcp_v6(dhcpv6_state = dhcpv6)
-        self.eth_interfaces_down()
-        data = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
         try:
+            self._driver.get('http://' + self._address_ip + '/padrao')
+            self.login_support()
+            time.sleep(5)
+            self.ipv_x_setting(ipv_x)
+            self.dhcp_v6(dhcpv6_state = dhcpv6)
+            self.eth_interfaces_down()
+            data = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             sk = Skype('dev.team05@techsolutio.com' , 'Techsolutio@123')
             time.sleep(3)
             ch = sk.chats.create(admins=("Dev05 Techsolutio")) #sk.contacts['echo123'].chat
@@ -278,11 +278,11 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
 
 
         # Conecta com a maquina remota via ssh e configura como server do IPerf
-        for ip_remoto in ip_remoto_list[::]:
+        for ip_remoto in ip_remoto_list:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(hostname=ip_remoto, username='automacao', password='4ut0m4c40', timeout=2)
+                ssh.connect(hostname=ip_remoto, username='automacao', password='aux', timeout=2)
                 teste = ssh.invoke_shell()
                 
                 # Reset da interface evita problemas de erros na conexão
@@ -398,11 +398,11 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
         iperf_server = subprocess.Popen('iperf3 -s', shell=True)
         
         # Inicia o Iperf como cliente na maquina remota e executa o teste
-        for ip_remoto in ip_remoto_list[::]:
+        for ip_remoto in ip_remoto_list:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(hostname=ip_remoto, username='automacao', password='4ut0m4c40', timeout=2)
+                ssh.connect(hostname=ip_remoto, username='automacao', password='aux', timeout=2)
                 teste = ssh.invoke_shell()
 
                 # Reset da interface evita problemas de erros na conexão
@@ -491,11 +491,11 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
 
 
     #     # Conecta com a maquina remota via ssh e configura como server do IPerf
-        for ip_remoto in ip_remoto_list[::]:
+        for ip_remoto in ip_remoto_list:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(hostname=ip_remoto, username='automacao', password='4ut0m4c40', timeout=2)
+                ssh.connect(hostname=ip_remoto, username='automacao', password='aux', timeout=2)
                 teste = ssh.invoke_shell()
                 teste.recv(65000).decode('utf-8')
     #             # Reset da interface evita problemas de erros na conexão
@@ -648,11 +648,11 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
         iperf_server = subprocess.Popen('iperf3 -s', shell=True)
         
     #     # Inicia o Iperf como cliente na maquina remota e executa o teste
-        for ip_remoto in ip_remoto_list[::]:
+        for ip_remoto in ip_remoto_list:
             try:
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(hostname=ip_remoto, username='automacao', password='4ut0m4c40', timeout=2)
+                ssh.connect(hostname=ip_remoto, username='automacao', password='aux', timeout=2)
                 teste = ssh.invoke_shell()
 
     #             # Reset da interface evita problemas de erros na conexão

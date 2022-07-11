@@ -11,6 +11,10 @@ import socket
 from ..MItraStarECNT import HGU_MItraStarECNT
 from selenium.webdriver.common.action_chains import ActionChains 
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.support import expected_conditions as E
+from selenium.webdriver.common.by import By
+
+
 from selenium.common.exceptions import NoSuchFrameException, NoSuchElementException, InvalidSelectorException, ElementClickInterceptedException
 
 from HGUmodels.config import TEST_NOT_IMPLEMENTED_WARNING

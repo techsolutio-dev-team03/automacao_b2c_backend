@@ -39,11 +39,11 @@ class HGU_AskeyECNT_wireSharkProbe(HGU_AskeyECNT):
         return_dict = manager.dict()
         p = multiprocessing.Process(target=self.capture_adv_pkt, args=(return_dict,))
         p.start()
-        p.join()
-        advt_packet = [v for v in return_dict.values()][0]
-        print(str(advt_packet))
+        p.join(timeout=60)
 
         try:
+            advt_packet = [v for v in return_dict.values()][0]
+            print(str(advt_packet))
             pkt_fields = advt_packet.icmpv6._all_fields
             flag_ra = pkt_fields['icmpv6.nd.ra.flag']
             print(flag_ra)
@@ -187,13 +187,11 @@ class HGU_AskeyECNT_wireSharkProbe(HGU_AskeyECNT):
             return_dict = manager.dict()
             p = multiprocessing.Process(target=self.capture_icmpv6, args=(return_dict,))
             p.start()
-            p.join(timeout=100)
-            
-
-            advt_packet = [v for v in return_dict.values()][0]
-            # print(str(advt_packet))
+            p.join(timeout=60)
             
             try:
+                advt_packet = [v for v in return_dict.values()][0]
+                # print(str(advt_packet))
                 pkt_fields = advt_packet.icmpv6._all_fields
                 # print(pkt_fields)
                 router_adv = pkt_fields['icmpv6.checksum.status'] 

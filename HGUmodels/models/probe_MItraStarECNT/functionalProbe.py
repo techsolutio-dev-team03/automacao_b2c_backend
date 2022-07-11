@@ -58,3 +58,7 @@ class HGU_MItraStarECNT_functionalProbe(HGU_MItraStarECNT):
             self._dict_result.update({"obs": str(exception)})
         finally:
             return self._dict_result
+
+    def changeAdminPassword_69(self, flask_username, new_password):
+        self._dict_result.update({"obs": "teste ainda não implementado"})
+        return self._dict_result

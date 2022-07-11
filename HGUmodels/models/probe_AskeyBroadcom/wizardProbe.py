@@ -53,9 +53,10 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
         try:
             self._driver.get('http://' + self._address_ip + '/')
             self.login_admin()
+            self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
             self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
-            time.sleep(1)
+            time.sleep(3)
             self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[1]/a').click()
             try:
                 self._driver.find_element_by_xpath('/html/body/div[1]/div[1]/div[2]/a').click()
@@ -63,7 +64,7 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
             except:
                     self._dict_result.update({"obs": "Nao foi possivel efetuar o logout"})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result
@@ -98,9 +99,9 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno Link: {link}"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self.update_global_result_memory(flask_username, 'checkRedeGpon_375', dict_saida)
             return self._dict_result
@@ -111,6 +112,7 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
             self._driver.get('http://' + self._address_ip + '/')
             self.login_admin()
             time.sleep(1)
+            self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
 
             self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
@@ -127,7 +129,7 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
             except:
                 self._dict_result.update({"obs": "Teste falhou"})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result  
@@ -139,6 +141,7 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
         
             self.login_admin()
             time.sleep(1)
+            self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
             self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
             time.sleep(1)
@@ -161,11 +164,11 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
 
             except UnexpectedAlertPresentException as e:
                 time.sleep(2)
-                self._dict_result.update({"obs": f"Teste falhou. {e}", "result":"passed", "Resultado_Probe": "OK"})
+                self._dict_result.update({"obs": f"Teste falhou. {str(e)}", "result":"passed", "Resultado_Probe": "OK"})
             finally:
                 self._driver.quit()
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             return self._dict_result  
 
@@ -180,10 +183,10 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
                 self._dict_result.update({"obs": "Nao foi possivel acessar via HTTPS"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         
         finally:
             self._driver.quit()
@@ -216,9 +219,9 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
                 self._dict_result.update({"obs": "Nao foi possivel acessar sem login"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result
@@ -262,10 +265,10 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
             self._dict_result.update({"obs": f"Resultado: {result}", "result":"passed", "Resultado_Probe": "OK"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
 
         finally:
             return self._dict_result
@@ -354,6 +357,7 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
         try:
             self._driver.get(site1)
             time.sleep(1)
+            self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
             time.sleep(1)
             self._driver.find_element_by_xpath('//*[@id="accordion"]/li[1]/a').click()
@@ -381,6 +385,7 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
         try:
             self._driver.get(site3)
             time.sleep(1)
+            self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
             time.sleep(1)
             self._driver.find_element_by_xpath('//*[@id="accordion"]/li[1]/a').click()
@@ -402,6 +407,7 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
             self._driver.get('http://' + self._address_ip + '/')
             self._driver.switch_to.default_content()
             self.login_admin()
+            self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
             time.sleep(1)
             self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
@@ -414,10 +420,10 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno Modo WAN: {config_modowan}"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result
@@ -444,6 +450,7 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
 
             self.login_support()
             time.sleep(3)
+            self._driver.switch_to.default_content()
             self._driver.switch_to.frame('basefrm')
             time.sleep(1)
             self._driver.find_element_by_xpath('/html/body/blockquote/form/b')
@@ -460,6 +467,7 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
             self._driver.get('http://' + self._address_ip + '/')
             time.sleep(1)
             self.login_admin()
+            self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
             # self._driver.find_element_by_xpath('//*[@id="accordion"]/li[1]/a').click()
             time.sleep(1)
@@ -481,9 +489,9 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno PPP: {ppp}"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result

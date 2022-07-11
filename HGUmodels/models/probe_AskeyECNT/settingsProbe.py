@@ -38,6 +38,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
     def accessWizard_401(self, flask_username):
         try:
+            dict_saida = {}
             self._driver.get('http://' + self._address_ip + '/')
             
             time.sleep(1)
@@ -122,18 +123,16 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     def accessRemoteHttp_405(self, flask_username):
-
         try:
+            json_saida405 = {}
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
             time.sleep(3)
             
             self._driver.switch_to.frame('menuFrm')
+            trustDomain = self._driver.find_element_by_xpath('/html/body/div[5]/div/fieldset/div[1]/a[3]')
             time.sleep(2)
-
-            trustDomain = self._driver.find_element_by_xpath('/html/body/div[5]/div/fieldset/div[1]/a[2]').click()
-
-            
+            trustDomain.click()
             time.sleep(4)
             self._driver.switch_to.parent_frame()
             self._driver.switch_to.frame('mainFrm')
@@ -326,8 +325,9 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     def checkACSSettings_411(self, flask_username):
-        json_saida411 = {}       
+              
         try:
+            json_saida411 = {} 
             self._driver.get('http://' + self._address_ip + '/padrao')
 
             self.login_support()
@@ -413,76 +413,78 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     def GPV_OneObjct_414(self, serialnumber, GPV_Param, IPACS, acsUsername, acsPassword):
-        #TODO: This function needs refactoring, zeep library not working, test crashing
-        class MyEncoder(JSONEncoder):
-            def default(self, o):
-                return o.__dict__
-        acsPort = 7015
-        objeto = GPV_Param['name']
+        self._dict_result.update({"obs": "teste em implementação"})
+        return self._dict_result
+        # #TODO: This function needs refactoring, zeep library not working, test crashing
+        # class MyEncoder(JSONEncoder):
+        #     def default(self, o):
+        #         return o.__dict__
+        # acsPort = 7015
+        # objeto = GPV_Param['name']
 
        
-        try:
-            url = f'http://{IPACS}:{acsPort}/hdm'
-            connTest = requests.post(url, timeout=4)
+        # try:
+        #     url = f'http://{IPACS}:{acsPort}/hdm'
+        #     connTest = requests.post(url, timeout=4)
 
-            if connTest.status_code != 200:
-                self._dict_result.update({'result':'failed',"obs":f'ERROR002-ERRO DE CONECTIVIDADE COM ACS-HDM: {IPACS}:{acsPort}'})
-                return self._dict_result
-            else:
-                ###INICIANDO WEBSERIVCES###
-                #
-                #try:
-                import Setup.ACS.webSDO
-                import Setup.ACS.webRemoteHDM
-                from Setup.ACS import webRemoteHDM
-                from Setup.ACS import webServiceImpl
-                from Setup.ACS import webSDO
-                nbiSDO = webSDO.SDO(IPACS, str(acsPort), acsUsername, acsPassword)
-                nbiRH = webRemoteHDM.NRH(IPACS, str(acsPort), acsUsername, acsPassword)
-                #except Exception as exception:
-                #    print(exception)
-                #    self._dict_result.update({'result':'failed',"obs":'ERROR_003-ERRO AO VALIDAR ARQUIVO WSDL NO SERVIDOR ACS-HDM #(LINE:84)'})
-                #    return self._dict_result
-                #
-                ###BUSCANDO DADOS DO DISPOSITIVO###
-                #
-                tsa = time.time()
-                sta = datetime.fromtimestamp(tsa).strftime('%Y_%m_%d_%HH:%MM:%SS')
-                nbiRH.findDeviceBySerial(serialnumber, acsUsername, acsPassword)
-                if nbiRH.msgTagExecution_02 == 'EXECUTED':
-                    OUI = str(nbiRH.device["OUI"])
-                    productClass = str(nbiRH.device["productClass"])
-                    protocol = str(nbiRH.device["protocol"])
-                    subscriberId = str(nbiRH.device["subscriberId"])
-                    lastContactTime = str(nbiRH.device["lastContactTime"])
-                    softwareVersion = str(nbiRH.device["softwareVersion"])
-                    externalIpAddress = str(nbiRH.device["iPAddressWAN"])
-                    activated = str(nbiRH.device["activated"])
-                    lastActivationTime = pd.Timestamp(str(nbiRH.device["lastActivationTime"])).tz_convert("UTC")
-                    lastActivationTime = lastActivationTime.strftime("%d-%m-%Y %H:%M:%S")
-                    GPV = nbiSDO.getParameterValue(OUI, productClass, protocol, serialnumber, objeto)
-                    if GPV != None:
-                        GPV = json.dumps(GPV, cls=MyEncoder)
-                        GPV_1 = json.loads(GPV)
-                        json_saida = []
-                        for key, value in enumerate(GPV_1):
-                            for chave, valor in value.items():
-                                aux = {
-                                    "name":valor['name'],
-                                    "type":valor['type'],
-                                    "value":valor['value']
-                                }
-                                json_saida.append(aux)
-                        self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', 'obs':json_saida})
-                        return self._dict_result
-                    else:
-                        self._dict_result.update({'result':'failed',"obs":"GPV == None"})
-                        return self._dict_result
-                else:
-                    self._dict_result.update({"obs":"nbiRH.msgTagExecution_02 != EXECUTED"})
-        except Exception as exception:
-            self._dict_result.update({"obs":str(exception)})
-        return self._dict_result
+        #     if connTest.status_code != 200:
+        #         self._dict_result.update({'result':'failed',"obs":f'ERROR002-ERRO DE CONECTIVIDADE COM ACS-HDM: {IPACS}:{acsPort}'})
+        #         return self._dict_result
+        #     else:
+        #         ###INICIANDO WEBSERIVCES###
+        #         #
+        #         #try:
+        #         import Setup.ACS.webSDO
+        #         import Setup.ACS.webRemoteHDM
+        #         from Setup.ACS import webRemoteHDM
+        #         from Setup.ACS import webServiceImpl
+        #         from Setup.ACS import webSDO
+        #         nbiSDO = webSDO.SDO(IPACS, str(acsPort), acsUsername, acsPassword)
+        #         nbiRH = webRemoteHDM.NRH(IPACS, str(acsPort), acsUsername, acsPassword)
+        #         #except Exception as exception:
+        #         #    print(exception)
+        #         #    self._dict_result.update({'result':'failed',"obs":'ERROR_003-ERRO AO VALIDAR ARQUIVO WSDL NO SERVIDOR ACS-HDM #(LINE:84)'})
+        #         #    return self._dict_result
+        #         #
+        #         ###BUSCANDO DADOS DO DISPOSITIVO###
+        #         #
+        #         tsa = time.time()
+        #         sta = datetime.fromtimestamp(tsa).strftime('%Y_%m_%d_%HH:%MM:%SS')
+        #         nbiRH.findDeviceBySerial(serialnumber, acsUsername, acsPassword)
+        #         if nbiRH.msgTagExecution_02 == 'EXECUTED':
+        #             OUI = str(nbiRH.device["OUI"])
+        #             productClass = str(nbiRH.device["productClass"])
+        #             protocol = str(nbiRH.device["protocol"])
+        #             subscriberId = str(nbiRH.device["subscriberId"])
+        #             lastContactTime = str(nbiRH.device["lastContactTime"])
+        #             softwareVersion = str(nbiRH.device["softwareVersion"])
+        #             externalIpAddress = str(nbiRH.device["iPAddressWAN"])
+        #             activated = str(nbiRH.device["activated"])
+        #             lastActivationTime = pd.Timestamp(str(nbiRH.device["lastActivationTime"])).tz_convert("UTC")
+        #             lastActivationTime = lastActivationTime.strftime("%d-%m-%Y %H:%M:%S")
+        #             GPV = nbiSDO.getParameterValue(OUI, productClass, protocol, serialnumber, objeto)
+        #             if GPV != None:
+        #                 GPV = json.dumps(GPV, cls=MyEncoder)
+        #                 GPV_1 = json.loads(GPV)
+        #                 json_saida = []
+        #                 for key, value in enumerate(GPV_1):
+        #                     for chave, valor in value.items():
+        #                         aux = {
+        #                             "name":valor['name'],
+        #                             "type":valor['type'],
+        #                             "value":valor['value']
+        #                         }
+        #                         json_saida.append(aux)
+        #                 self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', 'obs':json_saida})
+        #                 return self._dict_result
+        #             else:
+        #                 self._dict_result.update({'result':'failed',"obs":"GPV == None"})
+        #                 return self._dict_result
+        #         else:
+        #             self._dict_result.update({"obs":"nbiRH.msgTagExecution_02 != EXECUTED"})
+        # except Exception as exception:
+        #     self._dict_result.update({"obs":str(exception)})
+        # return self._dict_result
 
 
     def periodicInformEnable_415(self, flask_username):
@@ -562,8 +564,9 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     def checkWanInterface_420(self, flask_username):
+        
         try:
-
+            dict_saida420 = {}
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
             self._driver.switch_to.frame('menuFrm')
@@ -577,7 +580,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             table_flat = self._driver.find_elements_by_xpath('//*[@id="WanIPIntfList"]/table/tbody/tr/td')
 
             table = chunks(table_flat, number_cols)
-            dict_saida420 = {}
+            
             for i, row in enumerate(table):
                 # d = {col:row[j].text for (j,col) in enumerate(header_list[3:-1], start=3)}
                 d = {col:row[j].text for (j,col) in enumerate(header_list)}
@@ -648,6 +651,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
     def checkNatSettings_423(self, flask_username):
 
         try:
+            dict_saida423 = {}
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
             self._driver.switch_to.frame('menuFrm')
@@ -662,7 +666,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             checkbox_inputs = self._driver.find_elements_by_xpath('//*[@id="NATTable"]/table/tbody/tr/td/input')
 
             table = chunks(table_flat, number_cols)
-            dict_saida423 = {}
+            
 
             for i, row in enumerate(table):
                 d = {col: (('Habilitado' if checkbox_inputs[i].get_attribute('checked') == 'true' else 'Desabilitado') if j==1 else
@@ -670,9 +674,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
                                                                                             row[j].text)
                     for (j,col) in enumerate(header_list[:-1])}
                 dict_saida423.update({f'index_{i}':d})
-
-
-
             
             for i, row in dict_saida423.items():
                 cpe_config = config_collection.find_one()
@@ -699,6 +700,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
     def checkMulticastSettings_424(self, flask_username):
 
         try:
+            dict_saida424 = {}
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
             self._driver.switch_to.frame('menuFrm')
@@ -712,7 +714,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             table_flat = self._driver.find_elements_by_xpath('//*[@id="MulticastTable"]/table/tbody/tr/td')
             checkbox_inputs = self._driver.find_elements_by_xpath('//*[@id="MulticastTable"]/table/tbody/tr/td/input')
             table = chunks(table_flat, number_cols)
-            dict_saida424 = {}
             for i, row in enumerate(table):
                 d = {col: (('Habilitado' if checkbox_inputs[i].get_attribute('checked') == 'true' else 'Desabilitado') if j==1 else
                                                                                             row[j].text.split('\n')[0] if j==2 else
@@ -741,7 +742,8 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     def getFullConfig_425(self, flask_username):
-
+        try:
+            json_saida425 = {}
             self._driver.get('http://' + self._address_ip + '/')
             link = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a')
             link.click()
@@ -1362,8 +1364,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
                 config_firewall_pingwan_valor = 'Desabilitado'
             print(config_firewall_pingwan_valor)
 
-
-
             time.sleep(1)
             print('\n#############################################'
                   '\n MENU >> CONFIGURAÇÕES >> MODO DA WAN '
@@ -1477,9 +1477,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             print(info_dispositivo_maclan)
             info_dispositivo_maclan_valor = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table[1]/tbody/tr[4]/td[4]').text
             print(info_dispositivo_maclan_valor)
-
-
-
 
             print('\n\n\n == Criando JSON de saída... == ')
             json_saida425 = {
@@ -1652,11 +1649,11 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
             user = json_saida425['Configurações']['Internet'].get('Usuário:')
             if user == 'cliente@cliente':
                 self._dict_result.update({"Resultado_Probe": "OK", "obs": "Usuario: cliente@cliente", "result":"passed"})
-
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno Usuario: {user}"})
-
-            
+        except Exception as e:
+            self._dict_result.update({"obs": f"Teste incorreto, {str(e)}"})
+        finally:    
             self.update_global_result_memory(flask_username, 'getFullConfig_425', json_saida425)
             return self._dict_result
 
@@ -1664,7 +1661,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
     def verificarSenhaPppDefaultFibra_426(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'getFullConfig_425')
-
         if len(result) == 0:
             self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
         else:
@@ -1680,11 +1676,10 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     def checkWanInterface_x_427(self, flask_username, interface):
-        
-        
         usuario = self._username
         senha = self._password
         try:
+            json_saida427 = {}
             self._driver.get('http://' + self._address_ip + '/padrao')
             user_input = self._driver.find_element_by_id('txtUser')
             user_input.send_keys(usuario)
@@ -2178,6 +2173,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         usuario = self._username
         senha = self._password
         try:
+            json_saida429 = {}
             self._driver.get('http://' + self._address_ip + '/padrao')
             user_input = self._driver.find_element_by_id('txtUser')
             user_input.send_keys(usuario)
@@ -2376,8 +2372,6 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
                     break
                 else:
                     self._dict_result.update({"obs": f"Teste incorreto, retorno do Prefix Delegation WAN:{prefix_wan}"})
-
-
             
             self.update_global_result_memory(flask_username, 'checkLANSettings_429', json_saida429)
             return self._dict_result
@@ -2439,6 +2433,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
     def vivo_1_ADSL_vlanIdPPPoE_433(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 423 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'checkNatSettings_423')
+        print("\n"*20, result)
         if len(result) == 0:
             self._dict_result.update({"obs": 'Execute o teste 423 primeiro'})
         else:
@@ -2491,6 +2486,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
         result = session.get_result_from_test(flask_username, 'getFullConfig_425')
         cpe_config = config_collection.find_one()
+        print("\n"*20, result)
         if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
             usuario = result['Configurações']['Internet'].get('Usuário:')
             if usuario == 'cliente@cliente':
@@ -3239,6 +3235,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
         porta = port
 
         try:
+            json_saida464 = {}
             print('\n\n == Abrindo URL == ')
             self._driver.get('http://' + self._address_ip + '/padrao')
 
@@ -4091,83 +4088,87 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
 
 
     def vendorIdIptvEnable_467(self, flask_username):
-        self._driver.get('http://' + self._address_ip + '/padrao')
-        self.login_support()
-        self._driver.switch_to.frame('menuFrm')
-        self._driver.find_element_by_xpath('/html/body/div[2]/div/fieldset/div[1]/a[2]').click()
-        time.sleep(1)
-        self._driver.switch_to.parent_frame()  
-        self._driver.switch_to.frame('mainFrm')
-        self._driver.find_element_by_xpath('/html/body/fieldset[1]/table/tbody/tr[2]/td[2]/a').click()
-        time.sleep(1)
+        try:
+            json_saida467 = {}
+            self._driver.get('http://' + self._address_ip + '/padrao')
+            self.login_support()
+            self._driver.switch_to.frame('menuFrm')
+            self._driver.find_element_by_xpath('/html/body/div[2]/div/fieldset/div[1]/a[2]').click()
+            time.sleep(1)
+            self._driver.switch_to.parent_frame()  
+            self._driver.switch_to.frame('mainFrm')
+            self._driver.find_element_by_xpath('/html/body/fieldset[1]/table/tbody/tr[2]/td[2]/a').click()
+            time.sleep(1)
 
-        vendorID = self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[2]/div[1]').text
-        vendorID_check = self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[2]/div[1]/input[1]').get_attribute('checked')
-        if vendorID_check:
-            vendorID_check = 'Habilitado'
-        else:
-            vendorID_check = 'Desabilitado'
-        print(vendorID+': '+vendorID_check)
-        vendorValue = self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[2]/div[1]/input[2]').get_attribute('value')
-        print(vendorValue)
-
-        print('IP Address Range')
-        ipRangeInicioValue = self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[1]').get_attribute('value')+'.'+\
-            self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[2]').get_attribute('value')+'.'+\
-            self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[3]').get_attribute('value')+'.'+\
-            self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[4]').get_attribute('value')   
-        print(ipRangeInicioValue)
-        ipRangeFimValue = self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[6]').get_attribute('value')+'.'+\
-            self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[7]').get_attribute('value')+'.'+\
-            self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[8]').get_attribute('value')+'.'+\
-            self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[9]').get_attribute('value')   
-        print(ipRangeFimValue)
-
-        #############################
-        json_saida467 = {'LAN DHCP': {'Index 1': {'Detalhes': {'DHCP Server Setting': {'Pool Condition': 
-                        {vendorID: vendorID_check, 'valor vendorID': vendorValue}, 'Client Configuration': {'IP Address Range' : {'inicio': ipRangeInicioValue,\
-                            'fim': ipRangeFimValue}}}}}}}
-        print(json_saida467)
-        #############################
-        self._driver.quit()
-
-        cpe_config = config_collection.find_one()
-        
-        #1
-        if vendorID_check == 'Habilitado':
-            obs_result1 = f'VendorID esta Habilitado'
-            self._dict_result.update({"Resultado_Probe": "OK", "result":"passed"})
-        else:
-            obs_result1 = f"Teste incorreto, retorno VendorID: {vendorID_check}"
-
-        #2
-        if cpe_config['REDE'] == 'VIVO_1':
-            if vendorValue == 'MSFT_IPTV,TEF_IPTV':
-                obs_result2 = f'Valor VendorID: {vendorValue}'
-                self._dict_result.update({"Resultado_Probe": "OK", "result":"passed"})
-
+            vendorID = self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[2]/div[1]').text
+            vendorID_check = self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[2]/div[1]/input[1]').get_attribute('checked')
+            if vendorID_check:
+                vendorID_check = 'Habilitado'
             else:
-                obs_result2 = f"Teste incorreto, retorno Valor VendorID: {vendorValue}"
-        else:
-            obs_result2 = f"REDE:{cpe_config['REDE']}"
-        
-        #3
-        if cpe_config['REDE'] == 'VIVO_2':
-        
-            if vendorValue == 'GVT-STB,RSTIH89-500_HD,DSTIH78_GVT,VM1110,DSTIH79_GVT,VM1110_HD_HYBRID,DSITH79_GVT_HD':
-                obs_result3 = f'Valor VendorID: {vendorValue}'
+                vendorID_check = 'Desabilitado'
+            print(vendorID+': '+vendorID_check)
+            vendorValue = self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[2]/div[1]/input[2]').get_attribute('value')
+            print(vendorValue)
+
+            print('IP Address Range')
+            ipRangeInicioValue = self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[1]').get_attribute('value')+'.'+\
+                self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[2]').get_attribute('value')+'.'+\
+                self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[3]').get_attribute('value')+'.'+\
+                self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[4]').get_attribute('value')   
+            print(ipRangeInicioValue)
+            ipRangeFimValue = self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[6]').get_attribute('value')+'.'+\
+                self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[7]').get_attribute('value')+'.'+\
+                self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[8]').get_attribute('value')+'.'+\
+                self._driver.find_element_by_xpath('/html/body/fieldset[2]/div/div/div[1]/form/div[4]/fieldset[1]/div[1]/input[9]').get_attribute('value')   
+            print(ipRangeFimValue)
+
+            #############################
+            json_saida467 = {'LAN DHCP': {'Index 1': {'Detalhes': {'DHCP Server Setting': {'Pool Condition': 
+                            {vendorID: vendorID_check, 'valor vendorID': vendorValue}, 'Client Configuration': {'IP Address Range' : {'inicio': ipRangeInicioValue,\
+                                'fim': ipRangeFimValue}}}}}}}
+            print(json_saida467)
+            #############################
+            self._driver.quit()
+
+            cpe_config = config_collection.find_one()
+            
+            #1
+            if vendorID_check == 'Habilitado':
+                obs_result1 = f'VendorID esta Habilitado'
                 self._dict_result.update({"Resultado_Probe": "OK", "result":"passed"})
             else:
-                obs_result3 = f"Teste incorreto, retorno Valor VendorID: {vendorValue}"
+                obs_result1 = f"Teste incorreto, retorno VendorID: {vendorID_check}"
 
-        else:
-            obs_result3 = f"REDE:{cpe_config['REDE']}"
+            #2
+            if cpe_config['REDE'] == 'VIVO_1':
+                if vendorValue == 'MSFT_IPTV,TEF_IPTV':
+                    obs_result2 = f'Valor VendorID: {vendorValue}'
+                    self._dict_result.update({"Resultado_Probe": "OK", "result":"passed"})
 
-        self._dict_result.update({"obs": f"467_1: {obs_result1} | 467_2: {obs_result2} | 467_3: {obs_result3}"})
+                else:
+                    obs_result2 = f"Teste incorreto, retorno Valor VendorID: {vendorValue}"
+            else:
+                obs_result2 = f"REDE:{cpe_config['REDE']}"
+            
+            #3
+            if cpe_config['REDE'] == 'VIVO_2':
+            
+                if vendorValue == 'GVT-STB,RSTIH89-500_HD,DSTIH78_GVT,VM1110,DSTIH79_GVT,VM1110_HD_HYBRID,DSITH79_GVT_HD':
+                    obs_result3 = f'Valor VendorID: {vendorValue}'
+                    self._dict_result.update({"Resultado_Probe": "OK", "result":"passed"})
+                else:
+                    obs_result3 = f"Teste incorreto, retorno Valor VendorID: {vendorValue}"
 
-        
-        self.update_global_result_memory(flask_username, 'vendorIdIptvEnable_467', json_saida467)
-        return self._dict_result
+            else:
+                obs_result3 = f"REDE:{cpe_config['REDE']}"
+
+            self._dict_result.update({"obs": f"467_1: {obs_result1} | 467_2: {obs_result2} | 467_3: {obs_result3}"})
+        except Exception as e:
+            self._dict_result.update({"obs": f"Erro: {str(e)}"})
+
+        finally:
+            self.update_global_result_memory(flask_username, 'vendorIdIptvEnable_467', json_saida467)
+            return self._dict_result
 
 
     def poolDhcpIptv_468(self, flask_username):
@@ -4576,6 +4577,7 @@ class HGU_AskeyECNT_settingsProbe(HGU_AskeyECNT):
     def checkVoIPSettings_490(self, flask_username):
         
         try:
+            json_saida490 = {}
             self._driver.get('http://' + self._address_ip + '/padrao')
             self.login_support()
             time.sleep(3)
