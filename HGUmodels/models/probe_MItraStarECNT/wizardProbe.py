@@ -68,7 +68,7 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
             except:
                 self._dict_result.update({"obs": "Nao foi possivel efetuar o logout"})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result
@@ -102,9 +102,9 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno Link: {link}"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self.update_global_result_memory(flask_username, 'checkRedeGpon_375', dict_saida)
             return self._dict_result
@@ -124,18 +124,20 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
             self._driver.switch_to.default_content()
             self._driver.switch_to.frame('basefrm')
             self._driver.find_element_by_xpath('//*[@id="RN_UserName"]').clear()
+            time.sleep(1)
             self._driver.find_element_by_xpath('//*[@id="RN_Password"]').clear()
+            time.sleep(1)
             self._driver.find_element_by_xpath('//*[@id="PPPOE_Account_Save"]').click()
             time.sleep(1)
             try:
                 self._driver.switch_to.alert.text
                 self._dict_result.update({"obs": "Verificacao OK", "result":"passed", "Resultado_Probe": "OK"})
-            except:
+            except Exception as exception:
                 self._dict_result.update({"obs": "Teste falhou"})
-            self._driver.quit()
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
+            self._driver.quit()
             return self._dict_result 
 
 
@@ -176,12 +178,12 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
             
             except ElementClickInterceptedException as e:
                 print('2', e)
-                self._dict_result.update({"obs": e})
+                self._dict_result.update({"obs": str(e)})
                 time.sleep(1)
                 
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result  
@@ -201,7 +203,7 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
             self._dict_result.update({"obs": exception})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         
         finally:
             self._driver.quit()
@@ -229,9 +231,9 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
             print(dict_saida)
             self._dict_result.update({"obs": dict_saida, "result":"passed", "Resultado_Probe": "OK"})
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result
@@ -283,10 +285,10 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
             self._dict_result.update({"obs": f"Resultados: {result}", "result":"passed", "Resultado_Probe": "OK"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
 
         finally:
             self._driver.quit()
@@ -439,10 +441,10 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno Modo WAN: {config_modowan}"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result
@@ -513,9 +515,9 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno PPP: {ppp}"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result

@@ -165,11 +165,10 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
             except UnexpectedAlertPresentException as e:
                 time.sleep(2)
                 self._dict_result.update({"obs": f"Teste falhou. {str(e)}", "result":"passed", "Resultado_Probe": "OK"})
-            finally:
-                self._driver.quit()
         except Exception as e:
             self._dict_result.update({"obs": str(e)})
         finally:
+            self._driver.quit()
             return self._dict_result  
 
 

@@ -246,7 +246,7 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
 
       # 230
     def iPerf2PCsClientServer_230(self, flask_username,  ipv_x, dhcpv6):
-        
+        ip_remoto = []
         # Verifica nome da rede wifi e senha
         # self._driver.get('http://' + self._address_ip + '/')
         # self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
@@ -367,6 +367,7 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
 
     # # 231
     def iPerf2PCsServerClient_231(self, flask_username,  ipv_x, dhcpv6):
+        ip_remoto = []
         # self._driver.get('http://' + self._address_ip + '/')
         # self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
         # time.sleep(1)
@@ -462,6 +463,7 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
 
     # # 255
     def iPerf2PCsClientServerIpv6_255(self, flask_username,  ipv_x, dhcpv6):
+        ip_remoto = []
     #     self._driver.get('http://' + self._address_ip + '/')
     #     self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
     #     time.sleep(1)
@@ -610,6 +612,7 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
 
     # # 256
     def iPerf2PCsServerClientIpv6_256(self, flask_username,  ipv_x, dhcpv6):
+        ip_remoto = []
     #     self._driver.get('http://' + self._address_ip + '/')
     #     self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
     #     time.sleep(1)

@@ -243,7 +243,7 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
 
     # 230
     def iPerf2PCsClientServer_230(self, flask_username,  ipv_x, dhcpv6):
-        
+        ip_remoto = []
         # Verifica nome da rede wifi e senha
         # self._driver.get('http://' + self._address_ip + '/')
         # self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
@@ -364,6 +364,7 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
 
     # # 231
     def iPerf2PCsServerClient_231(self, flask_username,  ipv_x, dhcpv6):
+        ip_remoto = []
         # self._driver.get('http://' + self._address_ip + '/')
         # self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
         # time.sleep(1)
@@ -459,6 +460,7 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
 
     # # 255
     def iPerf2PCsClientServerIpv6_255(self, flask_username,  ipv_x, dhcpv6):
+        ip_remoto = []
     #     self._driver.get('http://' + self._address_ip + '/')
     #     self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
     #     time.sleep(1)
@@ -606,6 +608,7 @@ class HGU_AskeyBROADCOM_ipv6Probe(HGU_AskeyBROADCOM):
 
     # # 256
     def iPerf2PCsServerClientIpv6_256(self, flask_username,  ipv_x, dhcpv6):
+        ip_remoto = []
     #     self._driver.get('http://' + self._address_ip + '/')
     #     self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
     #     time.sleep(1)

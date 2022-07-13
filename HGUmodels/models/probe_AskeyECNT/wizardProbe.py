@@ -147,10 +147,11 @@ class HGU_AskeyECNT_wizardProbe(HGU_AskeyECNT):
                     self._dict_result.update({"obs": "Verificacao OK", "result":"passed", "Resultado_Probe": "OK"})
             except:
                 self._dict_result.update({"obs": "Teste falhou"})
-            self._driver.quit()
+            
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
+            self._driver.quit()
             return self._dict_result  
 
 
