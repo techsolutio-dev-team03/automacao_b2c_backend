@@ -37,18 +37,20 @@ class HGU_MItraStarBROADCOM(HGUModelInterface):
 
 
     def admin_authentication_mitraStat(self):
-        time.sleep(5)
-        self._driver.switch_to.default_content()
-        self._driver.switch_to.frame("basefrm")
-        time.sleep(1)
-        user_input = self._driver.find_element_by_xpath('//*[@id="user"]')
-        user_input.send_keys(self._username)
-        pass_input = self._driver.find_element_by_xpath('//*[@id="pass"]')
-        pass_input.send_keys(self._password)
-        login_button = self._driver.find_element_by_xpath('//*[@id="acceptLogin"]/span')
-        time.sleep(1)
-        login_button.click()
-        time.sleep(1)
+        try:
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame("basefrm")
+            time.sleep(1)
+            user_input = self._driver.find_element_by_xpath('//*[@id="user"]')
+            user_input.send_keys(self._username)
+            pass_input = self._driver.find_element_by_xpath('//*[@id="pass"]')
+            pass_input.send_keys(self._password)
+            login_button = self._driver.find_element_by_xpath('//*[@id="acceptLogin"]/span')
+            time.sleep(1)
+            login_button.click()
+            time.sleep(1)
+        except: 
+            pass
 
 
     def ipv_x_setting(self, ipv_x):

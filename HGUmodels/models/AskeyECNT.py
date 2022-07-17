@@ -17,16 +17,19 @@ class HGU_AskeyECNT(HGUModelInterface):
 
 
     def login_admin(self):
-        time.sleep(2)
-        user_input = self._driver.find_element_by_id('txtUser')
-        user_input.send_keys('admin')
-        time.sleep(1)
-        pass_input = self._driver.find_element_by_id('txtPass')
-        pass_input.send_keys(self._password)
-        time.sleep(1)
-        login_button = self._driver.find_element_by_id('btnLogin')
-        login_button.click()
-        time.sleep(1)
+        try:
+            # self._driver.implicitly_wait(5)
+            user_input = self._driver.find_element_by_id('txtUser')
+            user_input.send_keys('admin')
+            time.sleep(1)
+            pass_input = self._driver.find_element_by_id('txtPass')
+            pass_input.send_keys(self._password)
+            time.sleep(1)
+            login_button = self._driver.find_element_by_id('btnLogin')
+            login_button.click()
+            time.sleep(1)
+        except Exception:
+            pass
 
 
     def ipv_x_setting(self, ipv_x):
