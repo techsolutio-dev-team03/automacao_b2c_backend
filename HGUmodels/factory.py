@@ -17,6 +17,7 @@ from .models.probe_AskeyECNT.wizardProbe import HGU_AskeyECNT_wizardProbe
 from .models.probe_AskeyECNT.functionalProbe import HGU_AskeyECNT_functionalProbe
 from .models.probe_AskeyECNT.ipv6Probe import HGU_AskeyECNT_ipv6Probe
 from .models.probe_AskeyECNT.wireSharkProbe import HGU_AskeyECNT_wireSharkProbe
+from .models.probe_AskeyECNT.firmwareUpdate import HGU_AskeyECNT_firmwareUpdate
 
 from .models.probe_AskeyBroadcom.settingsProbe import HGU_AskeyBROADCOM_settingsProbe
 from .models.probe_AskeyBroadcom.wizardProbe import HGU_AskeyBROADCOM_wizardProbe
@@ -64,6 +65,8 @@ class HGUModelFactory:
                 return HGU_AskeyECNT_ipv6Probe(address_ip, model_name, username, password, driver, dict_result)
             elif probe == 'wireSharkProbe':
                 return HGU_AskeyECNT_wireSharkProbe(address_ip, model_name, username, password, driver, dict_result)
+            elif probe == 'firmware':
+                return HGU_AskeyECNT_firmwareUpdate(address_ip, model_name, username, password, driver, dict_result)
 
         elif model_name == 'HGU3_Askey_BROADCOM':
             if probe == 'settingsProbe':

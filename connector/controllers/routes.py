@@ -11,6 +11,7 @@ from connector.controllers import acsController
 from connector.controllers import opencvController
 from connector.controllers import utilsController
 from connector.controllers import ipv6Controller
+from connector.controllers import firmwareController
 
 class home(Resource):
     def get(self):
@@ -43,3 +44,5 @@ api.add_resource(opencvController.opencv, "/api/v1/opencv/<string:method>")
 api.add_resource(utilsController.utils, "/api/v1/utils/<string:method>")
 
 api.add_resource(ipv6Controller.ipv6, "/api/v1/ipv6/<string:method>")
+
+api.add_resource(firmwareController.firmware, "/api/v1/firmware/<string:method>")
