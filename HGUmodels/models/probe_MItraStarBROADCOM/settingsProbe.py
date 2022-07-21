@@ -278,7 +278,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             time.sleep(2)
             self._driver.switch_to.default_content()
             self._driver.switch_to.frame('basefrm')
-            dict_saida = {}
+           
 
             acs_names = [value.text for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[2]/tbody//td') if value.text != '']
             acs_values = [value.get_attribute('value') for value in self._driver.find_elements_by_xpath('/html/body/blockquote/form/table[2]/tbody/tr/td//input')]
@@ -310,7 +310,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno ACS URL: {acs_url}"})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             self.update_global_result_memory(flask_username, 'checkACSSettings_411', dict_saida)
@@ -419,8 +419,6 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
         except Exception as exception:
             self._dict_result.update({'result':'failed',"obs":str(exception)})
             return self._dict_result
-
-
 
 
     def periodicInformEnable_415(self, flask_username):
@@ -554,7 +552,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
 
         except Exception as exception:
             print(exception)
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
         finally:
             self.update_global_result_memory(flask_username, 'checkWanInterface_420', dict_saida420)
             return self._dict_result
@@ -1540,7 +1538,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno: {wan_interface}"})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
 
         finally:
             self._driver.quit()
@@ -1578,7 +1576,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno do Prefix Delegation WAN:{prefix}"})
         
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
 
         finally:
             self._driver.quit()
@@ -2339,7 +2337,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"obs": f"Teste incorreto, retorno Gateway: {dict_saida464['IP Address']}"})
         
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             self.update_global_result_memory(flask_username, 'checkLANDHCPSettings_x_464', dict_saida464)
@@ -2815,7 +2813,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             else:
                     self._dict_result.update({"obs": f'Teste incorreto, retorno Encryption: {aes}'})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         
         self._driver.quit()
         return self._dict_result
@@ -3001,7 +2999,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
             else:
                 self._dict_result.update({"obs": f'REDE: {rede})'})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         
         finally:
             self._driver.quit()
@@ -3036,7 +3034,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"obs": "Teste incorreto, retorno SNMP: Habilitado"})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result
@@ -3066,7 +3064,7 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"obs": "Teste incorreto, retorno UPnP: Desabilitado"})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result
