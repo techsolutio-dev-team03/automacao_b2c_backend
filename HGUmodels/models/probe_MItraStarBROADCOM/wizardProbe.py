@@ -14,6 +14,11 @@ from selenium.webdriver.support.select import Select
 from HGUmodels.config import TEST_NOT_IMPLEMENTED_WARNING
 from HGUmodels.utils import chunks
 from daos.mongo_dao import MongoConnSigleton
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
+from selenium.common.exceptions import TimeoutException
 
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException, NoSuchFrameException, UnexpectedAlertPresentException, ElementClickInterceptedException
 
@@ -159,52 +164,44 @@ class HGU_MItraStarBROADCOM_wizardProbe(HGU_MItraStarBROADCOM):
             return self._dict_result 
 
 
-    # NAO FOI IMPLEMENTADO
     def changePPPoESettingsWrong_377(self, flask_username):
-        self._dict_result.update({"obs": "teste ainda não implementado"})
-        return self._dict_result  
-        # try:
-        #     self._driver.get('http://' + self._address_ip + '/')
-        #     time.sleep(1)
-        #     self._driver.switch_to.frame("menufrm")
-        #     self._driver.find_element_by_xpath('/html/body/div/div/div/ul/li[2]/a').click()
-        #     time.sleep(1)
-        #     self._driver.find_element_by_xpath('/html/body/div/div/div/ul/li[2]/ul/li[1]/a').click()
-        #     time.sleep(2)
-        #     self._driver.switch_to.default_content()
-        #     self._driver.switch_to.frame('basefrm')
-        #     time.sleep(2)
-        #     self.admin_authentication_mitraStat()
-        #     time.sleep(1)
-        #     self._driver.switch_to.default_content()
-        #     self._driver.switch_to.frame("basefrm")
-        #     time.sleep(1)
-        #     self._driver.find_element_by_xpath('//*[@id="username"]').clear()
-        #     self._driver.find_element_by_xpath('//*[@id="password"]').clear()
-        #     self._driver.find_element_by_xpath('//*[@id="username"]').send_keys('vivo@cliente')
-        #     self._driver.find_element_by_xpath('//*[@id="password"]').send_keys('vivo')
-        #     self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/form/table/tfoot/tr/td/a[2]/span').click()
-            
-        #     time.sleep(15)
-           
-        #     try:
-        #         time.sleep(8)
-        #         if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
-        #             if self._driver.find_element_by_xpath('//*[@id="txtUsername"]').get_attribute('value') == 'vivo@cliente':
-        #                 self._dict_result.update({"obs": "Usuario aceito"})
-        #             else:
-        #                 self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito", "result":"passed", "Resultado_Probe": "OK"})
-        #     except (UnexpectedAlertPresentException, NoSuchElementException) as e:
-        #     # except (UnexpectedAlertPresentException, NoSuchElementException, ElementClickInterceptedException) as e:
-            
-        #         self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[4]/td/a/span').click()
-        #         self._dict_result.update({"obs": f"Teste falhou. {e}", "result":"passed", "Resultado_Probe": "OK"})
-        #     finally:
-        #         self._driver.quit()
-        # except Exception as e:
-        #     self._dict_result.update({"obs": e})
-        # finally:
-        #     return self._dict_result  
+        try:
+            self._driver.get('http://' + self._address_ip + '/')
+            self._driver.implicitly_wait(10)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame("menufrm")
+            self._driver.find_element_by_xpath('/html/body/div/div/div/ul/li[2]/a').click()
+            self._driver.find_element_by_xpath('/html/body/div/div/div/ul/li[2]/ul/li[1]/a').click()
+            self.admin_authentication_mitraStat()
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame("basefrm")
+            self._driver.find_element_by_xpath('//*[@id="username"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="password"]').clear()
+            self._driver.find_element_by_xpath('//*[@id="username"]').send_keys('vivo@cliente')
+            self._driver.find_element_by_xpath('//*[@id="password"]').send_keys('vivo')
+            self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/form/table/tfoot/tr/td/a[2]/span').click()
+            try:
+                WebDriverWait(self._driver, 50).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div/div[1]/div/iframe')))
+                iframe = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div/iframe')
+                self._driver.switch_to.frame(iframe)
+                self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[4]/td/a/span').click()
+                time.sleep(30)
+                # self._driver.switch_to.default_content()
+                # self._driver.switch_to.frame('basefrm')
+                # self._driver.find_element_by_xpath('//*[@id="RN_UserName"]').clear()
+                # self._driver.find_element_by_xpath('//*[@id="RN_UserName"]').send_keys('cliente@cliente')
+                # self._driver.find_element_by_xpath('//*[@id="RN_Password"]').clear()
+                # self._driver.find_element_by_xpath('//*[@id="RN_Password"]').send_keys('cliente')
+                # self._driver.find_element_by_xpath('//*[@id="conteudo-gateway"]/form/table/tfoot/tr/td/a[2]/span').click()
+                # time.sleep(30)
+                self._dict_result.update({"obs": "Usuario inválido", "result":"passed", "Resultado_Probe": "OK"})
+            except TimeoutException as e:
+                self._dict_result.update({"obs": f'Usuario aceito. {e}'})
+        except Exception as e:
+            self._dict_result.update({"obs": str(e)})
+        finally:
+            self._driver.quit()
+            return self._dict_result  
 
 
     def connectWizardhttps_379(self,flask_username):

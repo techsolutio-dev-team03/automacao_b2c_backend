@@ -18,12 +18,16 @@ from ...config import TEST_NOT_IMPLEMENTED_WARNING
 from HGUmodels.utils import chunks
 from daos.mongo_dao import MongoConnSigleton
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException, NoSuchFrameException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
+from selenium.common.exceptions import TimeoutException
 
 import paramiko
 from paramiko.ssh_exception import AuthenticationException, BadAuthenticationType, BadHostKeyException
 from paramiko.ssh_exception import SSHException
 import socket
-from selenium.common.exceptions import UnexpectedAlertPresentException
 
 from HGUmodels.main_session import MainSession
 
@@ -120,28 +124,13 @@ class HGU_AskeyECNT_wizardProbe(HGU_AskeyECNT):
     def changePPPoESettingsWrong_376(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/')
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a').click()
-            time.sleep(1)
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
-            time.sleep(1)
-            self._driver.get('http://' + self._address_ip + '/login.asp')
-            self._driver.switch_to.default_content()
-            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            user_input.send_keys(self._username)
-            pass_input = self._driver.find_element_by_id('txtPass')
-            pass_input.send_keys(self._password)
-            login_button = self._driver.find_element_by_id('btnLogin')
-            time.sleep(1)
-            login_button.click()
-            time.sleep(1)
+            self._driver.implicitly_wait(40)
             config = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
-            time.sleep(1)
             config_internet = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
-            time.sleep(1)
+            self.login_admin()
             self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
             self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
             self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
-            time.sleep(1)
             try:
                 if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/span') or self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[3]/td[2]/span'):
                     self._dict_result.update({"obs": "Verificacao OK", "result":"passed", "Resultado_Probe": "OK"})
@@ -158,46 +147,33 @@ class HGU_AskeyECNT_wizardProbe(HGU_AskeyECNT):
     def changePPPoESettingsWrong_377(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/')
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[1]/a').click()
-            time.sleep(1)
-            self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
-            time.sleep(1)
-            self._driver.get('http://' + self._address_ip + '/login.asp')
-            self._driver.switch_to.default_content()
-            user_input = self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[2]/input')
-            user_input.send_keys(self._username)
-            pass_input = self._driver.find_element_by_id('txtPass')
-            pass_input.send_keys(self._password)
-            login_button = self._driver.find_element_by_id('btnLogin')
-            time.sleep(1)
-            login_button.click()
-            time.sleep(1)
-            config = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
-            time.sleep(1)
-            config_internet = self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
-            time.sleep(1)
+            self._driver.implicitly_wait(40)
+            self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+            self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[1]/a').click()
+            self.login_admin()
             self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
             self._driver.find_element_by_xpath('//*[@id="txtUsername"]').send_keys('vivo@cliente')
             self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
             self._driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys('vivo')
             self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
-            time.sleep(15)
             try:
-                time.sleep(8)
-                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
-                    if self._driver.find_element_by_xpath('//*[@id="txtUsername"]').get_attribute('value') == 'vivo@cliente':
-                        self._dict_result.update({"obs": "Usuario aceito"})
-                    else:
-                        self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito", "result":"passed", "Resultado_Probe": "OK"})
-            except UnexpectedAlertPresentException as e:                
-                self._dict_result.update({"obs": f"Teste falhou. {e}", "result":"passed", "Resultado_Probe": "OK"})
-            finally:
-                self._driver.quit()
-        except Exception as e:
-            self._dict_result.update({"obs": e})
-        finally:
-            return self._dict_result  
+                WebDriverWait(self._driver, 50).until(EC.alert_is_present())
+                print('usuario invalido')
+                self._dict_result.update({"obs": f"Usuario nao foi aceito.", "result":"passed", "Resultado_Probe": "OK"})
+                self._driver.switch_to.alert.accept()
+                self._driver.switch_to.default_content()
+            except TimeoutException as e:   
+                try:
+                    if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
+                        self._dict_result.update({"obs": f"Usuario foi aceito."})
+                except: 
+                    self._dict_result.update({"obs": f"Falha na conexao. {e}", "result":"passed", "Resultado_Probe": "OK"})
 
+        except Exception as e:
+            self._dict_result.update({"obs": str(e)})
+        finally:
+            self._driver.quit()
+            return self._dict_result  
 
     
     def connectWizardhttps_379(self,flask_username):
@@ -210,10 +186,10 @@ class HGU_AskeyECNT_wizardProbe(HGU_AskeyECNT):
                 self._dict_result.update({"obs": "Nao foi possivel acessar via HTTPS"})
 
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
 
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         
         finally:
             self._driver.quit()
@@ -239,9 +215,9 @@ class HGU_AskeyECNT_wizardProbe(HGU_AskeyECNT):
             print(dict_saida)
             self._dict_result.update({"obs": dict_saida, "result":"passed", "Resultado_Probe": "OK"})
         except NoSuchElementException as exception:
-            self._dict_result.update({"obs": exception})
+            self._dict_result.update({"obs": str(exception)})
         except Exception as e:
-            self._dict_result.update({"obs": e})
+            self._dict_result.update({"obs": str(e)})
         finally:
             self._driver.quit()
             return self._dict_result

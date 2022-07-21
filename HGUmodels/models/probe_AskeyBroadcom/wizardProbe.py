@@ -15,8 +15,11 @@ from HGUmodels.utils import chunks
 from daos.mongo_dao import MongoConnSigleton
 from collections import namedtuple
 from HGUmodels.utils import chunks
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.common.exceptions import TimeoutException
 
 
 import paramiko
@@ -138,33 +141,31 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
     def changePPPoESettingsWrong_377(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/')
-        
             self.login_admin()
-            time.sleep(1)
+            self._driver.implicitly_wait(60)
             self._driver.switch_to.default_content()
             self._driver.switch_to.frame('mainFrame')
             self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/a').click()
-            time.sleep(1)
             self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[1]/ul/li[2]/ul/li[1]/a').click()
-            print(self._driver.find_element_by_xpath('//*[@id="txtUsername"]').get_attribute('value'))
-        
-            time.sleep(1)
             self._driver.find_element_by_xpath('//*[@id="txtUsername"]').clear()
             self._driver.find_element_by_xpath('//*[@id="txtUsername"]').send_keys('vivo@cliente')
             self._driver.find_element_by_xpath('//*[@id="txtPassword"]').clear()
             self._driver.find_element_by_xpath('//*[@id="txtPassword"]').send_keys('vivo')
             self._driver.find_element_by_xpath('//*[@id="btnSave"]').click()
             try:
-                time.sleep(22)
-                if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
-                    if self._driver.find_element_by_xpath('//*[@id="txtUsername"]').get_attribute('value') == 'vivo@cliente':
-                       self._dict_result.update({"obs": "Usuario aceito"})
-                    else:
-                        self._dict_result.update({"obs": f"Teste falhou, usuario nao foi aceito", "result":"passed", "Resultado_Probe": "OK"})
-
-            except UnexpectedAlertPresentException as e:
-                time.sleep(2)
-                self._dict_result.update({"obs": f"Teste falhou. {str(e)}", "result":"passed", "Resultado_Probe": "OK"})
+                WebDriverWait(self._driver, 50).until(EC.alert_is_present())
+                print('usuario invalido')
+                self._dict_result.update({"obs": f"Usuario nao foi aceito.", "result":"passed", "Resultado_Probe": "OK"})
+                self._driver.switch_to.alert.accept()
+                self._driver.switch_to.default_content()
+                self._driver.switch_to.frame('mainFrame')
+                self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font') # aguarda até conectar novamente (implicitly wait)
+            except TimeoutException:
+                try:
+                    if self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[4]/td/label/font').text == 'Conectado':
+                        self._dict_result.update({"obs": "Usuario vivo@cliente aceito"})
+                except:
+                    self._dict_result.update({"obs": f"Falha na conexão.", "result":"passed", "Resultado_Probe": "OK"})
         except Exception as e:
             self._dict_result.update({"obs": str(e)})
         finally:

@@ -11,8 +11,11 @@ import socket
 from ..MItraStarECNT import HGU_MItraStarECNT
 from selenium.webdriver.common.action_chains import ActionChains 
 from selenium.webdriver.support.select import Select
-from selenium.webdriver.support import expected_conditions as E
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+
+from selenium.common.exceptions import TimeoutException
 
 
 from selenium.common.exceptions import NoSuchFrameException, NoSuchElementException, InvalidSelectorException, ElementClickInterceptedException
@@ -144,44 +147,35 @@ class HGU_MItraStarECNT_wizardProbe(HGU_MItraStarECNT):
     def changePPPoESettingsWrong_377(self, flask_username):
         try:
             self._driver.get('http://' + self._address_ip + '/')
-            time.sleep(1)
+            self._driver.implicitly_wait(10)
             self._driver.switch_to.frame("menufrm")
             self._driver.find_element_by_xpath('/html/body/div[1]/div/div/ul/li[2]/a/span').click()
-            time.sleep(1)
             self._driver.find_element_by_xpath('/html/body/div[1]/div/div/ul/li[2]/ul/li[1]/a/span').click()
-            time.sleep(5)
             self.admin_authentication_mitraStat()
-            time.sleep(1)
             self._driver.switch_to.default_content()
             self._driver.switch_to.frame('basefrm')
             self._driver.find_element_by_xpath('//*[@id="RN_UserName"]').clear()
             self._driver.find_element_by_xpath('//*[@id="RN_UserName"]').send_keys('vivo@cliente')
             self._driver.find_element_by_xpath('//*[@id="RN_Password"]').clear()
             self._driver.find_element_by_xpath('//*[@id="RN_Password"]').send_keys('vivo')
-            print('antes1')
-
             self._driver.find_element_by_xpath('//*[@id="PPPOE_Account_Save"]').click()
-            time.sleep(25)
-            self._driver.wait_variable.until(E.element_to_be_clickable((By.XPATH,"//input[@name ='update_cart']"))).click()
-
-            print('antes')
             try:
+                WebDriverWait(self._driver, 50).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[1]/div/iframe')))
                 iframe = self._driver.find_element_by_xpath('/html/body/div[3]/div/div[1]/div/iframe')
                 self._driver.switch_to.frame(iframe)
-                print('aqui',self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[1]/td/font/span').text)
                 self._driver.find_element_by_xpath('/html/body/div/table/tbody/tr[3]/td/a/span').click()
+                time.sleep(30)
+                self._driver.switch_to.default_content()
+                self._driver.switch_to.frame('basefrm')
+                self._driver.find_element_by_xpath('//*[@id="RN_UserName"]').clear()
+                self._driver.find_element_by_xpath('//*[@id="RN_UserName"]').send_keys('cliente@cliente')
+                self._driver.find_element_by_xpath('//*[@id="RN_Password"]').clear()
+                self._driver.find_element_by_xpath('//*[@id="RN_Password"]').send_keys('cliente')
+                self._driver.find_element_by_xpath('//*[@id="PPPOE_Account_Save"]').click()
+                time.sleep(30)
                 self._dict_result.update({"obs": "Usuario inválido", "result":"passed", "Resultado_Probe": "OK"})
-                time.sleep(5)
-            # except InvalidSelectorException as e:
-            #     self._dict_result.update({"obs": e})
-            #     time.sleep(1)
-            
-            except ElementClickInterceptedException as e:
-                print('2', e)
+            except TimeoutException as e:
                 self._dict_result.update({"obs": str(e)})
-                time.sleep(1)
-                
-
         except Exception as e:
             self._dict_result.update({"obs": str(e)})
         finally:
