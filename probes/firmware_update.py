@@ -22,4 +22,6 @@ class firmware:
                                      driver=driver,
                                      password=password,
                                      dict_result=dict_result)
-        return hgu.firmwareUpdate(flask_username)
+        
+        firmware_version = 'teste'
+        return hgu.firmwareUpdate(flask_username, firmware_version)

@@ -7,7 +7,7 @@ session = MainSession()
 
 class HGU_AskeyECNT_firmwareUpdate(HGU_AskeyECNT):
     
-    def firmwareUpdate(self, flask_username):
+    def firmwareUpdate(self, flask_username, firmware_version):
         self._driver.implicitly_wait(5)
         self._driver.get('http://' + self._address_ip + '/padrao')
         self.login_support()
@@ -16,6 +16,6 @@ class HGU_AskeyECNT_firmwareUpdate(HGU_AskeyECNT):
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('mainFrm')
         file = self._driver.find_element_by_xpath('//*[@id="fileUpgradeByHTTP"]')
-        file.send_keys('/home/automacao/Projects/firmware/mock')
+        file.send_keys(f'/home/automacao/Projects/firmware/Askey_ECNT/{firmware_version}')
         time.sleep(10)
         self._driver.quit()
