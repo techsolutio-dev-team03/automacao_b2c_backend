@@ -2,17 +2,16 @@ from HGUmodels.factory import HGUModelFactory
 from webdriver.webdriver import WebDriver
 
 class firmware:
-    def firmware_update_gui(self, ip, username, password, flask_username, model_name, **kwargs):
-        print('*'*50)
+    def firmware_update_gui(self, ip, username, password, flask_username, model_name, firmware_version, **kwargs):
         driver = WebDriver.get_driver()
 
         dict_result = {'result':'failed', 
                        'obs':None, 
                        "Resultado_Probe": "NOK", 
-                       "ControllerName": "ipv6", 
-                       "ProbeName": "Router advertisement packet", 
-                       "Probe#": "178", 
-                       "Description": "Verificar nos pacotes Router Advertisement Flag m = 0 e Flag o = 1"}
+                       "ControllerName": "", 
+                       "ProbeName": "", 
+                       "Probe#": "", 
+                       "Description": ""}
 
 
         hgu = HGUModelFactory.getHGU(probe='firmware',
@@ -23,5 +22,5 @@ class firmware:
                                      password=password,
                                      dict_result=dict_result)
         
-        firmware_version = 'teste'
+       
         return hgu.firmwareUpdate(flask_username, firmware_version)

@@ -31,7 +31,8 @@ class firmware(Resource):
             "password" : request.get_json()['password'],
             "ip" : request.get_json()['ip'],
             "model_name" : request.get_json()['modelo'],
-            "flask_username" : request.get_json()['flask_username']
+            "flask_username" : request.get_json()['flask_username'],
+            "firmware_version": request.get_json()['firmware_version']
         }
        
         # mongo_dict = {
