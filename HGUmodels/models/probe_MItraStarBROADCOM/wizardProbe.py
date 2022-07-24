@@ -370,28 +370,145 @@ class HGU_MItraStarBROADCOM_wizardProbe(HGU_MItraStarBROADCOM):
 
 
     def statusWizardVoip_390(self, flask_username):
-        self._dict_result.update({"obs": "Teste ainda não implementado"})
+        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+        else:
+            status = result['Status']['Telefone']
+            voip = wizard_config.VOIP
+            
+            print('STATUS:', status['Rede:'], status['Telefone1:'])
+            print('VOIP:', voip)
+
+            if status['Rede:'] == 'Disponível' and status['Telefone1:'] == 'Endereço IP de VoIP:':
+                self._dict_result.update({"obs": f"Teste OK", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno VoIP: {status}"})
         return self._dict_result
 
 
     def testeSiteWizard_399(self, flask_username):
-        self._dict_result.update({"obs": "Teste ainda não implementado"})
+        site1 = 'http://menuvivofibra.br'
+        site2 = f'http://{self._address_ip}/instalador'
+        site3 = 'http://instaladorvivofibra.br'
+        print('-=-' * 20)
+        print('\n\n -- PARAMETROS DE ENTRADA --')
+        print('site1 = ' + site1)
+        print('site2 = ' + site2)
+        print('site3 = ' + site3)
+        print('-=-' * 20)
+        
+        try:
+            self._driver.get(site1)
+            time.sleep(1)
+            elementos = self._driver.find_elements_by_xpath('/html/body/div/div[1]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado1 = 'ok'
+        except:
+            resultado1 = 'falhou'
+        print('site1: ', resultado1)
+        print('-=-' * 20)
+        
+        try:
+            self._driver.get(site2)
+            time.sleep(1)
+            self.admin_authentication_mitraStat()
+            time.sleep(1)
+            elementos = self._driver.find_elements_by_xpath('/html/body/div/div[1]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado2 = 'ok'
+        except:
+            resultado2 = 'falhou'
+        print('site2: ', resultado2)
+        print('-=-' * 20)
+
+        try:
+            self._driver.get(site3)
+            time.sleep(1)
+            elementos = self._driver.find_elements_by_xpath('/html/body/div/div[1]/table/tbody/tr[1]/td[1]')
+            for elemento in elementos: print(elemento.text, "\n")
+            resultado3 = 'ok'
+        except:
+            resultado3 = 'falhou'
+        print('site3: ', resultado3)
+        print('-=-' * 20)
+ 
+        self._driver.quit()
+        if resultado1 == 'ok' and resultado2 == 'ok' and resultado3 == 'ok':
+            self._dict_result.update({"obs": "URLs de redirecionamento ok", "result":"passed", "Resultado_Probe": "OK"})
+        else:
+            self._dict_result.update({"obs": f"Teste incorreto, retorno URLs: {site1}: {resultado1}; {site2}: {resultado2}; {site3}: {resultado3}"})
         return self._dict_result
+
 
 
     def checkBridgeMode_21(self, flask_username):
-        self._dict_result.update({"obs": "Teste ainda não implementado"})
-        return self._dict_result
+        try:
+            self._driver.get('http://' + self._address_ip + '/')
+            time.sleep(1)
+            self._driver.switch_to.frame('menufrm')
+            self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/a').click()
+            time.sleep(1)
+            self._driver.find_element_by_xpath('//*[@id="accordion"]/li[2]/ul/li[7]/a').click()
+            time.sleep(2)
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('basefrm')
+            time.sleep(2)
+            self.admin_authentication_mitraStat()
+            time.sleep(1)
+            self._driver.switch_to.default_content()
+            time.sleep(1)
+            self._driver.switch_to.frame('basefrm')
+            time.sleep(1)
+
+            config_modowan = [value.text for value in self._driver.find_elements_by_xpath('/html/body/div/div/div[1]/div[3]/form/table/tbody/tr[1]/td[2]//select') ]
+            print('2', config_modowan)
+            if "Bridge" in config_modowan[0]:
+                self._dict_result.update({"obs": f"Modo WAN: {config_modowan}", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Modo WAN: {config_modowan}"})
+
+        except NoSuchElementException as exception:
+            self._dict_result.update({"obs": str(exception)})
+
+        except Exception as e:
+            self._dict_result.update({"obs": str(e)})
+        finally:
+            self._driver.quit()
+            return self._dict_result
     
     def checkRedeGpon_36(self, flask_username):
-        self._dict_result.update({"obs": "Teste ainda não implementado"})
+        #TODO: Fazer logica no frontend para garantir que o teste 375 seja executado em conjunto
+        result = session.get_result_from_test(flask_username, 'checkRedeGpon_375')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 375 primeiro'})
+        else:
+            link = result['Status']['GPON']['Link']
+            if link == 'Estabelecido':
+                self._dict_result.update({"obs": "Link Estabelecido", "result":"passed", "Resultado_Probe": "OK"})
+            else:
+                self._dict_result.update({"obs": f"Teste incorreto, retorno Link: {link}"})
+    
         return self._dict_result
 
     
     def accessPadrao_79(self, flask_username):
-        self._dict_result.update({"obs": "Teste ainda não implementado"})
-        return self._dict_result
+        try:
+            self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
+            self.login_support()
+            time.sleep(1)
+            self._driver.switch_to.frame('header')
+            time.sleep(2)
+            self._driver.find_element_by_xpath('//*[@id="logoutFrm"]/input').click()
+            self._driver.quit()
 
+            self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": 'Login efetuado com sucesso'})
+        except (InvalidSelectorException, NoSuchElementException, NoSuchFrameException) as exception:
+            self._dict_result.update({"obs": 'Nao foi possivel realizar o login'})
+        finally:
+            self._driver.quit()
+            return self._dict_result
 
     def checkPPPoEStatus_146(self, flask_username):
         self._dict_result.update({"obs": "Teste ainda não implementado"})
