@@ -65,8 +65,18 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
 
 
     def testPasswordAdmin_402(self, flask_username):
-        self._dict_result.update({"obs": "Senha mascarada"})
-        return self._dict_result
+        result = session.get_result_from_test(flask_username, 'accessWizard_401')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 401 primeiro'})
+        else:
+            res = result['Resultado_Probe']
+            if res == 'OK':
+                self._dict_result.update({"Resultado_Probe": "OK", 'result':'passed', 'obs': 'Password OK'})
+            else:
+                self._dict_result.update({'obs': 'Password incorreta'})
+
+        return self._dict_result 
+
 
 
     def accessPadrao_403(self, flask_username):
