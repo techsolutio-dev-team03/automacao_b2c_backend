@@ -18,7 +18,7 @@ class HGU_MItraStarBROADCOM(HGUModelInterface):
         login_button = self._driver.find_element_by_xpath('/html/body/div[2]/div/div/div[3]/form/div[3]/input[4]')
         login_button.click()
         time.sleep(5)
-        if self._driver.current_url != "http://192.168.18.1/main.html":
+        if self._driver.current_url != f"http://{self._address_ip}/main.html":
             print("nova tentativa de login")
             self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
             time.sleep(2)
