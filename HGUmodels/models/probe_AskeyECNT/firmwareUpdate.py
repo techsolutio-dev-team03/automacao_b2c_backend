@@ -46,3 +46,18 @@ class HGU_AskeyECNT_firmwareUpdate(HGU_AskeyECNT):
             self._dict_result.update({'obs': f'falha no update: {e}'})
         self._driver.quit()
         return self._dict_result
+
+
+    def firmwareView(self, flask_username):
+        try:
+            self._driver.implicitly_wait(5)
+            self._driver.get('http://' + self._address_ip + '/padrao')
+            self.login_support()
+            self._driver.switch_to.default_content()
+            self._driver.switch_to.frame('mainFrm')
+            firmware_version = self._driver.find_element_by_xpath('//*[@id="td_SWVer"]').text
+            self._dict_result.update({'obs': f'{firmware_version}'})
+        except Exception as e:
+            self._dict_result.update({'obs': f'falha na verificação: {e}'})
+        self._driver.quit()
+        return self._dict_result

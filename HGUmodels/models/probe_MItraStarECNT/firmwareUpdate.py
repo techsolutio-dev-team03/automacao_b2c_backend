@@ -41,3 +41,22 @@ class HGU_MItraStarECNT_firmwareUpdate(HGU_MItraStarECNT):
             self._dict_result.update({'obs': f'falha no update: {e}'})
         self._driver.quit()
         return self._dict_result
+
+
+    def firmwareView(self, flask_username):
+        try:
+            self._driver.implicitly_wait(5)
+            self._driver.get('http://' + self._address_ip + '/padrao')
+            self.login_support()
+            self._driver.switch_to.default_content()
+            element_to_hover_over = self._driver.find_element_by_xpath('//*[@id="maintenance"]')
+            hover = ActionChains(self._driver).move_to_element(element_to_hover_over)
+            hover.perform()
+            self._driver.find_element_by_xpath('//*[@id="maintenance-firewareUpgrade"]/a').click()
+            self._driver.switch_to.frame('mainFrame')
+            firmware_version = self._driver.find_element_by_xpath('/html/body/form/div[3]/div[2]/ul/li[1]/div[2]/ul[1]/li/font').text
+            self._dict_result.update({'obs': f'{firmware_version}'})
+        except Exception as e:
+            self._dict_result.update({'obs': f'falha na verificação: {e}'})
+        self._driver.quit()
+        return self._dict_result
