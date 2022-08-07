@@ -82,11 +82,17 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
             self._driver.find_element_by_xpath('/html/body/table/tbody/tr/td[2]/img')            
             
             self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs":'Login executado com sucesso'})
+            dict_saida = {'Resultado_Probe': "OK"}
             
         except NoSuchFrameException as exception:
+            dict_saida = {'Resultado_Probe': "NOK"}
+
+
             self._dict_result.update({'obs': 'Login nao executado com sucesso'})
         finally:
             self._driver.quit()
+            self.update_global_result_memory(flask_username, 'accessPadrao_403', dict_saida)
+
             return self._dict_result
 
 

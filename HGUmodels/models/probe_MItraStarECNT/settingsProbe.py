@@ -7,6 +7,8 @@ import re
 import time
 import pandas as pd
 
+import os 
+
 # import unidecode
 # from jinja2 import pass_context
 #from typing import final
@@ -1741,7 +1743,36 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
         
 
     def verificarSenhaPppDefaultFibra_426(self, flask_username):
-        self._dict_result.update({'result':'failed',"obs": TEST_NOT_IMPLEMENTED_WARNING})
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(hostname=self._address_ip, username='support', password='5ab99b5e', timeout=2)
+            
+            shell = ssh.invoke_shell()
+            shell.send('lan show\n')
+            time.sleep(2)
+            output = shell.recv(65000).decode('utf-8')
+            hwaddr = output[output.index('HWaddr')+7:output.index('inet addr:')]
+            time.sleep(2)
+
+            shell.send(f'engDbgtef 1 {hwaddr}\n')
+            time.sleep(2)
+            engDbgtef = shell.recv(65000).decode('utf-8')
+
+            shell.send('tr69 display\n')
+            time.sleep(2)
+            display = shell.recv(65000).decode('utf-8')
+
+            password = display[display.index('Password:')+9:display.index('ConnectionRequestUsername:')].strip()
+
+            if password == 'cliente':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "Senha: cliente", "result":"passed"})
+            else:
+                self._dict_result.update({'result':'failed',"obs": f"Teste incorreto, retorno senha: {password}"})
+        
+        except Exception as e:
+            self._dict_result.update({"obs": e})
+
         return self._dict_result
 
     
