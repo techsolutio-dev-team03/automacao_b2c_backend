@@ -4,7 +4,7 @@ import re
 import time
 #from typing import final
 import paramiko
-from paramiko.ssh_exception import AuthenticationException
+from paramiko.ssh_exception import AuthenticationException, SSHException
 import socket
 from ..AskeyBROADCOM import HGU_AskeyBROADCOM
 from selenium.webdriver.common.action_chains import ActionChains 
@@ -88,7 +88,7 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
             dict_saida = {'Resultado_Probe': "NOK"}
 
 
-            self._dict_result.update({'obs': 'Login nao executado com sucesso'})
+            self._dict_result.update({'obs': exception})
         finally:
             self._driver.quit()
             self.update_global_result_memory(flask_username, 'accessPadrao_403', dict_saida)
@@ -1407,18 +1407,27 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
 
 
     def verificarSenhaPppDefaultFibra_426(self, flask_username):
-        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
-        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
-        if len(result) == 0:
-            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
-        else:
-            senha = result['Configurações']['Internet'].get('Senha')
-            if senha == 'cliente':
-                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'senha:cliente', "result":"passed"})
-            else:
-                self._dict_result.update({"obs": f'Teste incorreto, retorno senha: {senha}'})
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(hostname=self._address_ip, username='support', password='9e37ktfi', timeout=2)
             
-        return self._dict_result    
+            shell = ssh.invoke_shell()
+            shell.send('tr69clientshow\n')
+            time.sleep(2)
+            clientshow = shell.recv(65000).decode('utf-8')
+            password = clientshow[clientshow.index('<Password>')+10:clientshow.index('</Password>')].strip()
+
+            if password == 'cliente':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "Senha: cliente", "result":"passed"})
+            else:
+                self._dict_result.update({'result':'failed',"obs": f"Teste incorreto, retorno senha: {password}"})
+        
+        except (Exception, SSHException) as e:
+            self._dict_result.update({"obs": e})
+
+        return self._dict_result
+ 
 
 
     def checkWanInterface_x_427(self, flask_username, interface):
@@ -1615,23 +1624,33 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
 
 
     def vivo_1_passwordPppDefault_436(self, flask_username):
-        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
-        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
-        if len(result) == 0:
-            self._dict_result.update({"obs": "Execute o teste 425 primeiro"})
-        cpe_config = config_collection.find_one()
-        if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
-            senha = result['Configurações']['Internet'].get('Senha')
-            if senha == 'cliente':
-                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Senha: cliente', "result":"passed"})
-            else:
-                self._dict_result.update({"obs": f'Teste incorreto, retorno senha:{senha}'})
-        else:
-            self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
-        if len(result) == 0:
-            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
-        return self._dict_result
+        try:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
 
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(hostname=self._address_ip, username='support', password='9e37ktfi', timeout=2)
+                
+                shell = ssh.invoke_shell()
+                shell.send('tr69clientshow\n')
+                time.sleep(2)
+                clientshow = shell.recv(65000).decode('utf-8')
+                password = clientshow[clientshow.index('<Password>')+10:clientshow.index('</Password>')].strip()
+
+                if password == 'cliente':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "Senha: cliente", "result":"passed"})
+                else:
+                    self._dict_result.update({'result':'failed',"obs": f"Teste incorreto, retorno senha: {password}"})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+
+        
+        except (Exception, SSHException) as e:
+            self._dict_result.update({"obs": e})
+
+        return self._dict_result
+        
 
     def checkWanInterface_x_437(self, flask_username):
         #TODO: Fazer logica no frontend para garantir que o teste 427 seja executado em conjunto
@@ -1797,20 +1816,31 @@ class HGU_AskeyBROADCOM_settingsProbe(HGU_AskeyBROADCOM):
 
 
     def vivo_2_passwordPppDefault_446(self, flask_username):
-        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
-        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
-            
-        cpe_config = config_collection.find_one()
-        if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
-            senha = result['Configurações']['Internet'].get('Senha')
-            if senha == 'cliente@cliente':
-                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Senha: cliente@cliente', "result":"passed"})
+        try:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(hostname=self._address_ip, username='support', password='9e37ktfi', timeout=2)
+                
+                shell = ssh.invoke_shell()
+                shell.send('tr69clientshow\n')
+                time.sleep(2)
+                clientshow = shell.recv(65000).decode('utf-8')
+                password = clientshow[clientshow.index('<Password>')+10:clientshow.index('</Password>')].strip()
+
+                if password == 'cliente':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "Senha: cliente", "result":"passed"})
+                else:
+                    self._dict_result.update({'result':'failed',"obs": f"Teste incorreto, retorno senha: {password}"})
             else:
-                self._dict_result.update({"obs": f'Teste incorreto, retorno Senha: {senha}'})
-        else:
-            self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
-        if len(result) == 0:
-            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+
+        
+        except (Exception, SSHException) as e:
+            self._dict_result.update({"obs": e})
+
         return self._dict_result
 
 

@@ -13,7 +13,7 @@ import os
 # from jinja2 import pass_context
 #from typing import final
 import paramiko
-from paramiko.ssh_exception import AuthenticationException
+from paramiko.ssh_exception import AuthenticationException, SSHException
 import socket
 
 import requests
@@ -1770,7 +1770,7 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
             else:
                 self._dict_result.update({'result':'failed',"obs": f"Teste incorreto, retorno senha: {password}"})
         
-        except Exception as e:
+        except (Exception, SSHException) as e:
             self._dict_result.update({"obs": e})
 
         return self._dict_result
@@ -2023,7 +2023,40 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
 
     
     def vivo_1_passwordPppDefault_436(self, flask_username):
-        self._dict_result.update({'result':'failed',"obs": TEST_NOT_IMPLEMENTED_WARNING})
+        try:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(hostname=self._address_ip, username='support', password='5ab99b5e', timeout=2)
+                
+                shell = ssh.invoke_shell()
+                shell.send('lan show\n')
+                time.sleep(2)
+                output = shell.recv(65000).decode('utf-8')
+                hwaddr = output[output.index('HWaddr')+7:output.index('inet addr:')]
+                time.sleep(2)
+
+                shell.send(f'engDbgtef 1 {hwaddr}\n')
+                time.sleep(2)
+                engDbgtef = shell.recv(65000).decode('utf-8')
+
+                shell.send('tr69 display\n')
+                time.sleep(2)
+                display = shell.recv(65000).decode('utf-8')
+
+                password = display[display.index('Password:')+9:display.index('ConnectionRequestUsername:')].strip()
+
+                if password == 'cliente':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "Senha: cliente", "result":"passed"})
+                else:
+                    self._dict_result.update({'result':'failed',"obs": f"Teste incorreto, retorno senha: {password}"})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+            
+        except (Exception, SSHException) as e:
+            self._dict_result.update({"obs": e})
+
         return self._dict_result
 
 
@@ -2191,7 +2224,40 @@ class HGU_MItraStarECNT_settingsProbe(HGU_MItraStarECNT):
 
         
     def vivo_2_passwordPppDefault_446(self, flask_username):
-        self._dict_result.update({'result':'failed',"obs": TEST_NOT_IMPLEMENTED_WARNING})
+        try:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(hostname=self._address_ip, username='support', password='5ab99b5e', timeout=2)
+                
+                shell = ssh.invoke_shell()
+                shell.send('lan show\n')
+                time.sleep(2)
+                output = shell.recv(65000).decode('utf-8')
+                hwaddr = output[output.index('HWaddr')+7:output.index('inet addr:')]
+                time.sleep(2)
+
+                shell.send(f'engDbgtef 1 {hwaddr}\n')
+                time.sleep(2)
+                engDbgtef = shell.recv(65000).decode('utf-8')
+
+                shell.send('tr69 display\n')
+                time.sleep(2)
+                display = shell.recv(65000).decode('utf-8')
+
+                password = display[display.index('Password:')+9:display.index('ConnectionRequestUsername:')].strip()
+
+                if password == 'cliente':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "Senha: cliente", "result":"passed"})
+                else:
+                    self._dict_result.update({'result':'failed',"obs": f"Teste incorreto, retorno senha: {password}"})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+                
+        except (Exception, SSHException) as e:
+            self._dict_result.update({"obs": e})
+
         return self._dict_result
 
 
