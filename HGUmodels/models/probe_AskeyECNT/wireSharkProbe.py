@@ -204,7 +204,7 @@ class HGU_AskeyECNT_wireSharkProbe(HGU_AskeyECNT):
                     self._dict_result.update({"obs": f'Router Advertisement CheckSum Status NOK: {pkt_fields}; Endereços recebidos: {endereco_ipv6}'})
                     break
             except Exception as e:
-                self._dict_result.update({"obs": str(e)})
+                self._dict_result.update({"obs": str(e), "result":'failed', "Resultado_Probe":"NOK"})
                 break
         
         return self._dict_result

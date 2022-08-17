@@ -20,11 +20,6 @@ class firmware(Resource):
 
         obj = firmware_update.firmware()
 
-        #temporary fix
-        username = request.get_json()['username']
-        password = request.get_json()['password']
-        ip = request.get_json()['ip']
-        
         #Get all variables
         user_dict = {
             "username" : request.get_json()['username'],
@@ -32,7 +27,8 @@ class firmware(Resource):
             "ip" : request.get_json()['ip'],
             "model_name" : request.get_json()['modelo'],
             "flask_username" : request.get_json()['flask_username'],
-            "firmware_version": request.get_json()['firmware_version']
+            "firmware_version": request.get_json()['firmware_version'],
+            "reset_req": request.get_json()['reset']
         }
        
         # mongo_dict = {
@@ -43,10 +39,10 @@ class firmware(Resource):
         # }
 
         result = getattr(obj, method)(**user_dict)
-        print(result)
+        # print(result)
         
-        test_result = result.get('result', None)
-        obs = result.get('obs', None)
+        # test_result = result.get('result', None)
+        # obs = result.get('obs', None)
         ans = {'test_result': result}
         # mongo_conn.update_one_test_by_id(**mongo_dict, test_result=test_result, obs=obs)
         return jsonify(ans)
