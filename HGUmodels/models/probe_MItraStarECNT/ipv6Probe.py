@@ -311,7 +311,7 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
                 # print("\n", ip_wifi)
 
                 teste.send('iperf3 -s \n')
-                time.sleep(2)
+                time.sleep(2)()
                 output = teste.recv(65000).decode('utf-8')
                 # print(ip_wifi)
                 print(output)
