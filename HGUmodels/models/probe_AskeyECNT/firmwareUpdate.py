@@ -25,6 +25,7 @@ class HGU_AskeyECNT_firmwareUpdate(HGU_AskeyECNT):
                 self._driver.switch_to.frame(iframe)
                 time.sleep(2)
                 self._driver.find_element_by_xpath('//*[@id="btnaAccept"]/span').click()
+                time.sleep(1)
                 for t in range (0,40):
                         try:
                             self._driver.get('http://' + self._address_ip + '/')
@@ -38,7 +39,8 @@ class HGU_AskeyECNT_firmwareUpdate(HGU_AskeyECNT):
                 # print(str(e))
                 self._dict_result.update({'Resultado_reset': 'NOK'})
 
-        if firmware_version != "Manter atual":  
+        print("versao:", firmware_version)
+        if firmware_version != "Manter atual" and firmware_version != "":  
             time.sleep(2)      
             try:
                 self._driver.implicitly_wait(5)
