@@ -198,7 +198,7 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
             self.login_support()
             self.ipv_x_setting(ipv_x)
             self.dhcp_v6(dhcpv6_state = dhcpv6)
-            self.eth_interfaces_down()
+            # self.eth_interfaces_down()
             os.system('wget --tries=2 -O ~/Downloads/CentOS http://mirror.ufscar.br/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso')
             os.system('wget --tries=2 -O ~/Downloads/CentOS-sha http://mirror.ufscar.br/centos/7.9.2009/isos/x86_64/sha256sum.txt')
             with open(os.path.expanduser("~")+'/Downloads/CentOS-sha') as file:
@@ -214,7 +214,7 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
         finally:
             os.system('rm '+os.path.expanduser("~")+'/Downloads/CentOS')
             os.system('rm '+os.path.expanduser("~")+'/Downloads/CentOS-sha')
-            self.eth_interfaces_up()
+            # self.eth_interfaces_up()
             self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
             self.dhcp_v6(True)
             self._driver.quit()
@@ -228,7 +228,7 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
             self.login_support()
             self.ipv_x_setting(ipv_x)
             self.dhcp_v6(dhcpv6_state = dhcpv6)
-            self.eth_interfaces_down()
+            # self.eth_interfaces_down()
             data = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             sk = Skype('dev.team05@techsolutio.com' , 'Techsolutio@123')
             time.sleep(3)
@@ -245,7 +245,7 @@ class HGU_MItraStarBROADCOM_ipv6Probe(HGU_MItraStarBROADCOM):
                 self._dict_result.update({"obs": f'Conexao com skype NOK'}) 
         except:
             self._dict_result.update({"obs": f'Conexao com skype NOK'}) 
-        self.eth_interfaces_up()
+        # self.eth_interfaces_up()
         self.ipv_x_setting('IPv4&IPv6(Dual Stack)')
         self.dhcp_v6(True)
         self._driver.quit()

@@ -23,7 +23,18 @@ class HGU_MItraStarBROADCOM(HGUModelInterface):
             self._driver.get('http://' + self._address_ip + '/padrao_adv.html')
             time.sleep(2)
             self.login_support()
-        
+
+    def login_admin(self):
+        time.sleep(2)
+        user_input = self._driver.find_element_by_xpath('//*[@id="user"]')
+        user_input.send_keys('admin')
+        time.sleep(1)
+        pass_input = self._driver.find_element_by_xpath('//*[@id="pass"]')
+        pass_input.send_keys(self._password)
+        time.sleep(1)
+        login_button = self._driver.find_element_by_xpath('//*[@id="acceptLogin"]/span')
+        login_button.click()
+        time.sleep(2)        
 
     # def open_change_password_mitraStar(self):
     #     time.sleep(10)

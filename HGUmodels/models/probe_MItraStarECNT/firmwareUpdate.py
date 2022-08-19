@@ -40,7 +40,6 @@ class HGU_MItraStarECNT_firmwareUpdate(HGU_MItraStarECNT):
                             self._dict_result.update({'Resultado_reset': 'OK'})
                             break
                         except:
-                            print(f'tentativa {t}')
                             time.sleep(10)
                             self._driver.refresh()
                         self._dict_result.update({'Resultado_reset': 'NOK'})
