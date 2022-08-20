@@ -32,7 +32,7 @@ class HGU_AskeyBROADCOM_firmwareUpdate(HGU_AskeyBROADCOM):
                 time.sleep(2)
                 self._driver.find_element_by_xpath('//*[@id="btnaAccept"]/span').click()
                 time.sleep(10)
-                for t in range (0,10):
+                for t in range (0,25):
                         print(t)
                         try:
                             self._driver.get('http://' + self._address_ip + '/')

@@ -33,7 +33,7 @@ class HGU_MItraStarBROADCOM_firmwareUpdate(HGU_MItraStarBROADCOM):
                 time.sleep(2)
                 self._driver.find_element_by_xpath('//*[@id="btnReset"]').click()
                 time.sleep(10)
-                for t in range (0,10):
+                for t in range (0,25):
                         print(t)
                         try:
                             self._driver.get('http://' + self._address_ip + '/')
