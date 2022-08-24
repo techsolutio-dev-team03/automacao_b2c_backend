@@ -20,7 +20,7 @@ class HGU_AskeyECNT_firmwareUpdate(HGU_AskeyECNT):
                 self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/a').click()
                 self._driver.find_element_by_xpath('//*[@id="accordion"]/li[3]/ul/li[3]/a').click()
                 self.login_admin()
-                self._driver.find_element_by_xpath('//*[@id="btn-clicktocall"]/span').click() # está apenas reinicializando, não fazendo reset de fábrica, basta alterar o botao clicado aqui
+                self._driver.find_element_by_xpath('//*[@id="btn-clicktocall"]/span').click() # TODO está apenas reinicializando, não fazendo reset de fábrica, basta alterar o botao clicado aqui
                 iframe = self._driver.find_element_by_xpath('/html/body/div[3]/div/div[1]/div/iframe')
                 self._driver.switch_to.frame(iframe)
                 time.sleep(2)

@@ -283,7 +283,9 @@ class HGU_MItraStarECNT_ipv6Probe(HGU_MItraStarECNT):
         # Conecta com a maquina remota via ssh e configura como server do IPerf
         for ip_remoto in ip_remoto_list:
             try:
+                print("\n"*10, ip_remoto)
                 ssh = paramiko.SSHClient()
+                
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(hostname=ip_remoto, username='automacao', password='aux', timeout=2)
                 teste = ssh.invoke_shell()

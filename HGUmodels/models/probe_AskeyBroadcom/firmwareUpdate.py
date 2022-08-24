@@ -25,8 +25,8 @@ class HGU_AskeyBROADCOM_firmwareUpdate(HGU_AskeyBROADCOM):
                 # self._driver.switch_to.frame('mainFrame')
                 self.login_admin()
                 self._driver.switch_to.default_content()
-                self._driver.switch_to.frame('mainFrame')
-                self._driver.find_element_by_xpath('//*[@id="btn-clicktocall"]/span').click() # está apenas reinicializando, não fazendo reset de fábrica, basta alterar o botao clicado aqui
+                self._driver.switch_to.frame('mainFrame') 
+                self._driver.find_element_by_xpath('/html/body/div[2]/div/div[1]/div[2]/table/tbody/tr[2]/td[1]/a/span').click() 
                 iframe = self._driver.find_element_by_xpath('/html/body/div[3]/div/div[1]/div/iframe')
                 self._driver.switch_to.frame(iframe)
                 time.sleep(2)

@@ -274,7 +274,7 @@ class HGU_AskeyECNT_ipv6Probe(HGU_AskeyECNT):
                     ip_remoto_list.append(ip)
             print(ip_remoto_list)
         except Exception as e:
-            print(e)
+            print(str(e))
 
 
         # Conecta com a maquina remota via ssh e configura como server do IPerf

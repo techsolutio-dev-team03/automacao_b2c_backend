@@ -27,11 +27,11 @@ class HGU_MItraStarECNT_firmwareUpdate(HGU_MItraStarECNT):
                 self.login_admin()
                 self._driver.switch_to.default_content()
                 self._driver.switch_to.frame('basefrm')
-                self._driver.find_element_by_xpath('//*[@id="MLG_Resets_Reboot"]').click() # está apenas reinicializando, não fazendo reset de fábrica, basta alterar o botao clicado aqui
+                self._driver.find_element_by_xpath('//*[@id="MLG_Resets_Reset"]').click() 
                 iframe = self._driver.find_element_by_xpath('/html/body/div[1]/div/div[1]/div/iframe')
                 self._driver.switch_to.frame(iframe)
                 time.sleep(2)
-                self._driver.find_element_by_xpath('//*[@id="MLG_Pop_Reboot_Yes"]').click()
+                self._driver.find_element_by_xpath('//*[@id="MLG_Pop_Reset_Yes"]').click()
                 time.sleep(10)
                 for t in range (0,20):
                         try:
