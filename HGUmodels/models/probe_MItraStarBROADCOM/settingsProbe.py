@@ -1,5 +1,6 @@
 #from asyncio import exceptions
 from cgi import print_form
+from datetime import datetime
 from os import name
 import re
 import time
@@ -7,7 +8,7 @@ from typing import List
 # from jinja2 import pass_context
 #from typing import final
 import paramiko
-from paramiko.ssh_exception import AuthenticationException
+from paramiko.ssh_exception import AuthenticationException, SSHException
 import socket
 
 # import pyperclip
@@ -64,8 +65,18 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
 
 
     def testPasswordAdmin_402(self, flask_username):
-        self._dict_result.update({"obs": "Senha mascarada"})
-        return self._dict_result
+        result = session.get_result_from_test(flask_username, 'accessWizard_401')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 401 primeiro'})
+        else:
+            res = result['Resultado_Probe']
+            if res == 'OK':
+                self._dict_result.update({"Resultado_Probe": "OK", 'result':'passed', 'obs': 'Password OK'})
+            else:
+                self._dict_result.update({'obs': 'Password incorreta'})
+
+        return self._dict_result 
+
 
 
     def accessPadrao_403(self, flask_username):
@@ -77,20 +88,35 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
 
             if element:
                 self._dict_result.update({"Resultado_Probe": "OK",'result':'passed', "obs": 'Login efetuado com sucesso'})
+                dict_saida = {"Resultado_Probe": "OK"}
+
             else:
                 self._dict_result.update({"obs": "Nao foi possivel realizar o login com sucesso"})
+                dict_saida = {"Resultado_Probe": "NOK"}
 
-            self._driver.quit()
-            return self._dict_result
         except Exception as exception:
-            self._driver.quit()
             self._dict_result.update({'obs':str(exception)})
-            return self._dict_result
+            dict_saida = {"Resultado_Probe": "NOK"}
+
+
+        self._driver.quit()
+        self.update_global_result_memory(flask_username, 'accessPadrao_403', dict_saida)
+        return self._dict_result
 
 
     def testPasswordSupport_404(self, flask_username):
-        self._dict_result.update({"obs": "Senha mascarada"})
+        result = session.get_result_from_test(flask_username, 'accessPadrao_403')
+        if len(result) == 0:
+            self._dict_result.update({"obs": 'Execute o teste 403 primeiro'})
+        else:
+            res = result['Resultado_Probe']
+            if res == 'OK':
+                self._dict_result.update({"Resultado_Probe": "OK", 'result':'passed', 'obs': 'Password OK'})
+            else:
+                self._dict_result.update({'obs': 'Password incorreta'})
+
         return self._dict_result
+
 
 
     def accessRemoteHttp_405(self, flask_username):
@@ -354,7 +380,6 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
                 return o.__dict__
         acsPort = 7015
         objeto = GPV_Param['name']
-
        
         try:
             url = f'http://{IPACS}:{acsPort}/hdm'
@@ -1496,18 +1521,25 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
 
 
     def verificarSenhaPppDefaultFibra_426(self, flask_username):
-        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
-        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(hostname=self._address_ip, username='support', password='ffdfad94', timeout=2)
+            print(self._address_ip)
+            shell = ssh.invoke_shell()
+            shell.send('tr69cli show\n')
+            time.sleep(2)
+            clientshow = shell.recv(65000).decode('utf-8')
+            password = clientshow[clientshow.index('Password :')+10:clientshow.index('PeriodicInformEnable')].strip()
 
-        if len(result) == 0:
-            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
-        else:
-            senha = result['Configurações']['Internet'].get('Senha')
-            if senha == 'cliente':
-                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'senha:cliente', "result":"passed"})
+            if password == 'cliente':
+                self._dict_result.update({"Resultado_Probe": "OK", "obs": "Senha: cliente", "result":"passed"})
             else:
-                self._dict_result.update({"obs": f'Teste incorreto, retorno senha: {senha}'})
-            
+                self._dict_result.update({'result':'failed',"obs": f"Teste incorreto, retorno senha: {password}"})
+        
+        except (Exception, SSHException) as e:
+            self._dict_result.update({"obs": e})
+
         return self._dict_result
 
 
@@ -1696,19 +1728,29 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
 
     
     def vivo_1_passwordPppDefault_436(self, flask_username):
-        #TODO: Fazer logica no frontend para garantir que o teste 425 seja executado em conjunto
-        result = session.get_result_from_test(flask_username, 'getFullConfig_425')
-        cpe_config = config_collection.find_one()
-        if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
-            senha = result['Configurações']['Internet'].get('Senha:')
-            if senha == 'cliente':
-                self._dict_result.update({"Resultado_Probe": "OK", "obs": 'Senha: cliente', "result":"passed"})
+        try:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_1' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(hostname=self._address_ip, username='support', password='ffdfad94', timeout=2)
+                print(self._address_ip)
+                shell = ssh.invoke_shell()
+                shell.send('tr69cli show\n')
+                time.sleep(2)
+                clientshow = shell.recv(65000).decode('utf-8')
+                password = clientshow[clientshow.index('Password :')+10:clientshow.index('PeriodicInformEnable')].strip()
+
+                if password == 'cliente':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "Senha: cliente", "result":"passed"})
+                else:
+                    self._dict_result.update({'result':'failed',"obs": f"Teste incorreto, retorno senha: {password}"})
             else:
-                self._dict_result.update({"obs": f'Teste incorreto, retorno senha:{senha}'})
-        else:
-            self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
-        if len(result) == 0:
-            self._dict_result.update({"obs": 'Execute o teste 425 primeiro'})
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+            
+        except (Exception, SSHException) as e:
+            self._dict_result.update({"obs": e})
+
         return self._dict_result
 
 
@@ -1865,7 +1907,29 @@ class HGU_MItraStarBROADCOM_settingsProbe(HGU_MItraStarBROADCOM):
 
 
     def vivo_2_passwordPppDefault_446(self, flask_username):
-        self._dict_result.update({"obs": "Senha mascarada"})
+        try:
+            cpe_config = config_collection.find_one()
+            if cpe_config['REDE'] == 'VIVO_2' and cpe_config['ACCESS'] == 'COOPER' and cpe_config['TYPE'] == 'ADSL':
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(hostname=self._address_ip, username='support', password='ffdfad94', timeout=2)
+                print(self._address_ip)
+                shell = ssh.invoke_shell()
+                shell.send('tr69cli show\n')
+                time.sleep(2)
+                clientshow = shell.recv(65000).decode('utf-8')
+                password = clientshow[clientshow.index('Password :')+10:clientshow.index('PeriodicInformEnable')].strip()
+
+                if password == 'cliente':
+                    self._dict_result.update({"Resultado_Probe": "OK", "obs": "Senha: cliente", "result":"passed"})
+                else:
+                    self._dict_result.update({'result':'failed',"obs": f"Teste incorreto, retorno senha: {password}"})
+            else:
+                self._dict_result.update({"obs": f"REDE:{cpe_config['REDE']} | ACCESS:{cpe_config['ACCESS']} | TYPE:{cpe_config['TYPE']}"})
+            
+        except (Exception, SSHException) as e:
+            self._dict_result.update({"obs": e})
+
         return self._dict_result
 
     

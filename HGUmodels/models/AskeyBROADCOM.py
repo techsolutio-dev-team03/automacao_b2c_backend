@@ -27,7 +27,7 @@ class HGU_AskeyBROADCOM(HGUModelInterface):
         self._driver.switch_to.default_content()
         self._driver.switch_to.frame('mainFrame')
         user_input = self._driver.find_element_by_xpath('//*[@id="txtUser"]')
-        user_input.send_keys(self._username)
+        user_input.send_keys('admin')
         pass_input = self._driver.find_element_by_xpath('//*[@id="txtPass"]')
         pass_input.send_keys(self._password)
         login_button = self._driver.find_element_by_xpath('//*[@id="btnLogin"]')

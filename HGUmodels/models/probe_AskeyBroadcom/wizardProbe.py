@@ -340,7 +340,7 @@ class HGU_AskeyBROADCOM_wizardProbe(HGU_AskeyBROADCOM):
             voip = wizard_config.VOIP
             print(voip)
 
-            if set(status) == set(voip):
+            if status['Rede:'] == 'Disponível' and status['Telefone:'] == 'Endereço IP de VoIP:':
                 self._dict_result.update({"obs": f"Teste OK", "result":"passed", "Resultado_Probe": "OK"})
             else:
                 self._dict_result.update({"obs": f"Teste incorreto, retorno VoIP: {status}"})

@@ -152,7 +152,7 @@ class gui:
             time.sleep(2)
             driver.find_element_by_class_name("style-scope ytd-vertical-list-renderer").click()
             # // *[ @ id = "movie_player"] / div[28] / div[2] / div[2] / button[4]
-        except NoSuchElementException as exception:
+        except NoSuchElementsException as exception:
             print('Excecao')
             print('Elemento não encontrado' )
 
